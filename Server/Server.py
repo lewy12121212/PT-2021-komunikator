@@ -2,6 +2,7 @@ import socket
 import os
 from threading import Thread, Lock
 import _thread
+import Response as rs
 
 host = '127.0.0.1'
 port = 9879
@@ -33,8 +34,10 @@ class Server:
                     break
                 else:
                     print (repr(data))
+                    
                     #wysłanie wiadomości do wybranego klienta
                     with self.clients_lock:
+                        #rs.make_response(data)
                         self.clients[1].sendall(data)
        #po rozłączeniu z klientem - usuwanie z listy wątków                 
         finally:
