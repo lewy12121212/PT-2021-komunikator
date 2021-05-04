@@ -10,7 +10,7 @@ class Database:
     #cur -> cursor
     #conn -> połączenie z bazą
     def __init__(self):
-        self.conn = sqlite3.connect('Server/database.db')
+        self.conn = sqlite3.connect('C:/Python Project/PT-2021-komunikator/Server/database.db', check_same_thread=False)
         self.cur = self.conn.cursor()
 
     #dodaje użytkownika
@@ -30,7 +30,8 @@ class Database:
 
     def Select_User(self, login):
         if self.Exists(login)==True:
-            self.cur.execute('SELECT * FROM users WHERE login=?', [login])
+            self.cur.execute('SELECT login, password FROM users WHERE login=?', [login])
+            #print(repr(self.cur.fetchone()))
             return self.cur.fetchone()
         else:
             print("Użytkownik nie istnieje.")
