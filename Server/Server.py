@@ -86,7 +86,8 @@ class Server:
        #po rozłączeniu z klientem - usuwanie z listy wątków                 
         finally:
             with self.clients_lock:
-                self.clients.remove(client)
+                del self.clients[login]
+                del self.clients_publickeys[login]
                 self.client.close()
 
     #główna pętla servera (akceptowanie nowych klientów i uruchamianie wątków do transmisji z nimi)
