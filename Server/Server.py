@@ -10,6 +10,7 @@ host = '127.0.0.1'
 port = 9879
 DB = Database.Database()
 
+
 class Server:
 
 
@@ -51,6 +52,19 @@ class Server:
 
         with self.keys_lock:
             self.clients_publickeys[login]=client_key
+        #informowanie wszystkich klientów o nowozalogwanym
+        inform_all = {"signal": "NUR", "data": {"login": login}}
+        self.Send_All(str(inform_all))
+
+        #wysłanie klientowi listy zalogowanych klientów
+        if self.clients:
+            list_of_users = []
+            with self.clients_lock:
+                for cli in self.clients:
+                    list_of_users.append(cli)
+
+            str_of_users_list = str({"signal": "LUS", "data": {"active": ','.join(list_of_users)}})
+            client.sendall(self.encrypt(str.encode(str_of_users_list), client_key))
 
         return login
 
@@ -70,6 +84,7 @@ class Server:
             self.clients[login] = client
 
         #transmisja
+        #self.Send_All('okon')
         try:    
             while True:
                 data = client.recv(1024)
@@ -96,7 +111,17 @@ class Server:
             print("Server is listening for connections...")
             client, address = self.s.accept()
             self.th.append(Thread(target=self.Transfer_Data, args = (client,address)).start())
-    
+
+
+    def Send_All(self, message):
+
+        with self.clients_lock:
+            if self.clients:
+                for client in self.clients:
+                    #zaszyfrowanie wiadomości kluczem publicznym adresowanego klienta i wysłanie do niego
+                    self.clients[client].sendall(self.encrypt(str.encode(message), self.clients_publickeys[client]))
+
+
     def Close_Server(self):
         self.s.close()
 

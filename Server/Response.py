@@ -22,7 +22,8 @@ class Response:
             return
         elif signal == "MSG":
             response["to"] = data["to"]
-            response["data"] = data["from"] + data ["message"]
+            message = {"from": data["from"], "message": data ["message"]}
+            response["data"] = str(message)
             return response
         elif signal == "LAD":
             if self.AddUser(data["login"], data["password"], data["auth_key"]):
