@@ -22,20 +22,48 @@ class Response:
             return
         elif signal == "MSG":
             response["to"] = data["to"]
-            response["data"] = data["from"] + data ["message"]
+            message = {"from": data["from"], "message": data ["message"]}
+            response["data"] = str(message)
             return response
-        elif signal == "LOR":
-            return
+        elif signal == "LAD":
+            if self.AddUser(data["login"], data["password"], data["auth_key"]):
+                response["data"] = "ACK"
+                response["to"] = "self"
+            else:
+                response["to"] = "self"
+                response["data"] = '{"signal":"RJT","data":"Uzytkownik istnieje"}'
         elif signal == "LOG":
             login = data["login"]
             password = data["password"]
-            if self.LogIn(login,password):
-                response["data"]="ACK"
+            #jeśli dane do logowania poprawne zwróć ACK i login klienta
+            #jeśli nie zwróć RJT i self, aby wątek wiedział, że nie może kończyś funkcji Set_Configuration
+            if self.LogIn(login, password):
+                response["data"] = "ACK"
                 response["to"] = login
             else:
                 response["to"] = "self"
-                response["data"]="RJT"
-
+                response["data"] = "RJT"
+        elif signal == "LRS":
+            if self.ResetPassword(data['login'], data['auth_key'], data['password']):
+                response["data"] = '{"signal":"ACK","data":"Zresetowano haslo."}'
+                response["to"] = 'self'
+            else:
+                response["to"] = "self"
+                response["data"] = '{"signal":"RJT","data":"Bledna odpowiedz autoryzacyjna lub uzytkownik nie istnieje"}'
+        elif signal == "UCP":
+            if self.ChangePassword(data['login'], data['password'], data['new_password'], data['auth_key']):
+                response["to"] = data["login"]
+                response["data"] = '{"signal":"ACK","data":"Pomyslnie zmieniono haslo"}'
+            else:
+                response["to"] = data["login"]
+                response["data"] = '{"signal":"RJT","data":"Bledna odpowiedz autoryzacyjna lub obecne haslo."}'
+        elif signal == "UDA":
+            if self.DeleteUser(data['login'], data['password'], data['auth_key']):
+                response["to"] = data["login"]
+                response["data"] = '{"signal":"ACK","data":"Twoje konto zostanie usunieto po wylogowaniu."}'
+            else:
+                response["to"] = data["login"]
+                response["data"] = '{"signal":"RJT","data":"Bledna odpowiedz autoryzacyjna lub obecne haslo."}'
         elif signal == "CLR":
             return
         else:
@@ -52,3 +80,30 @@ class Response:
                 return False
         else:
             return False
+
+    def AddUser(self, login, password, auth_key):
+        if DB.Add_User(login, password, auth_key):
+            return True
+        else:
+
+            return False
+
+
+    def ResetPassword(self,login, auth_key, new_password):
+        if DB.Reset_Password(login, new_password, auth_key):
+            return True
+        else:
+            return False
+
+    def ChangePassword(self, login, old_password, new_password, auth_key):
+        if DB.Change_Password(login,old_password,new_password, auth_key):
+            return True
+        else:
+            return False
+
+    def DeleteUser(self, login, password, auth_key):
+        if DB.Delete_User(login, password, auth_key):
+            return True
+        else:
+            return False
+
