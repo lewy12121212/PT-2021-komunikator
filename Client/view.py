@@ -5,6 +5,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Pango, Gdk
 from gi.repository.GdkPixbuf import Pixbuf
 import sys
+#import client
 
 
 class app_view(Gtk.Window):
@@ -15,9 +16,9 @@ class app_view(Gtk.Window):
         self.set_border_width(10)
         self.set_default_size(800,400)
 
-        #self.login()
+        self.login()
         #self.registration()
-        self.main_chat_window()
+        #self.main_chat_window()
         #self.contact_change()
 
     def main_chat_window(self):
@@ -91,13 +92,19 @@ class app_view(Gtk.Window):
         login.attach(self.password_entry(), 0, Gtk.PositionType.BOTTOM, 1, 2)
         login.attach(self.login_button("Zaloguj"), 1, 1, 1, 1)
 
+
     def login_button(self,name):
         vbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         self.add(vbox)
         self.send_button = Gtk.Button(label=name)
-
+        self.send_button.connect("clicked", self.on_login_click)
         vbox.pack_start(self.send_button, False, False, 0)
+
         return vbox
+
+    def on_login_click(self, button):
+        print("zaloguj")
+
 
     def registration(self):
         login = Gtk.Grid(row_spacing = 10,column_spacing = 10)

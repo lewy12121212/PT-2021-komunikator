@@ -7,6 +7,7 @@ from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from Crypto import Random
 
+
 def encrypt(message, pub_key):
     cipher = PKCS1_OAEP.new(pub_key)
 
@@ -15,7 +16,7 @@ def encrypt(message, pub_key):
 def decrypt(ciphertext, priv_key):
     cipher = PKCS1_OAEP.new(priv_key)
     return cipher.decrypt(ciphertext)
-    
+
 random_generator = Random.new().read
 private_key = RSA.generate(1024, random_generator)
 public_key = private_key.publickey()
@@ -35,10 +36,10 @@ data = sock.recv(2048)
 server_publickey = RSA.importKey(data)
 print(server_publickey)
 
-def send():
+def send(message):
     while True:
         # Send data
-        message = input()
+        #message = input()
         print('sending "%s"' % message)
         to_send = encrypt(message, server_publickey)
         sock.sendall(to_send)
@@ -49,11 +50,11 @@ def recv():
         mess = decrypt(data, private_key)
         print('received "%s"' % mess)
 
-t1 = Thread(target=send)
-t1.start()
+#t1 = Thread(target=send)
+#t1.start()
 t2 = Thread(target=recv)
 t2.start()
-t1.join()
+#t1.join()
 t2.join()
 '''
 while True:{"signal":"MES","data":{"to":"admin1","from":"admin","message":"czesc"}}
