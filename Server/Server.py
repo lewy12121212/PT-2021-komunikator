@@ -2,9 +2,10 @@ import socket
 from threading import Thread, Lock
 import Database
 import Response
-from Crypto.Cipher import PKCS1_OAEP
-from Crypto.PublicKey import RSA
-from Crypto import Random
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
 
 host = '127.0.0.1'
 port = 9879
@@ -34,9 +35,10 @@ class Server:
         login =''
         rs = Response.Response()
         get_client_key = client.recv(2048)
-        client_key = RSA.importKey(get_client_key)
+        #print(get_client_key)
+        client_key = serialization.load_pem_public_key(get_client_key) 
         #print(client_key)
-        client.sendall(public_key.exportKey())
+        client.sendall(public_key)
 
         s = {"to": "self", "data": ""}
         while s["to"] == "self":
@@ -73,11 +75,11 @@ class Server:
     def Transfer_Data(self, client, address):
         print ("Accepted connection from: ", address)
         #generowanie kluczy rsa servera
-        random_generator = Random.new().read
-        private_key = RSA.generate(1024, random_generator)
-        public_key = private_key.publickey()
+        private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        public_key = private_key.public_key()
+        public_key_to_send = public_key.public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo)
 
-        login = self.Set_Parameters(client, public_key, private_key)
+        login = self.Set_Parameters(client, public_key_to_send, private_key)
         rs = Response.Response()
         #dodanie klienta do listy wątków
         with self.clients_lock:
@@ -126,14 +128,14 @@ class Server:
         self.s.close()
 
     #zaszyfrowanie wiadomości
-    def encrypt(self, message, pub_key):
-        cipher = PKCS1_OAEP.new(pub_key)
-        return cipher.encrypt(message)
+    def encrypt(self, message, public_key):
+        ciphertext = public_key.encrypt(message,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+        return ciphertext
 
     #odszyfrowanie wiadomości
-    def decrypt(self, ciphertext, priv_key):
-        cipher = PKCS1_OAEP.new(priv_key)
-        return cipher.decrypt(ciphertext)
+    def decrypt(self, ciphertext, private_key):
+        plaintext = private_key.decrypt(ciphertext, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+        return plaintext
 
 
     #wystartowanie klienta
