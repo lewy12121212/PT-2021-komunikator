@@ -4,10 +4,15 @@ import global_functions
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Pango, Gdk
 from gi.repository.GdkPixbuf import Pixbuf
+from client import Client
+from response import Response
 import sys
 #import client
 
 #https://stackoverflow.com/questions/46774286/change-window-frame-gtk3-pygtk-and-pass-parameters
+
+c = Client()
+resp = Response()
 
 class app_viev(Gtk.Window):
     def __init__(self):
@@ -25,6 +30,7 @@ class app_viev(Gtk.Window):
 
         self.first_page = FirstPage(self)
         container.add(self.first_page)
+        
 
 
 class Main(Gtk.Box):
@@ -53,7 +59,7 @@ class Main(Gtk.Box):
         self.add(vbox)
         self.send_button = Gtk.Button(label=name)
         self.send_button.connect("clicked", self.on_login_click)
-        vbox.pack_start(self.send_button, False, False, 0)
+        vbox.pack_start(self.send_button, True, True, 0)
         return vbox
 
     def on_login_click(self, button):
@@ -64,11 +70,24 @@ class Main(Gtk.Box):
         #Tu coś w stylu 
         #czy_poprawne_logowanie()
         # jeśli tak to 
+
         
-        print("Login: ", e)
-        print("Haslo: ", o)
-        print("Zalogowano")
-        self.start_new_game()
+        mess = {"signal":"LOG", "data":{"login":e,"password":o}}
+        
+        c.send(str(mess))
+        data = c.recv()
+        print(data)
+        if resp.Make_Response(data):
+            c.login = e
+            self.start_new_game()
+        else:
+            print(mess["data"])
+
+        #print(resp)
+        #print("Login: ", e)
+        #print("Haslo: ", o)
+        #print("Zalogowano")
+        
 
     '''def registration(self):
         login = Gtk.Grid(row_spacing = 10,column_spacing = 10)
@@ -144,8 +163,8 @@ class FirstPage(Gtk.Box):
         self.hide()
 
     def refresh_chat(self, *args):
-        foreach (Gtk.Widget element in self.aaa.get_children ()):
-            container.remove (element)
+        #foreach (Gtk.Widget element in self.aaa.get_children ()):
+        #    container.remove (element)
         #self.remove(self.aaa)
         self.aaa = self.main_chat_window()
         self.__parent_window.first_page.show_all()

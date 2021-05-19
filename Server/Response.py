@@ -1,4 +1,5 @@
 import json
+import ast
 from Server import DB
 
 
@@ -8,8 +9,11 @@ class Response:
 
     def Make_Response(self, buffer):
         signal = ""
+        dict_str = buffer.decode("UTF-8").replace("'", '"')
+        
+        #mydata = ast.literal_eval(dict_str)
 
-        tmp = json.loads(buffer)
+        tmp = json.loads(dict_str)
         signal = tmp["signal"]
         data = tmp["data"]
 
@@ -27,7 +31,7 @@ class Response:
             return response
         elif signal == "LAD":
             if self.AddUser(data["login"], data["password"], data["auth_key"]):
-                response["data"] = "ACK"
+                response["data"] = '{"signal":"ACK","data":""}'
                 response["to"] = "self"
             else:
                 response["to"] = "self"
@@ -38,11 +42,11 @@ class Response:
             #jeśli dane do logowania poprawne zwróć ACK i login klienta
             #jeśli nie zwróć RJT i self, aby wątek wiedział, że nie może kończyś funkcji Set_Configuration
             if self.LogIn(login, password):
-                response["data"] = "ACK"
+                response["data"] = '{"signal":"ACK","data":""}'
                 response["to"] = login
             else:
                 response["to"] = "self"
-                response["data"] = "RJT"
+                response["data"] = '{"signal":"RJT","data":""}'
         elif signal == "LRS":
             if self.ResetPassword(data['login'], data['auth_key'], data['password']):
                 response["data"] = '{"signal":"ACK","data":"Zresetowano haslo."}'

@@ -47,6 +47,7 @@ class Server:
                 break
             else:
                 data = self.decrypt(data, private_key)
+                print(data)
                 #wysłanie wiadomości do wybranego klienta    
                 s = rs.Make_Response(data)
                 client.sendall(self.encrypt(str.encode(s["data"]), client_key))
