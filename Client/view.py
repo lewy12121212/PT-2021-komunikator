@@ -151,6 +151,7 @@ class Main(Gtk.Box):
 
 
 class FirstPage(Gtk.Box):
+    
     def __init__(self, parent_window):
        
         super().__init__(spacing=10)
@@ -163,11 +164,17 @@ class FirstPage(Gtk.Box):
         self.hide()
 
     def refresh_chat(self, *args):
-        #foreach (Gtk.Widget element in self.aaa.get_children ()):
-        #    container.remove (element)
-        #self.remove(self.aaa)
+        #self.main_chat_window().remove_all()
+        '''
+        app_viev.container.remove(app_viev.container.first_page)
+        first_page = FirstPage(self)
+        app_viev.container.add(first_page)
+        
+        '''
+        
         self.aaa = self.main_chat_window()
         self.__parent_window.first_page.show_all()
+    
     
 
     def contact_change(self):
@@ -202,59 +209,78 @@ class FirstPage(Gtk.Box):
         vbox.pack_start(self.send_button, True, True, 0)
         self.send_button = Gtk.Button(label="Usuń kontakt")
         vbox.pack_start(self.send_button, True, True, 0)
-        
         return vbox
 
 
     def main_chat_window(self):
         
         print("OKNO")
-        pom = Gtk.Grid(row_spacing = 5,column_spacing = 10)
-        self.add(pom)
+        #self.remove(pom)
+        self.pom = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing=6)
+        #pom = Gtk.Grid(row_spacing = 5,column_spacing = 10)
+        
         #pom to okno główne
         #contacts zawiera rzeczy związane z listą kontaktów
-        contacts = Gtk.Grid(row_spacing = 5)
-        self.add(contacts)
-        contacts.add(self.contact_tabel())
+        self.contacts = Gtk.Grid(row_spacing = 5)
+        self.pom.add(self.contacts)
+        self.contacts.add(self.contact_tabel())
+        '''
         contacts.attach(self.contact_buttons(), 0, 1, 1, 1)
         contacts.attach(self.contact_list(), 0, 2, 1, 2)
+        '''
+        self.contacts.add(self.contact_buttons())
+        self.contacts.add(self.contact_list())
 
         #Okno czatu 
-        chat_window = Gtk.Grid(row_spacing = 5)
-        self.add(chat_window)
+        self.chat_window = Gtk.Grid(row_spacing = 5)
+        self.pom.add(self.chat_window)
+        '''
         chat_window.attach(self.entry_to_send(), 1, 2, 1, 1)
         chat_window.attach(self.messages_print(), 1,0, 1, 1)
+        '''
+        self.chat_window.add(self.entry_to_send())
+        self.chat_window.add(self.messages_print())
 
-        profile = Gtk.Grid(row_spacing = 5)
-        self.add(profile)
-        profile.add(self.profile_buttons())
 
-        pom.add(contacts)
+        self.profile = Gtk.Grid(row_spacing = 5)
+        self.pom.add(self.profile)
+        self.profile.add(self.profile_buttons())
+
+        self.pom.add(self.contacts)
+        '''
         pom.attach(chat_window, 1, 0, 1, 1)
         pom.attach(profile, 1, 1, 1, 1)
-        return pom
+        '''
+        self.pom.add(self.chat_window)
+        self.pom.add(self.profile)
+        self.add(self.pom)
+        return self.pom
 
-    def messages_print(self):
-    
-        #hbox = Gtk.Box(spacing = 10)
-        #hbox.set_homogeneous(False)
-        vbox_left = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 10)
-        vbox_left.set_homogeneous(False)
-       # hbox.pack_start(vbox_left, True, True, 0)
-       
-    
-        #Okno do scrolowania
-        scrolled_window = Gtk.ScrolledWindow()
-        scrolled_window.set_size_request(600,200)
-        scrolled_window.set_max_content_width(50) 
-        scrolled_window.set_border_width(10) ##Odstęp po prawej
+    def add_message(self,wiad):
+        
+        if(wiad[1]==1):
+            label = Gtk.Label(wiad[0])
+            label.set_line_wrap(True)
+            label.set_max_width_chars(5)
+            label.set_alignment(0,0)
+            
+        else:
+            label = Gtk.Label(wiad[0])
+            label.set_line_wrap(True)
+            label.set_max_width_chars(5)
+            label.set_alignment(1,0)
+            
 
-        scrolled_window.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        return label
+
+    def add_messages(self):   
+        self.lista_wiadomosci = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 10)
+        self.lista_wiadomosci.set_homogeneous(False)
 
         messages = []
         for message in global_functions.income_messages_list:
-            messages.append(message)
-            
+            messages.append(message) 
+
         print(messages[-1])
         for message in messages:
             if(message[1]==1):
@@ -262,22 +288,41 @@ class FirstPage(Gtk.Box):
                 label.set_line_wrap(True)
                 label.set_max_width_chars(5)
                 label.set_alignment(0,0)
-                vbox_left.pack_start(label, True, False, 1)
+                self.lista_wiadomosci.pack_start(label, True, False, 1)
             else:
                 label = Gtk.Label(message[0])
                 label.set_line_wrap(True)
                 label.set_max_width_chars(5)
                 label.set_alignment(1,0)
-                vbox_left.pack_start(label, True, False, 1)
+                self.lista_wiadomosci.pack_start(label, True, False, 1)
 
-        #Dodanie do okna scrolowania wiadomości
-        scrolled_window.add_with_viewport(vbox_left)
+        return self.lista_wiadomosci
+
+    def messages_print(self):
+    
+        #hbox = Gtk.Box(spacing = 10)
+        #hbox.set_homogeneous(False)
+       
+       # hbox.pack_start(vbox_left, True, True, 0)
+       
+    
+        #Okno do scrolowania
+        self.scrolled_window = Gtk.ScrolledWindow()
+        self.scrolled_window.set_size_request(600,200)
+        self.scrolled_window.set_max_content_width(50) 
+        self.scrolled_window.set_border_width(10) ##Odstęp po prawej
+
+        self.scrolled_window.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+
+      
+        #Dodanie wiadmowsci
+        self.scrolled_window.add_with_viewport(self.add_messages())
         
         # add the scrolledwindow to the window
-        self.add(scrolled_window)   
+        self.add(self.scrolled_window)   
 
         #self.add(hbox)
-        return scrolled_window  
+        return self.scrolled_window  
 
 
     #Wysyłanie wiadomości
@@ -305,7 +350,10 @@ class FirstPage(Gtk.Box):
         wiadomosc = self.entry.get_text()
         print(wiadomosc)
         global_functions.income_messages_list.append([wiadomosc,2])
-        self.refresh_chat()
+        #print(self.main_chat_window().get_childern())
+        #self.callback_remove()
+        self.lista_wiadomosci.pack_start(self.add_message([wiadomosc,2]), True, False, 1)
+        self.scrolled_window.show_all()
    
         
        
