@@ -21,8 +21,8 @@ class Database:
     def Add_User(self, login, password, auth_key):
         # sprawdzenie czy istnieje w bazie
         if self.Exists(login) == False:
-            self.cur.execute("INSERT INTO users (login,password,auth_key) VALUES (%s,%s,%s)",
-                             [login, password, auth_key])
+            self.cur.execute("INSERT INTO users (login,password,auth_key, path) VALUES (%s,%s,%s,%s)",
+                             [login, password, auth_key, ("./Server/contacts/" + login + ".txt")])
             self.conn.commit()
             print("Dodano użytkownika: ", login)
             return True
@@ -108,6 +108,18 @@ class Database:
             return False
         else:
             return True
+
+    def Contacts_Path(self, login):
+
+        self.cur.execute("SELECT path FROM users WHERE login LIKE %s", [login])
+        es = self.cur.fetchall()
+
+        if not es:
+            return None
+        else:
+            return str(es).strip('[](),\'')
+
+
 
 
 if __name__ == "__main__":

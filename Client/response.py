@@ -1,4 +1,6 @@
 import json
+import global_functions
+
 
 class Response:
     def __init__(self):
@@ -19,5 +21,17 @@ class Response:
             return True
         elif signal == "RJT":
             return False
+        elif signal == "LCU":
+            contact = data["contacts"].split(',')
+            global_functions.contact_user_list = contact
+            return True
+        elif signal == "LAU":
+            contact = data["contacts"].split(',')
+            global_functions.active_user_list = set(global_functions.contact_user_list).intersection(contact)
+        elif signal == "NUR":
+            contact = data["login"]
+            if contact in (global_functions.contact_user_list):
+                global_functions.active_user_list += contact
+        
 
     

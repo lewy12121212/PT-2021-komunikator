@@ -33,6 +33,10 @@ class Response:
             if self.AddUser(data["login"], data["password"], data["auth_key"]):
                 response["data"] = '{"signal":"ACK","data":""}'
                 response["to"] = "self"
+
+                f = open(("./Server/contacts/" + str(data["login"]) + '.txt'), "x")
+                f.close()
+            
             else:
                 response["to"] = "self"
                 response["data"] = '{"signal":"RJT","data":"Uzytkownik istnieje"}'
