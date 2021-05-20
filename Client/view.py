@@ -1,3 +1,4 @@
+from typing import Tuple
 import gi
 import gui_callbacks
 import global_functions
@@ -14,64 +15,102 @@ import sys
 c = Client()
 resp = Response()
 
-class app_viev(Gtk.Window):
-    def __init__(self):
-        super(app_viev, self).__init__(title="Komunikator")
-        self.connect("destroy", Gtk.main_quit)#
-        self.set_border_width(20)
-        self.set_default_size(800, 400)
 
-        container = Gtk.Box()
+
+
+#Okno aplikacji
+class App_view(Gtk.Window):
+    def __init__(self):
+       
+        super(App_view, self).__init__(title="Komunikator")
+        self.connect("destroy", Gtk.main_quit)
+        self.set_border_width(20)
+        self.set_default_size(600, 250)
+
+        container = Gtk.Grid()
         self.add(container)
         container.show()
 
-        self.main = Main(self)
-        container.add(self.main)
-
-        self.first_page = FirstPage(self)
-        container.add(self.first_page)
+        #Okno logowania
+        self.login_window = Login_window(self)
+        container.add(self.login_window)
+        #Okno czatu
+        self.chat_window = FirstPage(self)
+        container.add(self.chat_window)
+     
         
 
 
-class Main(Gtk.Box):
+class Login_window(Gtk.Grid):
+    #Konstruktor - wywołuje okno logowania
     def __init__(self, parent_window):
-        super().__init__(spacing=10)
+        super().__init__()
         self.__parent_window = parent_window
+        self.row_spacing = 10
+        self.column_spacing = 10
         self.login()
 
-
-    def start_new_game(self, *args):
-        self.__parent_window.first_page.show_all()
+    #Chowa okno logowania i pokazuje okno czatu
+    def swich_to_chat(self, *args):
+        self.__parent_window.chat_window.show_all()
         self.hide()
 
+ 
+    #Okno logowania
     def login(self):
-        login = Gtk.Grid(row_spacing = 10,column_spacing = 10)
-        self.add(login)
         
-        login.add(self.login_label())
-        login.attach(self.login_entry(), 0, 1, 1, 1)
-        login.attach(self.password_entry(), 0, Gtk.PositionType.BOTTOM, 1, 2)
-        login.attach(self.login_button("Zaloguj"), 1, 1, 1, 1)
+        loog = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
+        self.add(loog)
 
+        labela = Gtk.Label("Logowanie")
 
-    def login_button(self,name):
-        vbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        self.add(vbox)
-        self.send_button = Gtk.Button(label=name)
+        obok = Gtk.Box(spacing=6)
+        label_login = Gtk.Label("Login: ")
+        self.entry = Gtk.Entry()
+        self.entry.set_hexpand(False)
+        self.entry.set_vexpand(False)
+        self.entry.set_text("admin")  
+
+        obok2 = Gtk.Box(spacing=6)
+        label_haslo = Gtk.Label("Hasło: ")
+        self.entry2 = Gtk.Entry()
+        self.entry2.set_hexpand(False)
+        self.entry2.set_vexpand(False)
+        self.entry2.set_text("admin")  
+        
+        obok.set_halign(3)
+        obok.pack_start(label_login, True, True, 0)
+        obok.pack_start(self.entry, True, True, 0)
+        
+     
+        obok2.set_halign(3)
+        obok2.pack_start(label_haslo, True, True, 0)
+        obok2.pack_start(self.entry2, True, True, 0)
+
+        labela.set_hexpand(True)
+        loog.pack_start(labela, True, True, 0)
+        loog.pack_start(obok, True, True, 0)
+        loog.pack_start(obok2, True, True, 0)
+
+        self.send_button = Gtk.Button(label="Zaloguj")
         self.send_button.connect("clicked", self.on_login_click)
-        vbox.pack_start(self.send_button, True, True, 0)
-        return vbox
+        self.send_button.set_halign(3)
+        self.send_button.set_hexpand(True)
+        loog.pack_start(self.send_button, False, True, 0)
+        
+
+    def wrong_login(self):
+        vbox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 10)
+        label = Gtk.Label("Podano błędny login lub hasło")
+        vbox.pack_start(label, True, True, 0)
+        self.add(vbox)
+        return vbox  
+
 
     def on_login_click(self, button):
-        
         e = self.entry.get_text()
         o = self.entry2.get_text()
 
-        #Tu coś w stylu 
-        #czy_poprawne_logowanie()
-        # jeśli tak to 
-
-        
         mess = {"signal":"LOG", "data":{"login":e,"password":o}}
         
         c.send(str(mess))
@@ -79,14 +118,10 @@ class Main(Gtk.Box):
         print(data)
         if resp.Make_Response(data):
             c.login = e
-            self.start_new_game()
+            self.swich_to_chat()
         else:
             print(mess["data"])
 
-        #print(resp)
-        #print("Login: ", e)
-        #print("Haslo: ", o)
-        #print("Zalogowano")
         
 
     '''def registration(self):
@@ -99,83 +134,19 @@ class Main(Gtk.Box):
         login.attach(self.login_button("Zarejestruj"), 1, 1, 1, 1) 
     '''
 
-    def password_entry(self):
-        vboxa = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
 
-        self.add(vboxa)
-        vboxa.set_hexpand(False)
-        label = Gtk.Label("Hasło: ")
-        #label.set_alignment(0.5,0)
-        vboxa.pack_start(label, False, False, 20)
-
-        #Okno do wpisywania tekstu
-        self.entry2 = Gtk.Entry()
-        self.entry2.set_text("")
-        #self.entry.set_alignment(0)
-        #Maksymalna dlugość wiadomości
-        #self.entry.set_max_length (512)
-        vboxa.pack_start(self.entry2, False, False, 1) 
-        return vboxa   
-
-    def login_entry(self):
-        vboxa = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
-        self.add(vboxa)
-        vboxa.set_hexpand(False)
-        label = Gtk.Label("Login: ")
-        #label.set_alignment(0.5,0)
-        vboxa.pack_start(label, False, False, 20)
-
-        #Okno do wpisywania tekstu
-        #self.le()
-        #self.entry.set_alignment(0)
-        #Maksymalna dlugość wiadomości
-        #self.entry.set_max_length (512)
-        vboxa.pack_start(self.le(), False, False, 1) 
-
-        return vboxa
-
-    def le(self): 
-        self.entry = Gtk.Entry()
-        self.entry.set_text("")  
-        return self.entry
-
-    def login_label(self): 
-        vbox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 10)
-    
-        label = Gtk.Label("Logowanie")
-        label.set_hexpand(True)
-        #label.set_alignment(1,0)
-        vbox.pack_start(label, True, True, 0)
-        self.add(vbox)
-        return vbox  
-
-
-class FirstPage(Gtk.Box):
+class FirstPage(Gtk.Grid):
     
     def __init__(self, parent_window):
        
-        super().__init__(spacing=10)
+        super().__init__()
         self.__parent_window = parent_window
-        aaa = self.main_chat_window()
+        self.main_chat_window()
     
 
     def return_start_page(self, *args):
-        self.__parent_window.main.show_all()
+        self.__parent_window.login_window.show_all()
         self.hide()
-
-    def refresh_chat(self, *args):
-        #self.main_chat_window().remove_all()
-        '''
-        app_viev.container.remove(app_viev.container.first_page)
-        first_page = FirstPage(self)
-        app_viev.container.add(first_page)
-        
-        '''
-        
-        self.aaa = self.main_chat_window()
-        self.__parent_window.first_page.show_all()
-    
-    
 
     def contact_change(self):
         vboxa = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
@@ -192,70 +163,93 @@ class FirstPage(Gtk.Box):
         vboxa.pack_start(self.entry, True, True, 0)
          
 
-    def profile_buttons(self):
-        vbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        self.add(vbox)
-        self.send_button = Gtk.Button(label="Zmiana hasła")
-        vbox.pack_start(self.send_button, True, True, 0)
-        self.send_button = Gtk.Button(label="Usuń konto")
-        vbox.pack_start(self.send_button, True, True, 0)
-        
-        return vbox    
-
-    def contact_buttons(self):
-        vbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        self.add(vbox)
-        self.send_button = Gtk.Button(label="Dodaj kontakt")
-        vbox.pack_start(self.send_button, True, True, 0)
-        self.send_button = Gtk.Button(label="Usuń kontakt")
-        vbox.pack_start(self.send_button, True, True, 0)
-        return vbox
-
 
     def main_chat_window(self):
+
+        self.poziomo = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=15)
+        self.add(self.poziomo)
+
+        self.kontakty = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
+        self.poziomo.pack_start(self.kontakty, False, True, 0)
+        self.label_kontakty = Gtk.Label("Lista kontaktów")
+        self.label_kontakty.set_valign(1)
+        self.kontakty.pack_start(self.label_kontakty, False, True, 0)
+
+        self.guziki_kontakty = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        self.dodaj_kontakt = Gtk.Button(label="Dodaj kontakt")
+        self.guziki_kontakty.pack_start(self.dodaj_kontakt, True, True, 0)
+        self.usun_kontakt = Gtk.Button(label="Usuń kontakt")
+        self.guziki_kontakty.pack_start(self.usun_kontakt, True, True, 0)
+        self.guziki_kontakty.set_valign(1)
+        self.kontakty.pack_start(self.guziki_kontakty, False, True, 0)
+
+        grid = Gtk.Grid()
+       
         
-        print("OKNO")
-        #self.remove(pom)
-        self.pom = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing=6)
-        #pom = Gtk.Grid(row_spacing = 5,column_spacing = 10)
+        buttons = [] 
         
-        #pom to okno główne
-        #contacts zawiera rzeczy związane z listą kontaktów
-        self.contacts = Gtk.Grid(row_spacing = 5)
-        self.pom.add(self.contacts)
-        self.contacts.add(self.contact_tabel())
-        '''
-        contacts.attach(self.contact_buttons(), 0, 1, 1, 1)
-        contacts.attach(self.contact_list(), 0, 2, 1, 2)
-        '''
-        self.contacts.add(self.contact_buttons())
-        self.contacts.add(self.contact_list())
+        #Dla każdego kontaktu z listy tworzy podpisany przycisk
+        for user in global_functions.active_user_list:
+            buttons.append(Gtk.Button(label=user))
 
-        #Okno czatu 
-        self.chat_window = Gtk.Grid(row_spacing = 5)
-        self.pom.add(self.chat_window)
-        '''
-        chat_window.attach(self.entry_to_send(), 1, 2, 1, 1)
-        chat_window.attach(self.messages_print(), 1,0, 1, 1)
-        '''
-        self.chat_window.add(self.entry_to_send())
-        self.chat_window.add(self.messages_print())
+        grid.add(buttons[0])
+        for previous_button, button in zip(buttons,buttons[1:]):
+            grid.attach_next_to(button, previous_button, Gtk.PositionType.BOTTOM, 1, 1)
+        
+        self.kontakty.pack_start (grid, True, True, 0)
 
+        
+     
 
-        self.profile = Gtk.Grid(row_spacing = 5)
-        self.pom.add(self.profile)
-        self.profile.add(self.profile_buttons())
+        
+        self.chat_window = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
+        self.poziomo.pack_start(self.chat_window, True, True, 0)
+        
+   
+        self.scrolled_window = Gtk.ScrolledWindow()
+        self.scrolled_window.set_size_request(600,300)
+        self.scrolled_window.set_max_content_width(50) 
+        self.scrolled_window.set_border_width(10) ##Odstęp po prawej
 
-        self.pom.add(self.contacts)
-        '''
-        pom.attach(chat_window, 1, 0, 1, 1)
-        pom.attach(profile, 1, 1, 1, 1)
-        '''
-        self.pom.add(self.chat_window)
-        self.pom.add(self.profile)
-        self.add(self.pom)
-        return self.pom
+        self.scrolled_window.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
 
+        #Dodanie wiadmowsci
+        self.scrolled_window.add_with_viewport(self.add_messages())
+        
+        # add the scrolledwindow to the window
+        #self.add(self.scrolled_window)   
+
+        self.wysylanie = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        #self.add(vbox)
+
+        #Okno do wpisywania tekstu
+        self.entry_wysylanie = Gtk.Entry()
+        self.entry_wysylanie.set_text("")
+        #Maksymalna dlugość wiadomości
+        #self.entry.set_max_length (512)
+        self.wysylanie.pack_start(self.entry_wysylanie, True, True, 0)
+
+        #Przycisk do wysyłania tekstu
+        self.send_button = Gtk.Button(label="Wyślij")
+        self.send_button.connect("clicked", self.send_click)
+        self.wysylanie.pack_start(self.send_button, True, True, 0)
+
+        self.chat_window.pack_start(self.scrolled_window, True, True, 0)
+        self.chat_window.pack_start(self.wysylanie, True, True, 0)
+
+        self.profil = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+       
+        self.send_button = Gtk.Button(label="Zmiana hasła")
+        self.profil.pack_start(self.send_button, False, True, 0)
+        self.send_button = Gtk.Button(label="Usuń konto")
+        self.profil.pack_start(self.send_button, False, True, 0)
+        
+
+        self.poziomo.pack_start(self.profil, False, True, 0)
+        
+        
+
+    
     def add_message(self,wiad):
         
         if(wiad[1]==1):
@@ -298,79 +292,21 @@ class FirstPage(Gtk.Box):
 
         return self.lista_wiadomosci
 
-    def messages_print(self):
-    
-        #hbox = Gtk.Box(spacing = 10)
-        #hbox.set_homogeneous(False)
-       
-       # hbox.pack_start(vbox_left, True, True, 0)
-       
-    
-        #Okno do scrolowania
-        self.scrolled_window = Gtk.ScrolledWindow()
-        self.scrolled_window.set_size_request(600,200)
-        self.scrolled_window.set_max_content_width(50) 
-        self.scrolled_window.set_border_width(10) ##Odstęp po prawej
-
-        self.scrolled_window.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-
-      
-        #Dodanie wiadmowsci
-        self.scrolled_window.add_with_viewport(self.add_messages())
-        
-        # add the scrolledwindow to the window
-        self.add(self.scrolled_window)   
-
-        #self.add(hbox)
-        return self.scrolled_window  
 
 
-    #Wysyłanie wiadomości
-    def entry_to_send(self):
-        #Zawiera pole do wpisywania i guzik do wysyłania
-        vbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        self.add(vbox)
-
-        #Okno do wpisywania tekstu
-        self.entry = Gtk.Entry()
-        self.entry.set_text("")
-        #Maksymalna dlugość wiadomości
-        #self.entry.set_max_length (512)
-        vbox.pack_start(self.entry, True, True, 0)
-
-        #Przycisk do wysyłania tekstu
-        self.send_button = Gtk.Button(label="Wyślij")
-        self.send_button.connect("clicked", self.send_click)
-        vbox.pack_start(self.send_button, True, True, 0)
-
-        return vbox
 
     def send_click(self, button):
         global income_messages_list
-        wiadomosc = self.entry.get_text()
+        wiadomosc = self.entry_wysylanie.get_text()
         print(wiadomosc)
         global_functions.income_messages_list.append([wiadomosc,2])
         #print(self.main_chat_window().get_childern())
         #self.callback_remove()
         self.lista_wiadomosci.pack_start(self.add_message([wiadomosc,2]), True, False, 1)
+        self.entry_wysylanie.set_text("")
+        self.entry_wysylanie.show_all()
         self.scrolled_window.show_all()
    
-        
-       
-
-    #Etykieta listy kontaktów
-    def contact_tabel(self):
-          
-        hbox = Gtk.Box(spacing = 10)
-        hbox.set_homogeneous(False)
-        vbox_left = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 10)
-        vbox_left.set_homogeneous(False)
-        hbox.pack_start(vbox_left, True, True, 0)
-  
-        label = Gtk.Label("Kontakty")
-        vbox_left.pack_start(label, True, True, 0)
-        self.add(hbox)
-        return hbox
         
     #Lista kontaktów
     def contact_list(self):
@@ -385,7 +321,7 @@ class FirstPage(Gtk.Box):
 
         grid.add(buttons[0])
         for previous_button, button in zip(buttons,buttons[1:]):
-            grid.attach_next_to(button, previous_button, Gtk.PositionType.BOTTOM, 1, 2)
+            grid.attach_next_to(button, previous_button, Gtk.PositionType.BOTTOM, 1, 1)
         
         return grid
 
