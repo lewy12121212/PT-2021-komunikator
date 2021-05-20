@@ -1,4 +1,4 @@
-active_user_list = ['tomek','ania','nie_usuwaj_tych_kontaktow_na_razie_plz']
+active_user_list = ['nowy','kontakt','ala','olek','kasia','tomek','ania','nie_usuwaj_tych_kontaktow_na_razie_plz']
 
 contact_user_list = []
 

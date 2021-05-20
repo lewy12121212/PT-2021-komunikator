@@ -183,6 +183,8 @@ class FirstPage(Gtk.Grid):
         self.guziki_kontakty.set_valign(1)
         self.kontakty.pack_start(self.guziki_kontakty, False, True, 0)
 
+
+      
         grid = Gtk.Grid()
        
         
@@ -190,13 +192,22 @@ class FirstPage(Gtk.Grid):
         
         #Dla każdego kontaktu z listy tworzy podpisany przycisk
         for user in global_functions.active_user_list:
-            buttons.append(Gtk.Button(label=user))
+            buttons.append(Gtk.Button(label=user,xalign=0))
 
         grid.add(buttons[0])
         for previous_button, button in zip(buttons,buttons[1:]):
             grid.attach_next_to(button, previous_button, Gtk.PositionType.BOTTOM, 1, 1)
         
-        self.kontakty.pack_start (grid, True, True, 0)
+        self.scrolled_kontakty = Gtk.ScrolledWindow()
+        self.scrolled_kontakty.set_size_request(100,100)
+        self.scrolled_kontakty.set_max_content_width(50) 
+
+        self.scrolled_kontakty.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+
+        #Dodanie wiadmowsci
+        self.scrolled_kontakty.add_with_viewport(grid)
+
+        self.kontakty.pack_start (self.scrolled_kontakty, True, True, 0)
 
         
      
@@ -212,10 +223,9 @@ class FirstPage(Gtk.Grid):
         self.scrolled_window.set_border_width(10) ##Odstęp po prawej
 
         self.scrolled_window.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-
+        
         #Dodanie wiadmowsci
         self.scrolled_window.add_with_viewport(self.add_messages())
-        
         # add the scrolledwindow to the window
         #self.add(self.scrolled_window)   
 
@@ -233,7 +243,6 @@ class FirstPage(Gtk.Grid):
         self.send_button = Gtk.Button(label="Wyślij")
         self.send_button.connect("clicked", self.send_click)
         self.wysylanie.pack_start(self.send_button, True, True, 0)
-
         self.chat_window.pack_start(self.scrolled_window, True, True, 0)
         self.chat_window.pack_start(self.wysylanie, True, True, 0)
 
@@ -246,7 +255,6 @@ class FirstPage(Gtk.Grid):
         
 
         self.poziomo.pack_start(self.profil, False, True, 0)
-        
         
 
     
@@ -263,8 +271,6 @@ class FirstPage(Gtk.Grid):
             label.set_line_wrap(True)
             label.set_max_width_chars(5)
             label.set_alignment(1,0)
-            
-
         return label
 
     def add_messages(self):   
@@ -289,10 +295,9 @@ class FirstPage(Gtk.Grid):
                 label.set_max_width_chars(5)
                 label.set_alignment(1,0)
                 self.lista_wiadomosci.pack_start(label, True, False, 1)
-
+        
+        
         return self.lista_wiadomosci
-
-
 
 
     def send_click(self, button):
@@ -300,13 +305,17 @@ class FirstPage(Gtk.Grid):
         wiadomosc = self.entry_wysylanie.get_text()
         print(wiadomosc)
         global_functions.income_messages_list.append([wiadomosc,2])
-        #print(self.main_chat_window().get_childern())
-        #self.callback_remove()
         self.lista_wiadomosci.pack_start(self.add_message([wiadomosc,2]), True, False, 1)
         self.entry_wysylanie.set_text("")
         self.entry_wysylanie.show_all()
         self.scrolled_window.show_all()
-   
+
+        adj = self.scrolled_window.get_vadjustment()
+        adj.set_value(adj.get_upper() - adj.get_page_size()) #nie pokazuje ostatniej liniki 
+        #samo get_upper lub get_page_size też działa (chyba)
+        #-20 sprawia że nie pokazuje też przedostatniej ale +20 nic nie zmienia
+        self.scrolled_window.show_all()
+
         
     #Lista kontaktów
     def contact_list(self):
