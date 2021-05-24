@@ -89,8 +89,19 @@ class Database:
             # przypadek niemożliwy - użytkonik nie istnieje
             return False
 
+    def Change_Logged(self, login):
+        
+        if self.Exists(login):
+            self.cur.execute("UPDATE users SET logged=%s WHERE login=%s", [1, login])
+            self.conn.commit()
+            print("zresetowano hasło użytkownika: " + login)
+            return True
+        else:
+            # przypadek niemożliwy - użytkonik nie istnieje
+            return False
 
-    def Logged(self, login):
+
+    def IfLogged(self, login):
         self.cur.execute("SELECT logged FROM users WHERE login LIKE %s", [login])
         es = self.cur.fetchall()
         print(es)

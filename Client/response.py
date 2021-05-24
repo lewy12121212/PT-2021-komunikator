@@ -64,7 +64,7 @@ class Response:
         
         #odebranie wiadomosci
         elif signal == "MSG":
-            mess = [data["from"] + ": " + data["message"], 1]
+            mess = [data["date"] + "\n" + data["from"] + ":\n" + data["message"], 1]
             #global_functions.income_message_list += mess
             window.refresh_chat(mess)
         

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Czas generowania: 24 Maj 2021, 10:44
+-- Czas generowania: 24 Maj 2021, 18:30
 -- Wersja serwera: 10.4.11-MariaDB
 -- Wersja PHP: 7.4.6
 
@@ -31,7 +31,7 @@ CREATE TABLE `users` (
   `ID` int(11) NOT NULL,
   `login` varchar(32) NOT NULL,
   `password` varchar(512) NOT NULL,
-  `auth_key` varchar(32) DEFAULT NULL,
+  `auth_key` varchar(512) DEFAULT NULL,
   `path` text DEFAULT NULL,
   `logged` tinyint(1) DEFAULT 0,
   `last_db_access` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()

@@ -24,13 +24,15 @@ class Response:
             response["data"]
         elif signal == "ACK":
             return
+        
         #przesyłanie wiadomości do adresata
         elif signal == "MSG":
             response["to"] = data["to"]
-            message = {"signal":"MSG", "data": {"from": data["from"], "message": data ["message"]}}
+            message = {"signal":"MSG", "data": {"from": data["from"], "date": data["date"], "message": data ["message"]}}
             response["data"] = str(message)
             print(message)
             return response
+        
         #dodanie nowego użytwkonika
         elif signal == "LAD":
             if self.AddUser(data["login"], data["password"], data["auth_key"]):
@@ -44,6 +46,7 @@ class Response:
             else:
                 response["to"] = "self"
                 response["data"] = '{"signal":"RJT","data":"Uzytkownik istnieje"}'
+        
         #żądanie logowania
         elif signal == "LOG":
             login = data["login"]
@@ -56,6 +59,7 @@ class Response:
             else:
                 response["to"] = "self"
                 response["data"] = '{"signal":"RJT","data":""}'
+        
         #żądanie resetowania hasła przy logowaniu
         elif signal == "LRS":
             if self.ResetPassword(data['login'], data['auth_key'], data['password']):
@@ -64,6 +68,7 @@ class Response:
             else:
                 response["to"] = "self"
                 response["data"] = '{"signal":"RJT","data":"Bledna odpowiedz autoryzacyjna lub uzytkownik nie istnieje"}'
+        
         #zmiana hasła użytkownika
         elif signal == "UCP":
             if self.ChangePassword(data['login'], data['password'], data['new_password'], data['auth_key']):
@@ -72,6 +77,7 @@ class Response:
             else:
                 response["to"] = data["login"]
                 response["data"] = '{"signal":"RJT","data":"Bledna odpowiedz autoryzacyjna lub obecne haslo."}'
+        
         #usunięcie konta przez użytkonika
         elif signal == "UDA":
             if self.DeleteUser(data['login'], data['password'], data['auth_key']):
@@ -80,6 +86,7 @@ class Response:
             else:
                 response["to"] = data["login"]
                 response["data"] = '{"signal":"RJT","data":"Bledna odpowiedz autoryzacyjna lub obecne haslo."}'
+        
         #dodanie użytkownika do kontaktów
         elif signal == "CAD":
             path = DB.Contacts_Path(data["login"])
@@ -88,8 +95,8 @@ class Response:
 
             response["data"] = '{"signal":"ACK","data":""}'
             response["to"] = data["login"]
+        
         #usuwanie użytkownika
-
         elif signal == "CDL":
             path = DB.Contacts_Path(data["login"])
             contacts_list = []
