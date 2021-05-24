@@ -19,7 +19,7 @@ if __name__ == '__main__':
     window.connect("delete-event", window.on_destroy)
     #Łukasz
     #window.chat_window.return_start_page()
-    window.login_window.return_start_page()
+    window.login_window.Show_login_window()
     window.show()
     Gtk.main()
 

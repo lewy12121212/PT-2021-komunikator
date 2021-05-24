@@ -14,8 +14,6 @@ import sys
 #Łukasz
 from threading import Thread, Lock
 
-#https://stackoverflow.com/questions/46774286/change-window-frame-gtk3-pygtk-and-pass-parameters
-
 c = Client()
 resp = Response()
 req = Request()
@@ -35,15 +33,12 @@ class App_view(Gtk.Window):
         self.set_border_width(20)
         self.set_default_size(600, 250)
 
-        #Łukasz
-        
         self.add(container)
         container.show()
 
+      
         #Okno logowania
-        
-        
-        self.login_window = Login_window(self)
+        self.login_window = LoginWindow(self)
         container.add(self.login_window)
     
     def on_destroy(self, widget=None, *data):
@@ -52,7 +47,6 @@ class App_view(Gtk.Window):
         c.send("{'signal':'END','data':''}")
         
         
-    #Łukasz
     def add_chat(self):
         #Okno czatu
         self.chat_window = FirstPage(self)
@@ -60,14 +54,14 @@ class App_view(Gtk.Window):
 
     def add_register(self):
         #Okno czatu
-        self.register_window = Register_window(self)
+        self.register_window = RegisterWindow(self)
         container.add(self.register_window)
 
      
         
 
 
-class Login_window(Gtk.Grid):
+class LoginWindow(Gtk.Grid):
     #Konstruktor - wywołuje okno logowania
     def __init__(self, parent_window):
         
@@ -76,109 +70,123 @@ class Login_window(Gtk.Grid):
         self.row_spacing = 10
         self.column_spacing = 10
         
-        self.login()
+        self.Login_window()
         
-    #Łukasz
-    def return_start_page(self, *args):
+    #Pokazuje okno logowania
+    def Show_login_window(self, *args):
         self.__parent_window.login_window.show_all()
         
     
     #Chowa okno logowania i pokazuje okno czatu
-    def swich_to_chat(self, *args):
+    def Show_chat_window(self, *args):
         self.__parent_window.chat_window.show_all()
         self.hide()
 
-    def swich_to_register(self, *args):
+    #Chowa okno logowania i pokazuje okno rejestracji
+    def Show_register_window(self, *args):
         self.__parent_window.register_window.show_all()
         self.hide()
 
  
     #Okno logowania
-    def login(self):
-        
-        loog = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
-        self.add(loog)
+    def Login_window(self):
 
-        labela = Gtk.Label("Logowanie")
+        #Pionowy box na elementy interfejsu
+        vertical_main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
+        self.add(vertical_main_box)
 
-        obok = Gtk.Box(spacing=6)
+        #Etykieta okna
+        label_main_login = Gtk.Label("Logowanie")
+
+        #Poziome okno do przechowyania elementów loginu
+        horizontal_login_box = Gtk.Box(spacing=6)
+        #Etykieta loginu
         label_login = Gtk.Label("Login: ")
-        self.entry = Gtk.Entry()
-        self.entry.set_hexpand(False)
-        self.entry.set_vexpand(False)
-        self.entry.set_text("admin")  
+        #Wpisywanie loginu
+        self.entry_login = Gtk.Entry()
+        self.entry_login.set_hexpand(False)
+        self.entry_login.set_vexpand(False)
+        self.entry_login.set_text("")  
 
-        obok2 = Gtk.Box(spacing=6)
+        #Poziome okno do przechowyania elementów hasła
+        horizontal_password_box = Gtk.Box(spacing=6)
+        #Etykieta hasła
         label_haslo = Gtk.Label("Hasło: ")
-        self.entry2 = Gtk.Entry()
-        self.entry2.set_visibility(False)
-        self.entry2.set_hexpand(False)
-        self.entry2.set_vexpand(False)
-        self.entry2.set_text("admin")  
+        #Wpisywanie hasła
+        self.entry_password = Gtk.Entry()
+        self.entry_password.set_visibility(False)
+        self.entry_password.set_hexpand(False)
+        self.entry_password.set_vexpand(False)
+        self.entry_password.set_text("")  
         
-        obok.set_halign(3)
-        obok.pack_start(label_login, True, True, 0)
-        obok.pack_start(self.entry, True, True, 0)
+        #Dodawanie elementów loginu do boxa
+        horizontal_login_box.set_halign(3)
+        horizontal_login_box.pack_start(label_login, True, True, 0)
+        horizontal_login_box.pack_start(self.entry_login, True, True, 0)
         
-     
-        obok2.set_halign(3)
-        obok2.pack_start(label_haslo, True, True, 0)
-        obok2.pack_start(self.entry2, True, True, 0)
+        #Dodawanie elementów hasła do boxa
+        horizontal_password_box.set_halign(3)
+        horizontal_password_box.pack_start(label_haslo, True, True, 0)
+        horizontal_password_box.pack_start(self.entry_password, True, True, 0)
 
-        labela.set_hexpand(True)
-        loog.pack_start(labela, True, True, 0)
-        loog.pack_start(obok, True, True, 0)
-        loog.pack_start(obok2, True, True, 0)
+        label_main_login.set_hexpand(True)
 
-        obok3 = Gtk.Box(spacing=6)
+        #Dodawanie elementów interfejsu
+        vertical_main_box.pack_start(label_main_login, True, True, 0)
+        vertical_main_box.pack_start(horizontal_login_box, True, True, 0)
+        vertical_main_box.pack_start(horizontal_password_box, True, True, 0)
 
-        self.send_button = Gtk.Button(label="Zaloguj")
-        self.send_button.connect("clicked", self.on_login_click)
-        self.send_button.set_halign(2)
-        self.send_button.set_hexpand(True)
-        obok3.pack_start(self.send_button, True, True, 0)
+        #Poziomy box do przycisków
+        horizontal_buttons_box = Gtk.Box(spacing=6)
 
+        #Przycisk do logowania
+        self.login_button = Gtk.Button(label="Zaloguj")
+        self.login_button.connect("clicked", self.Click_login)
+        self.login_button.set_halign(2)
+        self.login_button.set_hexpand(True)
+        horizontal_buttons_box.pack_start(self.login_button, True, True, 0)
+
+        #Przycisk do rejestracji
         self.register_button = Gtk.Button(label="Zarejestruj się")
-        self.register_button.connect("clicked", self.on_register_click)
+        self.register_button.connect("clicked", self.Click_register)
         self.register_button.set_halign(1)
         self.register_button.set_hexpand(True)
-        obok3.pack_start(self.register_button, False, True, 0)
-        loog.pack_start(obok3, True, True, 0)
+        horizontal_buttons_box.pack_start(self.register_button, False, True, 0)
+        vertical_main_box.pack_start(horizontal_buttons_box, True, True, 0) 
 
-    def wrong_login(self):
-        vbox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 10)
-        label = Gtk.Label("Podano błędny login lub hasło")
-        vbox.pack_start(label, True, True, 0)
-        self.add(vbox)
-        return vbox  
-
-
-    def on_register_click(self, button):
+    #Kliknięcie przycisku do okna rejestracji
+    def Click_register(self, button):
         self.__parent_window.add_register()
-        self.swich_to_register()
+        #Zmiana okna na rejestrację
+        self.Show_register_window()
 
-    def on_login_click(self, button):
-        e = self.entry.get_text()
-        o = self.entry2.get_text()
+    #Kliknięcie przycisku do zalogowania
+    def Click_login(self, button):
+        #Zczytanie danych z wejścia
+        login = self.entry_login.get_text()
+        password = self.entry_password.get_text()
 
-        #mess = {"signal":"LOG", "data":{"login":e,"password":o}}
-        mess = req.logIn(e,o)
-
+        #Przesłanie danych do logowania
+        mess = req.logIn(login,password)
         c.send(str(mess))
-        #self.recv_thread = Thread(target=c.recv, args=(self, ))
+        #Odebranie odpowiedzi serwera
         data = c.recv()
         print(data)
+
         if resp.Make_Response(data):
+            #Poprawne zalogowanie
             print("ACK")
-            c.login = e
+            c.Login_window = login
             self.__parent_window.add_chat()
-            self.swich_to_chat()
+            #Przejście do okna czatu
+            self.Show_chat_window()
 
         else:
+            #Niepoprawne zalogowanie
             pass
-            #self.wrong_login()
+           
 
-class Register_window(Gtk.Grid):
+class RegisterWindow(Gtk.Grid):
     #Konstruktor - wywołuje okno logowania
     def __init__(self, parent_window):
         
@@ -187,115 +195,122 @@ class Register_window(Gtk.Grid):
         self.row_spacing = 10
         self.column_spacing = 10
         
-        self.register()
+        self.Register_window()
         
-    #Łukasz
-    def return_start_page(self, *args):
+    #Pokazanie okna logowania i schowanie okna rejestracji
+    def Show_login_window(self, *args):
         self.__parent_window.login_window.show_all()
-        
-    
-    #Chowa okno logowania i pokazuje okno czatu
-    def swich_to_chat(self, *args):
-        self.__parent_window.chat_window.show_all()
         self.hide()
-
+        
  
-    #Okno logowania
-    def register(self):
-        loog = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
-        self.add(loog)
+    #Okno rejestracji
+    def Register_window(self):
 
-        labela = Gtk.Label("Rejestracja")
+        vertical_interface_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
+        self.add(vertical_interface_box)
 
-        obok = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        label_main = Gtk.Label("Rejestracja")
+
+        vertical_labels_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         label_login = Gtk.Label("Login: ")
         label_login.set_halign(2)
-        self.entry = Gtk.Entry()
-        self.entry.set_hexpand(False)
-        self.entry.set_vexpand(False)
-        self.entry.set_text("")  
+        self.entry_login = Gtk.Entry()
+        self.entry_login.set_hexpand(False)
+        self.entry_login.set_vexpand(False)
+        self.entry_login.set_text("")  
 
-        obok2 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        vertical_entries_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         label_haslo = Gtk.Label("Hasło: ")
         label_haslo.set_halign(2)
-        self.entry2 = Gtk.Entry()
-        self.entry2.set_visibility(False)
-        self.entry2.set_hexpand(False)
-        self.entry2.set_vexpand(False)
-        self.entry2.set_text("")  
+        self.entry_password = Gtk.Entry()
+        self.entry_password.set_visibility(False)
+        self.entry_password.set_hexpand(False)
+        self.entry_password.set_vexpand(False)
+        self.entry_password.set_text("")  
 
-        label_p_haslo = Gtk.Label("Powtórz hasło: ")
-        label_p_haslo.set_halign(2)
-        self.entry3 = Gtk.Entry()
-        self.entry3.set_visibility(False)
-        self.entry3.set_hexpand(False)
-        self.entry3.set_vexpand(False)
-        self.entry3.set_text("")  
+        label_second_password = Gtk.Label("Powtórz hasło: ")
+        label_second_password.set_halign(2)
+        self.entry_second_password = Gtk.Entry()
+        self.entry_second_password.set_visibility(False)
+        self.entry_second_password.set_hexpand(False)
+        self.entry_second_password.set_vexpand(False)
+        self.entry_second_password.set_text("")  
 
-        label_pytanie = Gtk.Label("Podaj ulubiony kolor: ")
-        label_pytanie.set_halign(2)
-        self.entry4 = Gtk.Entry()
-        self.entry4.set_visibility(False)
-        self.entry4.set_hexpand(False)
-        self.entry4.set_vexpand(False)
-        self.entry4.set_text("")  
+        label_auth_key = Gtk.Label("Podaj ulubiony kolor: ")
+        label_auth_key.set_halign(2)
+        self.entry_auth_key = Gtk.Entry()
+        self.entry_auth_key.set_hexpand(False)
+        self.entry_auth_key.set_vexpand(False)
+        self.entry_auth_key.set_text("")  
         
-        #obok.set_halign(3)
-        obok.pack_start(label_login, True, True, 0)
-        obok.pack_start(label_haslo, True, True, 0)
-        obok.pack_start(label_p_haslo, True, True, 0)
-        obok.pack_start(label_pytanie, True, True, 0)
-
-        #obok2.set_halign(3)
-        obok2.pack_start(self.entry, True, True, 0)
-        obok2.pack_start(self.entry2, True, True, 0)
-        obok2.pack_start(self.entry3, True, True, 0)
-        obok2.pack_start(self.entry4, True, True, 0)
+       
+        vertical_labels_box.pack_start(label_login, True, True, 0)
+        vertical_labels_box.pack_start(label_haslo, True, True, 0)
+        vertical_labels_box.pack_start(label_second_password, True, True, 0)
+        vertical_labels_box.pack_start(label_auth_key, True, True, 0)
 
         
-        obok3 = Gtk.Box(spacing=6)
-        obok3.set_halign(3)
-        obok3.pack_start(obok, True, True, 0)
-        obok3.pack_start(obok2, True, True, 0)
+        vertical_entries_box.pack_start(self.entry_login, True, True, 0)
+        vertical_entries_box.pack_start(self.entry_password, True, True, 0)
+        vertical_entries_box.pack_start(self.entry_second_password, True, True, 0)
+        vertical_entries_box.pack_start(self.entry_auth_key, True, True, 0)
 
-
-        labela.set_hexpand(True)
-        loog.pack_start(labela, True, True, 0)
         
-        loog.pack_start(obok3, True, True, 0)
-        self.send_button = Gtk.Button(label="Zarejestruj się")
-        self.send_button.connect("clicked", self.on_login_click)
-        self.send_button.set_halign(3)
-        self.send_button.set_hexpand(True)
-        loog.pack_start(self.send_button, False, True, 0)
+        horizontal_box = Gtk.Box(spacing=6)
+        horizontal_box.set_halign(3)
+        horizontal_box.pack_start(vertical_labels_box, True, True, 0)
+        horizontal_box.pack_start(vertical_entries_box, True, True, 0)
 
-    def on_login_click(self, button):
-        l = self.entry.get_text()
-        h = self.entry2.get_text()
-        ph = self.entry3.get_text()
-        pyt = self.entry4.get_text()
+
+        label_main.set_hexpand(True)
+        vertical_interface_box.pack_start(label_main, True, True, 0)
+        
+        vertical_interface_box.pack_start(horizontal_box, True, True, 0)
+
+        horizontal_button_box = Gtk.Box(spacing=6)
+        horizontal_button_box.set_halign(3)
+
+        self.register_button = Gtk.Button(label="Zarejestruj się")
+        self.register_button.connect("clicked", self.Click_register)
+        self.register_button.set_halign(3)
+        self.register_button.set_hexpand(True)
+
+        self.back_to_login_button = Gtk.Button(label="Powrót")
+        self.back_to_login_button.connect("clicked", self.Click_back_to_login)
+        self.back_to_login_button.set_halign(3)
+        self.back_to_login_button.set_hexpand(True)
+
+        horizontal_button_box.pack_start(self.register_button,False,True,0)
+        horizontal_button_box.pack_start(self.back_to_login_button,False,True,0)
+        vertical_interface_box.pack_start(horizontal_button_box, False, True, 0)
+
+    def Click_back_to_login(self, button):  
+        self.Show_login_window()  
+
+    def Click_register(self, button):
+        l = self.entry_login.get_text()
+        h = self.entry_password.get_text()
+        ph = self.entry_second_password.get_text()
+        pyt = self.entry_auth_key.get_text()
 
         if(h!=ph):
             print("INNE HASLA")
         else:
-            #TU JEST LOGOWANIE I TO TRZEBA ZMIENIĆ NA DODANIE UŻYTKOWNIKA I POTEM LOGOWANIE
-
-            #mess = {"signal":"LOG", "data":{"login":e,"password":o}}
+           
             mess = req.register(l,h,pyt)
            
 
             c.send(str(mess))
-            #self.recv_thread = Thread(target=c.recv, args=(self, ))
+        
             data = c.recv()
             print(data)
             if resp.Make_Response(data):
                 print("ACK")
 
 
-            else:
-                print(data["data"])
-                pass
-                #self.wrong_login()
+           
+               
+              
 
 
 
@@ -315,7 +330,7 @@ class FirstPage(Gtk.Grid):
         print("okk")
 
 
-    def return_start_page(self, *args):
+    def Show_login_window(self, *args):
         self.__parent_window.login_window.show_all()
         self.hide()
 
@@ -497,7 +512,7 @@ class FirstPage(Gtk.Grid):
 
         #ŁUKASZ
         #wysyłanie wiadomości
-        c.send(req.message("admin2",c.login,wiadomosc))
+        c.send(req.message("admin2",c.Login_window,wiadomosc))
 
         adj = self.scrolled_window.get_vadjustment()
         adj.set_value(adj.get_upper() - adj.get_page_size()) #nie pokazuje ostatniej liniki 
