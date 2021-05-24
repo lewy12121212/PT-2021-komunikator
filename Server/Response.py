@@ -56,6 +56,7 @@ class Response:
             if self.LogIn(login, password):
                 response["data"] = '{"signal":"ACK","data":""}'
                 response["to"] = login
+                DB.Change_Logged(login)
             else:
                 response["to"] = "self"
                 response["data"] = '{"signal":"RJT","data":""}'

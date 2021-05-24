@@ -128,6 +128,7 @@ class Server:
        #po rozłączeniu z klientem - usuwanie z listy wątków                 
         finally:
             with self.clients_lock:
+                DB.Change_Logged(login)
                 clients[login].close()
                 del clients[login]
                 del self.clients_publickeys[login]

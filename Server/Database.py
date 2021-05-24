@@ -92,11 +92,18 @@ class Database:
     def Change_Logged(self, login):
         
         if self.Exists(login):
-            self.cur.execute("UPDATE users SET logged=%s WHERE login=%s", [1, login])
-            self.conn.commit()
-            print("zresetowano hasło użytkownika: " + login)
-            return True
+            if self.IfLogged(login):
+                self.cur.execute("UPDATE users SET logged=%s WHERE login=%s", ['0', login])
+                self.conn.commit()
+                print('+')
+                return True
+            else:
+                self.cur.execute("UPDATE users SET logged=%s WHERE login=%s", ['1', login])
+                self.conn.commit()
+                print('-')
+                return True
         else:
+            print('++')
             # przypadek niemożliwy - użytkonik nie istnieje
             return False
 
@@ -104,8 +111,9 @@ class Database:
     def IfLogged(self, login):
         self.cur.execute("SELECT logged FROM users WHERE login LIKE %s", [login])
         es = self.cur.fetchall()
+        es = str(es).strip('[](),\'')
         print(es)
-        if not es:
+        if es == '0':
             return False
         else:
             return True
@@ -136,8 +144,4 @@ class Database:
 if __name__ == "__main__":
     d = Database()
     # b = d.Change_Password('admin3','admin2', 'admin2', 'admin1')d
-    d.Logged("admin")
-    d.Add_User('admin3', 'admin1', 'admin2')
-    b = d.Change_Password('admin3', 'admin1', 'admin2', 'admin2')
-    b = d.Delete_User('admin3', 'admin2', 'admin2')
-    #
+    print(d.IfLogged("admin"))
