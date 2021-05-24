@@ -21,8 +21,8 @@ class Database:
     def Add_User(self, login, password, auth_key):
         # sprawdzenie czy istnieje w bazie
         if self.Exists(login) == False:
-            self.cur.execute("INSERT INTO users (login,password,auth_key) VALUES (%s,%s,%s)",
-                             [login, password, auth_key])
+            self.cur.execute("INSERT INTO users (login,password,auth_key, path) VALUES (%s,%s,%s,%s)",
+                             [login, password, auth_key, ("./Server/contacts/" + login + ".txt")])
             self.conn.commit()
             print("Dodano użytkownika: ", login)
             return True
@@ -89,12 +89,31 @@ class Database:
             # przypadek niemożliwy - użytkonik nie istnieje
             return False
 
+    def Change_Logged(self, login):
+        
+        if self.Exists(login):
+            if self.IfLogged(login):
+                self.cur.execute("UPDATE users SET logged=%s WHERE login=%s", ['0', login])
+                self.conn.commit()
+                print('+')
+                return True
+            else:
+                self.cur.execute("UPDATE users SET logged=%s WHERE login=%s", ['1', login])
+                self.conn.commit()
+                print('-')
+                return True
+        else:
+            print('++')
+            # przypadek niemożliwy - użytkonik nie istnieje
+            return False
 
-    def Logged(self, login):
+
+    def IfLogged(self, login):
         self.cur.execute("SELECT logged FROM users WHERE login LIKE %s", [login])
         es = self.cur.fetchall()
+        es = str(es).strip('[](),\'')
         print(es)
-        if not es:
+        if es == '0':
             return False
         else:
             return True
@@ -109,12 +128,20 @@ class Database:
         else:
             return True
 
+    def Contacts_Path(self, login):
+
+        self.cur.execute("SELECT path FROM users WHERE login LIKE %s", [login])
+        es = self.cur.fetchall()
+
+        if not es:
+            return None
+        else:
+            return str(es).strip('[](),\'')
+
+
+
 
 if __name__ == "__main__":
     d = Database()
     # b = d.Change_Password('admin3','admin2', 'admin2', 'admin1')d
-    d.Logged("admin")
-    d.Add_User('admin3', 'admin1', 'admin2')
-    b = d.Change_Password('admin3', 'admin1', 'admin2', 'admin2')
-    b = d.Delete_User('admin3', 'admin2', 'admin2')
-    #
+    print(d.IfLogged("admin"))

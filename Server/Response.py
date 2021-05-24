@@ -1,5 +1,10 @@
 import json
+<<<<<<< HEAD
 #from Server import DB
+=======
+import ast
+from Server import DB, clients
+>>>>>>> 13dd2637e6e393ce831c322df4ecb9e3ce7dba29
 
 
 class Response:
@@ -8,8 +13,11 @@ class Response:
 
     def Make_Response(self, buffer):
         signal = ""
+        dict_str = buffer.decode("UTF-8").replace("'", '"')
+        
+        #mydata = ast.literal_eval(dict_str)
 
-        tmp = json.loads(buffer)
+        tmp = json.loads(dict_str)
         signal = tmp["signal"]
         data = tmp["data"]
 
@@ -20,29 +28,44 @@ class Response:
             response["data"]
         elif signal == "ACK":
             return
+        
+        #przesyłanie wiadomości do adresata
         elif signal == "MSG":
             response["to"] = data["to"]
-            message = {"from": data["from"], "message": data ["message"]}
+            message = {"signal":"MSG", "data": {"from": data["from"], "date": data["date"], "message": data ["message"]}}
             response["data"] = str(message)
+            print(message)
             return response
+        
+        #dodanie nowego użytwkonika
         elif signal == "LAD":
             if self.AddUser(data["login"], data["password"], data["auth_key"]):
-                response["data"] = "ACK"
+                response["data"] = '{"signal":"ACK","data":""}'
                 response["to"] = "self"
+
+                #utworzenie pliku z kontaktami
+                f = open(("./Server/contacts/" + str(data["login"]) + '.txt'), "x")
+                f.close()
+            
             else:
                 response["to"] = "self"
                 response["data"] = '{"signal":"RJT","data":"Uzytkownik istnieje"}'
+        
+        #żądanie logowania
         elif signal == "LOG":
             login = data["login"]
             password = data["password"]
             #jeśli dane do logowania poprawne zwróć ACK i login klienta
             #jeśli nie zwróć RJT i self, aby wątek wiedział, że nie może kończyś funkcji Set_Configuration
             if self.LogIn(login, password):
-                response["data"] = "ACK"
+                response["data"] = '{"signal":"ACK","data":""}'
                 response["to"] = login
+                DB.Change_Logged(login)
             else:
                 response["to"] = "self"
-                response["data"] = "RJT"
+                response["data"] = '{"signal":"RJT","data":""}'
+        
+        #żądanie resetowania hasła przy logowaniu
         elif signal == "LRS":
             if self.ResetPassword(data['login'], data['auth_key'], data['password']):
                 response["data"] = '{"signal":"ACK","data":"Zresetowano haslo."}'
@@ -50,6 +73,8 @@ class Response:
             else:
                 response["to"] = "self"
                 response["data"] = '{"signal":"RJT","data":"Bledna odpowiedz autoryzacyjna lub uzytkownik nie istnieje"}'
+        
+        #zmiana hasła użytkownika
         elif signal == "UCP":
             if self.ChangePassword(data['login'], data['password'], data['new_password'], data['auth_key']):
                 response["to"] = data["login"]
@@ -57,6 +82,8 @@ class Response:
             else:
                 response["to"] = data["login"]
                 response["data"] = '{"signal":"RJT","data":"Bledna odpowiedz autoryzacyjna lub obecne haslo."}'
+        
+        #usunięcie konta przez użytkonika
         elif signal == "UDA":
             if self.DeleteUser(data['login'], data['password'], data['auth_key']):
                 response["to"] = data["login"]
@@ -64,8 +91,40 @@ class Response:
             else:
                 response["to"] = data["login"]
                 response["data"] = '{"signal":"RJT","data":"Bledna odpowiedz autoryzacyjna lub obecne haslo."}'
-        elif signal == "CLR":
-            return
+        
+        #dodanie użytkownika do kontaktów
+        elif signal == "CAD":
+            path = DB.Contacts_Path(data["login"])
+            with open(path, 'a') as f:
+                f.write('\n'+data["user"])
+
+            response["data"] = '{"signal":"ACK","data":""}'
+            response["to"] = data["login"]
+        
+        #usuwanie użytkownika
+        elif signal == "CDL":
+            path = DB.Contacts_Path(data["login"])
+            contacts_list = []
+            with open(path, 'r') as f:
+                lines = f.readlines()
+                for line in lines:
+                    contacts_list.append(line)
+            
+            contacts_list.remove(data["user"])
+
+            with open(path, 'w') as f:
+                f.writelines(contacts_list)
+            
+            response["data"] = '{"signal":"ACK","data":""}'
+            response["to"] = data["login"]
+
+        #szukanie?    
+        elif signal == "CSC":
+            pass
+        #koniec połączenia
+        elif signal == "END":
+            response["to"] = "self"
+            response["data"] = "END"
         else:
             return response
 

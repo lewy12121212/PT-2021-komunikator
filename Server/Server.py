@@ -1,22 +1,24 @@
 import socket
+import time
 from threading import Thread, Lock
 import Database
 import Response
-from Crypto.Cipher import PKCS1_OAEP
-from Crypto.PublicKey import RSA
-from Crypto import Random
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
 
 host = '127.0.0.1'
 port = 9879
 DB = Database.Database()
-
+clients = dict()
 
 class Server:
 
 
     #kontruktor
     def __init__(self):
-        self.clients = dict()
+        
         self.clients_lock = Lock()
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.th = []
@@ -33,18 +35,20 @@ class Server:
     def Set_Parameters(self, client, public_key, private_key):
         login =''
         rs = Response.Response()
-        get_client_key = client.recv(2048)
-        client_key = RSA.importKey(get_client_key)
+        get_client_key = client.recv(4096)
+        #print(get_client_key)
+        client_key = serialization.load_pem_public_key(get_client_key) 
         #print(client_key)
-        client.sendall(public_key.exportKey())
+        client.sendall(public_key)
 
         s = {"to": "self", "data": ""}
         while s["to"] == "self":
-            data = client.recv(2048)
+            data = client.recv(4096)
             if not data:
                 break
             else:
                 data = self.decrypt(data, private_key)
+                print(data)
                 #wysłanie wiadomości do wybranego klienta    
                 s = rs.Make_Response(data)
                 client.sendall(self.encrypt(str.encode(s["data"]), client_key))
@@ -57,13 +61,32 @@ class Server:
         self.Send_All(str(inform_all))
 
         #wysłanie klientowi listy zalogowanych klientów
-        if self.clients:
-            list_of_users = []
-            with self.clients_lock:
-                for cli in self.clients:
-                    list_of_users.append(cli)
+        contacts_list = []
+        path = DB.Contacts_Path(login)
+        print(path)
 
-            str_of_users_list = str({"signal": "LUS", "data": {"active": ','.join(list_of_users)}})
+        with open(path, 'r') as f:
+            lines = f.readlines()
+            for line in lines:
+                line = line.rstrip()
+                contacts_list.append(line)
+        
+        #print(contacts_list)
+
+        str_of_contacts_list = str({"signal": "LCU", "data": {"contacts": ','.join(contacts_list)}})
+        client.sendall(self.encrypt(str.encode(str_of_contacts_list), client_key))
+
+        #wyslanie listy zalogowanych uzytkownikow 
+        time.sleep(0.05) 
+        if clients:
+            
+            list_of_active_users = []
+            with self.clients_lock:
+                for cli in clients:
+                    list_of_active_users.append(cli)
+
+            str_of_users_list = str({"signal": "LAU", "data": {"active": ','.join(list_of_active_users)}})
+            #print(str_of_users_list)
             client.sendall(self.encrypt(str.encode(str_of_users_list), client_key))
 
         return login
@@ -73,37 +96,44 @@ class Server:
     def Transfer_Data(self, client, address):
         print ("Accepted connection from: ", address)
         #generowanie kluczy rsa servera
-        random_generator = Random.new().read
-        private_key = RSA.generate(1024, random_generator)
-        public_key = private_key.publickey()
+        private_key = rsa.generate_private_key(public_exponent=65537, key_size=4096)
+        public_key = private_key.public_key()
+        public_key_to_send = public_key.public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo)
 
-        login = self.Set_Parameters(client, public_key, private_key)
+        login = self.Set_Parameters(client, public_key_to_send, private_key)
         rs = Response.Response()
         #dodanie klienta do listy wątków
         with self.clients_lock:
-            self.clients[login] = client
+            clients[login] = client
 
         #transmisja
         #self.Send_All('okon')
+        resp = {"to": "", "data": ""}
         try:    
-            while True:
-                data = client.recv(1024)
+            while resp["data"] != "END":
+                data = client.recv(4096)
                 if not data:
                     break
                 else:
                     data = self.decrypt(data,private_key)
                     resp = rs.Make_Response(data)
-                    #wysłanie wiadomości do wybranego klienta
-                    with self.clients_lock:
-                        #zaszyfrowanie wiadomości kluczem publicznym adresowanego klienta i wysłanie do niego
-                        self.clients[resp["to"]].sendall(self.encrypt(str.encode(resp["data"]), self.clients_publickeys[resp["to"]]))
+                    if resp["data"] != "END":
+                        #wysłanie wiadomości do wybranego klienta
+                        with self.clients_lock:
+                            #zaszyfrowanie wiadomości kluczem publicznym adresowanego klienta i wysłanie do niego
+                            clients[resp["to"]].sendall(self.encrypt(str.encode(resp["data"]), self.clients_publickeys[resp["to"]]))
+                    else: 
+                        break
 
         #po rozłączeniu z klientem - usuwanie z listy wątków                 
         finally:
             with self.clients_lock:
-                del self.clients[login]
+                DB.Change_Logged(login)
+                clients[login].close()
+                del clients[login]
                 del self.clients_publickeys[login]
-                self.client.close()
+                
+                print("close client")
 
     #główna pętla servera (akceptowanie nowych klientów i uruchamianie wątków do transmisji z nimi)
     def Begin_Transmision(self):
@@ -115,25 +145,26 @@ class Server:
 
     def Send_All(self, message):
 
+        print(message)
         with self.clients_lock:
-            if self.clients:
-                for client in self.clients:
+            if clients:
+                for client in clients:
                     #zaszyfrowanie wiadomości kluczem publicznym adresowanego klienta i wysłanie do niego
-                    self.clients[client].sendall(self.encrypt(str.encode(message), self.clients_publickeys[client]))
+                    clients[client].sendall(self.encrypt(str.encode(message), self.clients_publickeys[client]))
 
 
     def Close_Server(self):
         self.s.close()
 
     #zaszyfrowanie wiadomości
-    def encrypt(self, message, pub_key):
-        cipher = PKCS1_OAEP.new(pub_key)
-        return cipher.encrypt(message)
+    def encrypt(self, message, public_key):
+        ciphertext = public_key.encrypt(message,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+        return ciphertext
 
     #odszyfrowanie wiadomości
-    def decrypt(self, ciphertext, priv_key):
-        cipher = PKCS1_OAEP.new(priv_key)
-        return cipher.decrypt(ciphertext)
+    def decrypt(self, ciphertext, private_key):
+        plaintext = private_key.decrypt(ciphertext, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+        return plaintext
 
 
     #wystartowanie klienta

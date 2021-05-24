@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Czas generowania: 14 Maj 2021, 18:46
+-- Czas generowania: 24 Maj 2021, 18:30
 -- Wersja serwera: 10.4.11-MariaDB
 -- Wersja PHP: 7.4.6
 
@@ -30,8 +30,8 @@ SET time_zone = "+00:00";
 CREATE TABLE `users` (
   `ID` int(11) NOT NULL,
   `login` varchar(32) NOT NULL,
-  `password` varchar(32) NOT NULL,
-  `auth_key` varchar(32) DEFAULT NULL,
+  `password` varchar(512) NOT NULL,
+  `auth_key` varchar(512) DEFAULT NULL,
   `path` text DEFAULT NULL,
   `logged` tinyint(1) DEFAULT 0,
   `last_db_access` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -42,10 +42,11 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`ID`, `login`, `password`, `auth_key`, `path`, `logged`, `last_db_access`) VALUES
-(4, 'admin', 'admin', NULL, NULL, 1, '2021-05-05 16:35:09'),
-(5, 'admin1', 'admin1', NULL, NULL, 0, NULL),
-(28, 'admin12', 'admin1', 'masło', NULL, 0, '2021-05-12 19:09:48'),
-(29, 'admin13', 'admin13', 'masło', NULL, 0, '2021-05-12 19:42:49');
+(4, 'admin', 'c7ad44cbad762a5da0a452f9e854fdc1e0e7a52a38015f23f3eab1d80b931dd472634dfac71cd34ebc35d16ab7fb8a90c81f975113d6c7538dc69dd8de9077ec', NULL, './Server/contacts/admin.txt', 1, '2021-05-24 08:41:52'),
+(5, 'admin1', '58b5444cf1b6253a4317fe12daff411a78bda0a95279b1d5768ebf5ca60829e78da944e8a9160a0b6d428cb213e813525a72650dac67b88879394ff624da482f', NULL, './Server/contacts/admin1.txt', 0, NULL),
+(28, 'admin12', '58b5444cf1b6253a4317fe12daff411a78bda0a95279b1d5768ebf5ca60829e78da944e8a9160a0b6d428cb213e813525a72650dac67b88879394ff624da482f', 'masło', NULL, 0, '2021-05-24 08:42:15'),
+(40, 'admin2', '58b5444cf1b6253a4317fe12daff411a78bda0a95279b1d5768ebf5ca60829e78da944e8a9160a0b6d428cb213e813525a72650dac67b88879394ff624da482f', 'masło', './Server/contacts/admin2.txt', 0, '2021-05-24 08:42:27'),
+(41, 'admin123', 'admin1', 'masło', './Server/contacts/admin123.txt', 0, '2021-05-24 07:40:43');
 
 --
 -- Indeksy dla zrzutów tabel
@@ -66,7 +67,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT dla tabeli `users`
 --
 ALTER TABLE `users`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
