@@ -1,10 +1,7 @@
 import json
-<<<<<<< HEAD
-#from Server import DB
-=======
 import ast
 from Server import DB, clients
->>>>>>> 13dd2637e6e393ce831c322df4ecb9e3ce7dba29
+
 
 
 class Response:
