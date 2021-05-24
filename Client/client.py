@@ -7,6 +7,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
+import response 
 
 class Client:
     
@@ -33,7 +34,7 @@ class Client:
         print("receiveing server's public key")
         data = self.sock.recv(2048)
         self.server_publickey = serialization.load_pem_public_key(data)
-        #print(self.server_publickey)
+        print(self.server_publickey)
         
 
     #zaszyfrowanie wiadomości
@@ -60,8 +61,24 @@ class Client:
         
         data = self.sock.recv(2048)
         mess = self.decrypt(data)
-        #print('received "%s"' % mess)
+        print('received "%s"' % mess)
         return mess
+
+    def recv_thread(self, window):
+        #window = arg[0]
+        while True:
+            resp = response.Response()
+
+            data = self.sock.recv(2048)
+            print('received "%s"' % len(data))
+            mess = self.decrypt(data)
+            #print(mess)
+
+            resp.Make_Response_Thread(mess, window)
+
+        #window.refresh_chat()
+        #print('received "%s"' % mess)
+        
 
 if __name__ == "__main__":
     c = Client()

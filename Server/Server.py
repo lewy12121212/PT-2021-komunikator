@@ -1,4 +1,5 @@
 import socket
+import time
 from threading import Thread, Lock
 import Database
 import Response
@@ -62,6 +63,7 @@ class Server:
         #wysłanie klientowi listy zalogowanych klientów
         contacts_list = []
         path = DB.Contacts_Path(login)
+        print(path)
 
         with open(path, 'r') as f:
             lines = f.readlines()
@@ -74,13 +76,17 @@ class Server:
         str_of_contacts_list = str({"signal": "LCU", "data": {"contacts": ','.join(contacts_list)}})
         client.sendall(self.encrypt(str.encode(str_of_contacts_list), client_key))
 
+        #wyslanie listy zalogowanych uzytkownikow 
+        time.sleep(0.01) 
         if self.clients:
+            
             list_of_active_users = []
             with self.clients_lock:
                 for cli in self.clients:
                     list_of_active_users.append(cli)
 
             str_of_users_list = str({"signal": "LAU", "data": {"active": ','.join(list_of_active_users)}})
+            #print(str_of_users_list)
             client.sendall(self.encrypt(str.encode(str_of_users_list), client_key))
 
         return login
@@ -104,7 +110,7 @@ class Server:
         #self.Send_All('okon')
         try:    
             while True:
-                data = client.recv(1024)
+                data = client.recv(2048)
                 if not data:
                     break
                 else:
@@ -132,6 +138,7 @@ class Server:
 
     def Send_All(self, message):
 
+        print(message)
         with self.clients_lock:
             if self.clients:
                 for client in self.clients:
