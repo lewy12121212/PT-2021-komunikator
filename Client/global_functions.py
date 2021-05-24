@@ -17,4 +17,9 @@ class MsgList:
         del self.Chat[user]
 
     def _append_msg(self, user, msg):
-        self.Chat[user].push(msg)
+        #["a",1]
+        self.Chat[user].append(msg)
+
+    def _get_msg(self,user):
+        #zwraca tabele wiadomosci
+        return self.Chat[user]

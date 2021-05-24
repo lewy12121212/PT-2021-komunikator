@@ -176,7 +176,7 @@ class LoginWindow(Gtk.Grid):
         if resp.Make_Response(data):
             #Poprawne zalogowanie
             print("ACK")
-            c.Login_window = login
+            c.login = login
             self.__parent_window.add_chat()
             #Przejście do okna czatu
             self.Show_chat_window()
@@ -315,7 +315,8 @@ class FirstPage(Gtk.Grid):
        
         super().__init__()
         self.__parent_window = parent_window
-
+        self.czat = global_functions.MsgList()
+        self.uzytkownik = ""
         #Łukasz
         self.recv_thread = Thread(target=c.recv_thread, args=(self, ))
         print("ok")
@@ -386,6 +387,7 @@ class FirstPage(Gtk.Grid):
             for user in global_functions.active_user_list:
                 self.buttons.append(Gtk.Button(label=user,xalign=0))
                 self.buttons[-1].connect("clicked", self.click_contact)
+                self.czat._append_user(user)
 
             self.grid_contact.add(self.buttons[0])
             for previous_button, button in zip(self.buttons,self.buttons[1:]):
@@ -447,6 +449,7 @@ class FirstPage(Gtk.Grid):
         print("AAA")
         self.buttons.append(Gtk.Button(label=nazwa,xalign=0))
         self.buttons[-1].connect("clicked", self.click_contact)
+        self.czat._append_user(nazwa)
 
         self.grid_contact.add(self.buttons[-1])
         self.scrolled_kontakty.add_with_viewport(self.grid_contact)
@@ -455,48 +458,52 @@ class FirstPage(Gtk.Grid):
         self.kontakty.show_all()
     
     def add_message(self,wiad):
-        
-        if(wiad[1]==1):
-            label = Gtk.Label(wiad[0])
-            label.set_line_wrap(True)
-            label.set_max_width_chars(5)
-            label.set_alignment(0,0)
-            
-        else:
-            label = Gtk.Label(wiad[0])
-            label.set_line_wrap(True)
-            label.set_max_width_chars(5)
-            label.set_alignment(1,0)
-        return label
+        if(self.uzytkownik!=""):
+            self.czat._append_msg(self.uzytkownik,wiad)
+            if(wiad[1]==1):
+                label = Gtk.Label(wiad[0])
+                label.set_line_wrap(True)
+                label.set_max_width_chars(5)
+                label.set_alignment(0,0)
+                
+            else:
+                label = Gtk.Label(wiad[0])
+                label.set_line_wrap(True)
+                label.set_max_width_chars(5)
+                label.set_alignment(1,0)
+            return label
+        return Gtk.Label("")
 
     def add_messages(self):   
         self.lista_wiadomosci = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 10)
         self.lista_wiadomosci.set_homogeneous(False)
 
         messages = []
-        for message in global_functions.income_messages_list:
-            messages.append(message) 
+        if(self.uzytkownik!=""):
+            for message in self.czat._get_msg(self.uzytkownik):
+                messages.append(message) 
+                
 
-        print(messages[-1])
-        for message in messages:
-            if(message[1]==1):
-                label = Gtk.Label(message[0])
-                label.set_line_wrap(True)
-                label.set_max_width_chars(5)
-                label.set_alignment(0,0)
-                self.lista_wiadomosci.pack_start(label, True, False, 1)
-            else:
-                label = Gtk.Label(message[0])
-                label.set_line_wrap(True)
-                label.set_max_width_chars(5)
-                label.set_alignment(1,0)
-                self.lista_wiadomosci.pack_start(label, True, False, 1)
-        
+            print(messages[-1])
+            for message in messages:
+                if(message[1]==1):
+                    label = Gtk.Label(message[0])
+                    label.set_line_wrap(True)
+                    label.set_max_width_chars(5)
+                    label.set_alignment(0,0)
+                    self.lista_wiadomosci.pack_start(label, True, False, 1)
+                else:
+                    label = Gtk.Label(message[0])
+                    label.set_line_wrap(True)
+                    label.set_max_width_chars(5)
+                    label.set_alignment(1,0)
+                    self.lista_wiadomosci.pack_start(label, True, False, 1)
+            
         
         return self.lista_wiadomosci
 
     def click_contact(self,button):
-        
+        self.uzytkownik = button.get_label()
         print(button.get_label())
 
     def send_click(self, button):
@@ -512,7 +519,7 @@ class FirstPage(Gtk.Grid):
 
         #ŁUKASZ
         #wysyłanie wiadomości
-        c.send(req.message("admin2",c.Login_window,wiadomosc))
+        c.send(req.message(self.uzytkownik,c.login,wiadomosc))
 
         adj = self.scrolled_window.get_vadjustment()
         adj.set_value(adj.get_upper() - adj.get_page_size()) #nie pokazuje ostatniej liniki 
@@ -522,6 +529,7 @@ class FirstPage(Gtk.Grid):
 
     #Łukasz
     def refresh_chat(self, mess):
+        print("LLLLLLL: ",mess)
         self.lista_wiadomosci.pack_start(self.add_message(mess), True, False, 1)
         self.scrolled_window.show_all()
 
@@ -531,6 +539,7 @@ class FirstPage(Gtk.Grid):
         for user in global_functions.active_user_list:
             self.buttons.append(Gtk.Button(label=user,xalign=0))
             self.buttons[-1].connect("clicked", self.click_contact)
+            self.czat._append_user(user)
 
         self.grid_contact.add(self.buttons[0])
         for previous_button, button in zip(self.buttons,self.buttons[1:]):
@@ -551,6 +560,7 @@ class FirstPage(Gtk.Grid):
             
         self.buttons.append(Gtk.Button(label=nazwa,xalign=0))
         self.buttons[-1].connect("clicked", self.click_contact)
+        self.czat._append_user(nazwa)
         if(len(self.buttons)==1):
             self.grid_contact.add(self.buttons[0])
         else:
@@ -581,6 +591,7 @@ class FirstPage(Gtk.Grid):
         for user in global_functions.active_user_list:
             buttons.append(Gtk.Button(label=user))
             self.buttons[-1].connect("clicked", self.click_contact)
+            self.czat._append_user(user)
 
         grid.add(buttons[0])
         for previous_button, button in zip(buttons,buttons[1:]):
