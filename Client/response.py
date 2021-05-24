@@ -57,10 +57,11 @@ class Response:
             print(repr(contact))
             if contact in (global_functions.contact_user_list):
                 global_functions.active_user_list.append(contact)
+                window.refresh_contact_list(contact)
             
             #window.refresh_contact_list()
             #window.add_contact(contact)
-            window.refresh_contact_list(contact)
+           
         
         #odebranie wiadomosci
         elif signal == "MSG":

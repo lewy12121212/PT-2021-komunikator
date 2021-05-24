@@ -77,7 +77,7 @@ class Server:
         client.sendall(self.encrypt(str.encode(str_of_contacts_list), client_key))
 
         #wyslanie listy zalogowanych uzytkownikow 
-        time.sleep(0.01) 
+        time.sleep(0.05) 
         if clients:
             
             list_of_active_users = []
