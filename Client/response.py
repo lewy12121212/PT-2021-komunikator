@@ -48,7 +48,7 @@ class Response:
             contact = data["active"].split(',')
             global_functions.active_user_list = list(set(global_functions.contact_user_list).intersection(contact))
 
-            window.refresh_contact_list()
+            window.active_users()
             
 
         #przybycie nowego uzytkownika
@@ -58,7 +58,9 @@ class Response:
             if contact in (global_functions.contact_user_list):
                 global_functions.active_user_list.append(contact)
             
-            window.refresh_contact_list()
+            #window.refresh_contact_list()
+            #window.add_contact(contact)
+            window.refresh_contact_list(contact)
         
         #odebranie wiadomosci
         elif signal == "MSG":

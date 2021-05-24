@@ -185,18 +185,18 @@ class FirstPage(Gtk.Grid):
 
 
       
-        grid = Gtk.Grid()
+        self.grid_contact = Gtk.Grid()
        
         
-        buttons = [] 
+        self.buttons = [] 
         
         #Dla każdego kontaktu z listy tworzy podpisany przycisk
         for user in global_functions.active_user_list:
-            buttons.append(Gtk.Button(label=user,xalign=0))
+            self.buttons.append(Gtk.Button(label=user,xalign=0))
 
-        grid.add(buttons[0])
-        for previous_button, button in zip(buttons,buttons[1:]):
-            grid.attach_next_to(button, previous_button, Gtk.PositionType.BOTTOM, 1, 1)
+        self.grid_contact.add(self.buttons[0])
+        for previous_button, button in zip(self.buttons,self.buttons[1:]):
+            self.grid_contact.attach_next_to(button, previous_button, Gtk.PositionType.BOTTOM, 1, 1)
         
         self.scrolled_kontakty = Gtk.ScrolledWindow()
         self.scrolled_kontakty.set_size_request(100,100)
@@ -205,7 +205,7 @@ class FirstPage(Gtk.Grid):
         self.scrolled_kontakty.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
 
         #Dodanie wiadmowsci
-        self.scrolled_kontakty.add_with_viewport(grid)
+        self.scrolled_kontakty.add_with_viewport(self.grid_contact)
 
         self.kontakty.pack_start (self.scrolled_kontakty, True, True, 0)
 
@@ -256,7 +256,12 @@ class FirstPage(Gtk.Grid):
 
         self.poziomo.pack_start(self.profil, False, True, 0)
         
+    def add_contact(self,nazwa):
+       
+        self.buttons.append(Gtk.Button(label=nazwa,xalign=0))
 
+        self.grid_contact.add(self.buttons[-1])
+        
     
     def add_message(self,wiad):
         
