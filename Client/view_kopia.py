@@ -1,4 +1,5 @@
 from typing import Tuple
+import time
 import gi
 import gui_callbacks
 import global_functions
@@ -510,8 +511,9 @@ class FirstPage(Gtk.Grid):
         global income_messages_list
         wiadomosc = self.entry_wysylanie.get_text()
         print(wiadomosc)
-        global_functions.income_messages_list.append([wiadomosc,2])
-        self.lista_wiadomosci.pack_start(self.add_message([wiadomosc,2]), True, False, 1)
+        t = time.localtime()
+        global_functions.income_messages_list.append([str(time.strftime("%H:%M:%S", t) + "\nTy:\n" + wiadomosc),2])
+        self.lista_wiadomosci.pack_start(self.add_message([str(time.strftime("%H:%M:%S", t) + "\nTy:\n" + wiadomosc),2]), True, False, 1)
         self.entry_wysylanie.set_text("")
         self.entry_wysylanie.show_all()
         #self.scrolled_window.show_all()
