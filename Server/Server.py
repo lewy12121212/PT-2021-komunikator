@@ -98,7 +98,7 @@ class Server:
                         #zaszyfrowanie wiadomości kluczem publicznym adresowanego klienta i wysłanie do niego
                         self.clients[resp["to"]].sendall(self.encrypt(str.encode(resp["data"]), self.clients_publickeys[resp["to"]]))
 
-       #po rozłączeniu z klientem - usuwanie z listy wątków                 
+        #po rozłączeniu z klientem - usuwanie z listy wątków                 
         finally:
             with self.clients_lock:
                 del self.clients[login]
