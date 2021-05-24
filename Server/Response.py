@@ -80,8 +80,10 @@ class Response:
             else:
                 response["to"] = data["login"]
                 response["data"] = '{"signal":"RJT","data":"Bledna odpowiedz autoryzacyjna lub obecne haslo."}'
-        elif signal == "CLR":
-            return
+        #koniec połączenia
+        elif signal == "END":
+            response["to"] = "self"
+            response["data"] = "END"
         else:
             return response
 

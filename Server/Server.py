@@ -108,25 +108,31 @@ class Server:
 
         #transmisja
         #self.Send_All('okon')
+        resp = {"to": "", "data": ""}
         try:    
-            while True:
+            while resp["data"] != "END":
                 data = client.recv(2048)
                 if not data:
                     break
                 else:
                     data = self.decrypt(data,private_key)
                     resp = rs.Make_Response(data)
-                    #wysłanie wiadomości do wybranego klienta
-                    with self.clients_lock:
-                        #zaszyfrowanie wiadomości kluczem publicznym adresowanego klienta i wysłanie do niego
-                        self.clients[resp["to"]].sendall(self.encrypt(str.encode(resp["data"]), self.clients_publickeys[resp["to"]]))
+                    if resp["data"] != "END":
+                        #wysłanie wiadomości do wybranego klienta
+                        with self.clients_lock:
+                            #zaszyfrowanie wiadomości kluczem publicznym adresowanego klienta i wysłanie do niego
+                            self.clients[resp["to"]].sendall(self.encrypt(str.encode(resp["data"]), self.clients_publickeys[resp["to"]]))
+                    else: 
+                        break
 
        #po rozłączeniu z klientem - usuwanie z listy wątków                 
         finally:
             with self.clients_lock:
+                self.clients[login].close()
                 del self.clients[login]
                 del self.clients_publickeys[login]
-                self.client.close()
+                
+                print("close client")
 
     #główna pętla servera (akceptowanie nowych klientów i uruchamianie wątków do transmisji z nimi)
     def Begin_Transmision(self):

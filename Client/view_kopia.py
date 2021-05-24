@@ -42,8 +42,15 @@ class App_view(Gtk.Window):
 
         #Okno logowania
         
+        
         self.login_window = Login_window(self)
         container.add(self.login_window)
+    
+    def on_destroy(self, widget=None, *data):
+        # return True --> no, don't close
+
+        c.send("{'signal':'END','data':''}")
+        
         
     #Łukasz
     def add_chat(self):

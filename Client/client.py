@@ -3,6 +3,7 @@ import os
 from threading import Thread, Lock
 import json
 import hashlib
+import atexit
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives import hashes
@@ -66,15 +67,18 @@ class Client:
 
     def recv_thread(self, window):
         #window = arg[0]
+
         while True:
             resp = response.Response()
 
             data = self.sock.recv(2048)
             print('received "%s"' % len(data))
             mess = self.decrypt(data)
-            #print(mess)
+                #print(mess)
 
             resp.Make_Response_Thread(mess, window)
+
+
 
         #window.refresh_chat()
         #print('received "%s"' % mess)
