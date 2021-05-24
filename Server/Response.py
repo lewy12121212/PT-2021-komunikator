@@ -132,11 +132,12 @@ class Response:
 
     def LogIn(self, login, password):
         if DB.Exists(login):
-            user = DB.Select_User(login)
-            if user == (login, password):
-                return True
-            else:
-                return False
+            if not DB.IfLogged(login):
+                user = DB.Select_User(login)
+                if user == (login, password):
+                    return True
+                else:
+                    return False
         else:
             return False
 
