@@ -67,7 +67,7 @@ class Request:
         request = self.request
         password = self.make_hash(str.encode(password))
         auth_key = self.make_hash(str.encode(auth_key))
-        
+
         request["signal"] ="UDA"
         request["data"] = {"login": login, "password": password, "auth_key": auth_key}
 
@@ -92,8 +92,10 @@ class Request:
 
 
     def make_hash(self, to_hash):
-        m = hashlib.sha512()
+        m = hashlib.sha256()
         m.update(to_hash)
         hash = m.hexdigest()
 
         return hash
+
+    

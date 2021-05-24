@@ -35,7 +35,7 @@ class Server:
     def Set_Parameters(self, client, public_key, private_key):
         login =''
         rs = Response.Response()
-        get_client_key = client.recv(2048)
+        get_client_key = client.recv(4096)
         #print(get_client_key)
         client_key = serialization.load_pem_public_key(get_client_key) 
         #print(client_key)
@@ -43,7 +43,7 @@ class Server:
 
         s = {"to": "self", "data": ""}
         while s["to"] == "self":
-            data = client.recv(2048)
+            data = client.recv(4096)
             if not data:
                 break
             else:
@@ -96,7 +96,7 @@ class Server:
     def Transfer_Data(self, client, address):
         print ("Accepted connection from: ", address)
         #generowanie kluczy rsa servera
-        private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        private_key = rsa.generate_private_key(public_exponent=65537, key_size=4096)
         public_key = private_key.public_key()
         public_key_to_send = public_key.public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo)
 
@@ -111,7 +111,7 @@ class Server:
         resp = {"to": "", "data": ""}
         try:    
             while resp["data"] != "END":
-                data = client.recv(2048)
+                data = client.recv(4096)
                 if not data:
                     break
                 else:
