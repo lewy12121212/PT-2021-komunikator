@@ -1,6 +1,6 @@
 import json
 import ast
-from Server import DB
+from Server import DB, clients
 
 
 class Response:
@@ -80,6 +80,35 @@ class Response:
             else:
                 response["to"] = data["login"]
                 response["data"] = '{"signal":"RJT","data":"Bledna odpowiedz autoryzacyjna lub obecne haslo."}'
+        #dodanie użytkownika do kontaktów
+        elif signal == "CAD":
+            path = DB.Contacts_Path(data["login"])
+            with open(path, 'a') as f:
+                f.write('\n'+data["user"])
+
+            response["data"] = '{"signal":"ACK","data":""}'
+            response["to"] = data["login"]
+        #usuwanie użytkownika
+
+        elif signal == "CDL":
+            path = DB.Contacts_Path(data["login"])
+            contacts_list = []
+            with open(path, 'r') as f:
+                lines = f.readlines()
+                for line in lines:
+                    contacts_list.append(line)
+            
+            contacts_list.remove(data["user"])
+
+            with open(path, 'w') as f:
+                f.writelines(contacts_list)
+            
+            response["data"] = '{"signal":"ACK","data":""}'
+            response["to"] = data["login"]
+
+        #szukanie?    
+        elif signal == "CSC":
+            pass
         #koniec połączenia
         elif signal == "END":
             response["to"] = "self"

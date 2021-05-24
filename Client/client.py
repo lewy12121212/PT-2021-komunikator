@@ -72,11 +72,12 @@ class Client:
             resp = response.Response()
 
             data = self.sock.recv(2048)
-            print('received "%s"' % len(data))
-            mess = self.decrypt(data)
-                #print(mess)
+            if len(data) != 0:
+                print('received "%s"' % len(data))
+                mess = self.decrypt(data)
+                    #print(mess)
 
-            resp.Make_Response_Thread(mess, window)
+                resp.Make_Response_Thread(mess, window)
 
 
 

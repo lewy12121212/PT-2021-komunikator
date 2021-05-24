@@ -11,14 +11,14 @@ from cryptography.hazmat.primitives.asymmetric import padding
 host = '127.0.0.1'
 port = 9879
 DB = Database.Database()
-
+clients = dict()
 
 class Server:
 
 
     #kontruktor
     def __init__(self):
-        self.clients = dict()
+        
         self.clients_lock = Lock()
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.th = []
@@ -71,18 +71,18 @@ class Server:
                 line = line.rstrip()
                 contacts_list.append(line)
         
-        print(contacts_list)
+        #print(contacts_list)
 
         str_of_contacts_list = str({"signal": "LCU", "data": {"contacts": ','.join(contacts_list)}})
         client.sendall(self.encrypt(str.encode(str_of_contacts_list), client_key))
 
         #wyslanie listy zalogowanych uzytkownikow 
         time.sleep(0.01) 
-        if self.clients:
+        if clients:
             
             list_of_active_users = []
             with self.clients_lock:
-                for cli in self.clients:
+                for cli in clients:
                     list_of_active_users.append(cli)
 
             str_of_users_list = str({"signal": "LAU", "data": {"active": ','.join(list_of_active_users)}})
@@ -104,7 +104,7 @@ class Server:
         rs = Response.Response()
         #dodanie klienta do listy wątków
         with self.clients_lock:
-            self.clients[login] = client
+            clients[login] = client
 
         #transmisja
         #self.Send_All('okon')
@@ -121,15 +121,15 @@ class Server:
                         #wysłanie wiadomości do wybranego klienta
                         with self.clients_lock:
                             #zaszyfrowanie wiadomości kluczem publicznym adresowanego klienta i wysłanie do niego
-                            self.clients[resp["to"]].sendall(self.encrypt(str.encode(resp["data"]), self.clients_publickeys[resp["to"]]))
+                            clients[resp["to"]].sendall(self.encrypt(str.encode(resp["data"]), self.clients_publickeys[resp["to"]]))
                     else: 
                         break
 
        #po rozłączeniu z klientem - usuwanie z listy wątków                 
         finally:
             with self.clients_lock:
-                self.clients[login].close()
-                del self.clients[login]
+                clients[login].close()
+                del clients[login]
                 del self.clients_publickeys[login]
                 
                 print("close client")
@@ -146,10 +146,10 @@ class Server:
 
         print(message)
         with self.clients_lock:
-            if self.clients:
-                for client in self.clients:
+            if clients:
+                for client in clients:
                     #zaszyfrowanie wiadomości kluczem publicznym adresowanego klienta i wysłanie do niego
-                    self.clients[client].sendall(self.encrypt(str.encode(message), self.clients_publickeys[client]))
+                    clients[client].sendall(self.encrypt(str.encode(message), self.clients_publickeys[client]))
 
 
     def Close_Server(self):
