@@ -132,8 +132,9 @@ class Login_window(Gtk.Grid):
         e = self.entry.get_text()
         o = self.entry2.get_text()
 
-        mess = {"signal":"LOG", "data":{"login":e,"password":o}}
-        
+        #mess = {"signal":"LOG", "data":{"login":e,"password":o}}
+        mess = req.logIn(e,o)
+
         c.send(str(mess))
         #self.recv_thread = Thread(target=c.recv, args=(self, ))
         data = c.recv()
