@@ -225,21 +225,32 @@ class Register_window(Gtk.Grid):
         self.entry2.set_text("")  
 
         label_p_haslo = Gtk.Label("Powtórz hasło: ")
+        label_p_haslo.set_halign(2)
         self.entry3 = Gtk.Entry()
         self.entry3.set_visibility(False)
         self.entry3.set_hexpand(False)
         self.entry3.set_vexpand(False)
         self.entry3.set_text("")  
+
+        label_pytanie = Gtk.Label("Podaj ulubiony kolor: ")
+        label_pytanie.set_halign(2)
+        self.entry4 = Gtk.Entry()
+        self.entry4.set_visibility(False)
+        self.entry4.set_hexpand(False)
+        self.entry4.set_vexpand(False)
+        self.entry4.set_text("")  
         
         #obok.set_halign(3)
         obok.pack_start(label_login, True, True, 0)
         obok.pack_start(label_haslo, True, True, 0)
         obok.pack_start(label_p_haslo, True, True, 0)
+        obok.pack_start(label_pytanie, True, True, 0)
 
         #obok2.set_halign(3)
         obok2.pack_start(self.entry, True, True, 0)
         obok2.pack_start(self.entry2, True, True, 0)
         obok2.pack_start(self.entry3, True, True, 0)
+        obok2.pack_start(self.entry4, True, True, 0)
 
         
         obok3 = Gtk.Box(spacing=6)
@@ -262,6 +273,7 @@ class Register_window(Gtk.Grid):
         l = self.entry.get_text()
         h = self.entry2.get_text()
         ph = self.entry3.get_text()
+        pyt = self.entry4.get_text()
 
         if(h!=ph):
             print("INNE HASLA")
@@ -269,7 +281,8 @@ class Register_window(Gtk.Grid):
             #TU JEST LOGOWANIE I TO TRZEBA ZMIENIĆ NA DODANIE UŻYTKOWNIKA I POTEM LOGOWANIE
 
             #mess = {"signal":"LOG", "data":{"login":e,"password":o}}
-            mess = req.logIn(l,h)
+            mess = req.register(l,h,pyt)
+           
 
             c.send(str(mess))
             #self.recv_thread = Thread(target=c.recv, args=(self, ))
@@ -277,11 +290,10 @@ class Register_window(Gtk.Grid):
             print(data)
             if resp.Make_Response(data):
                 print("ACK")
-                c.login = l
-                self.__parent_window.add_chat()
-                self.swich_to_chat()
+
 
             else:
+                print(data["data"])
                 pass
                 #self.wrong_login()
 
