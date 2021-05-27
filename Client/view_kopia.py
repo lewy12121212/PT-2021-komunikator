@@ -155,6 +155,26 @@ class LoginWindow(Gtk.Grid):
         horizontal_buttons_box.pack_start(self.register_button, False, True, 0)
         vertical_main_box.pack_start(horizontal_buttons_box, True, True, 0) 
 
+    def Wrong_data(self):
+        self.wrong_data_window = Gtk.Window()
+        self.wrong_data_window.set_default_size(400, 100)
+
+       
+        label_wrong_data = Gtk.Label("Wpisano błędny login lub hasło")
+        wrong_data_box = Gtk.VBox()
+        wrong_data_box.pack_start(label_wrong_data,True,True, 1)
+       
+      
+        self.wrong_data_window.add(wrong_data_box)
+        self.wrong_data_window.show_all()   
+
+        #W tym przypadku dopiero po 5 sek pojawia się tekst i w tym samym momecie zamyka okno
+        #jak nie ma destroy to to widać 
+        '''
+        time.sleep(5)
+        self.wrong_data_window.destroy() 
+        '''
+
     #Kliknięcie przycisku do okna rejestracji
     def Click_register(self, button):
         self.__parent_window.add_register()
@@ -163,6 +183,8 @@ class LoginWindow(Gtk.Grid):
 
     #Kliknięcie przycisku do zalogowania
     def Click_login(self, button):
+        #Zrobić żeby było tylko jak są złe dane
+        self.Wrong_data()
         #Zczytanie danych z wejścia
         login = self.entry_login.get_text()
         password = self.entry_password.get_text()
@@ -365,6 +387,7 @@ class FirstPage(Gtk.Grid):
         self.dodaj_kontakt.connect("clicked", self.click_add_contact)
         self.guziki_kontakty.pack_start(self.dodaj_kontakt, True, True, 0)
         self.usun_kontakt = Gtk.Button(label="Usuń kontakt")
+        self.usun_kontakt.connect("clicked", self.click_delete_contact)
         self.guziki_kontakty.pack_start(self.usun_kontakt, True, True, 0)
         self.guziki_kontakty.set_valign(1)
         self.kontakty.pack_start(self.guziki_kontakty, False, True, 0)
@@ -503,6 +526,41 @@ class FirstPage(Gtk.Grid):
             
         
         return self.lista_wiadomosci
+
+    def click_delete_contact(self, button):
+        self.window3 = Gtk.Window()
+        self.window3.set_default_size(400, 170)
+
+       
+        label_delete = Gtk.Label("Podaj nazwę użytkownika:")
+        self.entry_user = Gtk.Entry()
+        self.entry_user.set_hexpand(False)
+        self.entry_user.set_vexpand(False)
+        self.entry_user.set_text("")  
+
+        self.button_del = Gtk.Button("Usuń")
+
+        pion = Gtk.VBox(orientation=Gtk.Orientation.VERTICAL)
+        vbox = Gtk.VBox()
+        vbox.set_halign(3)
+        vbox.pack_start(label_delete,True,False, 1)
+        vbox.pack_start(self.entry_user,True, False, 1)
+        self.button_del.connect("clicked", self.click_delete_user_name)
+        #button_cancel = Gtk.Button("Cancel"
+      
+        hbox = Gtk.HBox()
+        hbox.pack_start(self.button_del,True, False, 1)
+        #hbox.pack_start(button_cancel,True, False, 1)
+       
+        pion.pack_start(vbox,True,False, 1)
+        pion.pack_start(hbox,True,False, 1)
+        self.window3.add(pion)
+        self.window3.show_all()   
+
+    def click_delete_user_name(self, button):
+        print(self.entry_user.get_text())
+        self.window3.destroy() 
+        #Tu dodać nazwę użytkownika do znajomych     
 
     def click_add_contact(self, button):
         self.window2 = Gtk.Window()
