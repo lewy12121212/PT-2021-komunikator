@@ -206,7 +206,8 @@ class LoginWindow(Gtk.Grid):
     #Kliknięcie przycisku do zalogowania
     def Click_login(self, button):
         #Zrobić żeby było tylko jak są złe dane
-        self.Wrong_data()
+        #self.Wrong_data()
+        
         #Zczytanie danych z wejścia
         login = self.entry_login.get_text()
         password = self.entry_password.get_text()
@@ -589,13 +590,104 @@ class FirstPage(Gtk.Grid):
 
         self.profil = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
        
-        self.send_button = Gtk.Button(label="Zmiana hasła")
-        self.profil.pack_start(self.send_button, False, True, 0)
+        self.change_button = Gtk.Button(label="Zmiana hasła")
+        self.profil.pack_start(self.change_button, False, True, 0)
+        self.change_button.connect("clicked", self.change_click)
+
         self.send_button = Gtk.Button(label="Usuń konto")
         self.profil.pack_start(self.send_button, False, True, 0)
         
 
         self.poziomo.pack_start(self.profil, False, True, 0)
+
+    def change_click(self, button):
+        self.window4 = Gtk.Window()
+        self.window4.set_default_size(400, 270)
+
+        vertical_interface_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
+        #self.add(vertical_interface_box)
+
+        label_main = Gtk.Label("Zresetuj hasło")
+
+        vertical_labels_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+       
+
+        vertical_entries_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        label_haslo = Gtk.Label("Nowe hasło: ")
+        label_haslo.set_halign(2)
+        self.entry_password = Gtk.Entry()
+        self.entry_password.set_visibility(False)
+        self.entry_password.set_hexpand(False)
+        self.entry_password.set_vexpand(False)
+        self.entry_password.set_text("")  
+
+        label_second_password = Gtk.Label("Powtórz nowe hasło: ")
+        label_second_password.set_halign(2)
+        self.entry_second_password = Gtk.Entry()
+        self.entry_second_password.set_visibility(False)
+        self.entry_second_password.set_hexpand(False)
+        self.entry_second_password.set_vexpand(False)
+        self.entry_second_password.set_text("")  
+
+        label_auth_key = Gtk.Label("Podaj ulubiony kolor: ")
+        label_auth_key.set_halign(2)
+        self.entry_auth_key = Gtk.Entry()
+        self.entry_auth_key.set_hexpand(False)
+        self.entry_auth_key.set_vexpand(False)
+        self.entry_auth_key.set_text("")  
+            
+        
+        
+        vertical_labels_box.pack_start(label_haslo, True, True, 0)
+        vertical_labels_box.pack_start(label_second_password, True, True, 0)
+        vertical_labels_box.pack_start(label_auth_key, True, True, 0)
+        #vertical_labels_box.set_valign(3)
+            
+        
+        vertical_entries_box.pack_start(self.entry_password, True, True, 0)
+        vertical_entries_box.pack_start(self.entry_second_password, True, True, 0)
+        vertical_entries_box.pack_start(self.entry_auth_key, True, True, 0)
+        #vertical_entries_box.set_valign(3)
+            
+        horizontal_box = Gtk.Box(spacing=6)
+        horizontal_box.set_halign(3)
+        horizontal_box.pack_start(vertical_labels_box, True, True, 0)
+        horizontal_box.pack_start(vertical_entries_box, True, True, 0)
+
+
+        label_main.set_hexpand(True)
+        vertical_interface_box.pack_start(label_main, True, True, 0)
+            
+        vertical_interface_box.pack_start(horizontal_box, True, True, 0)
+        vertical_interface_box.set_valign(3)
+        horizontal_button_box = Gtk.Box(spacing=6)
+        horizontal_button_box.set_halign(3)
+
+        self.register_button = Gtk.Button(label="Zmień hasło")
+        self.register_button.connect("clicked", self.Click_reset_password)
+        self.register_button.set_halign(3)
+        self.register_button.set_hexpand(True)
+
+        self.back_to_login_button = Gtk.Button(label="Powrót")
+        self.back_to_login_button.connect("clicked", self.Close_reset)
+        self.back_to_login_button.set_halign(3)
+        self.back_to_login_button.set_hexpand(True)
+
+        horizontal_button_box.pack_start(self.register_button,False,True,0)
+        horizontal_button_box.pack_start(self.back_to_login_button,False,True,0)
+        vertical_interface_box.pack_start(horizontal_button_box, False, True, 0)
+        self.window4.add(vertical_interface_box)
+        self.window4.show_all()
+
+    def Click_reset_password(self, button): 
+        print("Zmiana hasła")
+        #Dodać zmianę hasła
+        self.window4.destroy()
+
+    def Close_reset(self,button):
+        print("a")
+        self.window4.destroy()
+
         
     def add_contact(self,nazwa):
         print("AAA")
