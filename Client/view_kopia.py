@@ -54,9 +54,14 @@ class App_view(Gtk.Window):
         container.add(self.chat_window)
 
     def add_register(self):
-        #Okno czatu
+        #Okno rejestracji
         self.register_window = RegisterWindow(self)
         container.add(self.register_window)
+
+    def add_change(self):
+        self.change_window = ChangePasswordWindow(self)
+        container.add(self.change_window)
+
 
      
         
@@ -86,6 +91,11 @@ class LoginWindow(Gtk.Grid):
     #Chowa okno logowania i pokazuje okno rejestracji
     def Show_register_window(self, *args):
         self.__parent_window.register_window.show_all()
+        self.hide()
+
+    #Chowa okno logowania i pokazuje okno zmiany hasła
+    def Show_change_window(self, *args):
+        self.__parent_window.change_window.show_all()
         self.hide()
 
  
@@ -155,6 +165,13 @@ class LoginWindow(Gtk.Grid):
         horizontal_buttons_box.pack_start(self.register_button, False, True, 0)
         vertical_main_box.pack_start(horizontal_buttons_box, True, True, 0) 
 
+        #Przycisk do pytania kontrolnego
+        self.reset_button = Gtk.Button(label="Zresetuj hasło")
+        self.reset_button.connect("clicked", self.Click_reset)
+        self.reset_button.set_halign(3)
+        self.reset_button.set_hexpand(True)
+        vertical_main_box.pack_start(self.reset_button, True, True, 0) 
+
     def Wrong_data(self):
         self.wrong_data_window = Gtk.Window()
         self.wrong_data_window.set_default_size(400, 100)
@@ -174,6 +191,11 @@ class LoginWindow(Gtk.Grid):
         time.sleep(5)
         self.wrong_data_window.destroy() 
         '''
+
+    def Click_reset(self,button):
+        self.__parent_window.add_change()
+        #Zmiana okna na rejestrację
+        self.Show_change_window()
 
     #Kliknięcie przycisku do okna rejestracji
     def Click_register(self, button):
@@ -207,6 +229,108 @@ class LoginWindow(Gtk.Grid):
         else:
             #Niepoprawne zalogowanie
             pass
+
+class ChangePasswordWindow(Gtk.Grid):
+    #Konstruktor - wywołuje okno zmiany hasła
+    def __init__(self, parent_window):
+        
+        super().__init__()
+        self.__parent_window = parent_window
+        self.row_spacing = 10
+        self.column_spacing = 10
+        
+        self.Change_password()
+    
+    #Pokazanie okna logowania i schowanie okna rejestracji
+    def Show_login_window(self, *args):
+        self.__parent_window.login_window.show_all()
+        self.hide()
+
+    def Change_password(self):
+        vertical_interface_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
+        self.add(vertical_interface_box)
+
+        label_main = Gtk.Label("Zresetuj hasło")
+
+        vertical_labels_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        label_login = Gtk.Label("Login: ")
+        label_login.set_halign(2)
+        self.entry_login = Gtk.Entry()
+        self.entry_login.set_hexpand(False)
+        self.entry_login.set_vexpand(False)
+        self.entry_login.set_text("")  
+
+        vertical_entries_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        label_haslo = Gtk.Label("Nowe hasło: ")
+        label_haslo.set_halign(2)
+        self.entry_password = Gtk.Entry()
+        self.entry_password.set_visibility(False)
+        self.entry_password.set_hexpand(False)
+        self.entry_password.set_vexpand(False)
+        self.entry_password.set_text("")  
+
+        label_second_password = Gtk.Label("Powtórz nowe hasło: ")
+        label_second_password.set_halign(2)
+        self.entry_second_password = Gtk.Entry()
+        self.entry_second_password.set_visibility(False)
+        self.entry_second_password.set_hexpand(False)
+        self.entry_second_password.set_vexpand(False)
+        self.entry_second_password.set_text("")  
+
+        label_auth_key = Gtk.Label("Podaj ulubiony kolor: ")
+        label_auth_key.set_halign(2)
+        self.entry_auth_key = Gtk.Entry()
+        self.entry_auth_key.set_hexpand(False)
+        self.entry_auth_key.set_vexpand(False)
+        self.entry_auth_key.set_text("")  
+            
+        
+        vertical_labels_box.pack_start(label_login, True, True, 0)
+        vertical_labels_box.pack_start(label_haslo, True, True, 0)
+        vertical_labels_box.pack_start(label_second_password, True, True, 0)
+        vertical_labels_box.pack_start(label_auth_key, True, True, 0)
+
+            
+        vertical_entries_box.pack_start(self.entry_login, True, True, 0)
+        vertical_entries_box.pack_start(self.entry_password, True, True, 0)
+        vertical_entries_box.pack_start(self.entry_second_password, True, True, 0)
+        vertical_entries_box.pack_start(self.entry_auth_key, True, True, 0)
+
+            
+        horizontal_box = Gtk.Box(spacing=6)
+        horizontal_box.set_halign(3)
+        horizontal_box.pack_start(vertical_labels_box, True, True, 0)
+        horizontal_box.pack_start(vertical_entries_box, True, True, 0)
+
+
+        label_main.set_hexpand(True)
+        vertical_interface_box.pack_start(label_main, True, True, 0)
+            
+        vertical_interface_box.pack_start(horizontal_box, True, True, 0)
+
+        horizontal_button_box = Gtk.Box(spacing=6)
+        horizontal_button_box.set_halign(3)
+
+        self.register_button = Gtk.Button(label="Zmień hasło")
+        self.register_button.connect("clicked", self.Click_reset_password)
+        self.register_button.set_halign(3)
+        self.register_button.set_hexpand(True)
+
+        self.back_to_login_button = Gtk.Button(label="Powrót")
+        self.back_to_login_button.connect("clicked", self.Click_back_to_login)
+        self.back_to_login_button.set_halign(3)
+        self.back_to_login_button.set_hexpand(True)
+
+        horizontal_button_box.pack_start(self.register_button,False,True,0)
+        horizontal_button_box.pack_start(self.back_to_login_button,False,True,0)
+        vertical_interface_box.pack_start(horizontal_button_box, False, True, 0)
+
+    def Click_reset_password(self, button): 
+        print("Zmiana hasła")
+        #Dodać zmianę hasła
+
+    def Click_back_to_login(self, button):      
+         self.Show_login_window()  
            
 
 class RegisterWindow(Gtk.Grid):
