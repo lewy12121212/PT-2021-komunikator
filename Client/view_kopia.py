@@ -362,6 +362,7 @@ class FirstPage(Gtk.Grid):
 
         self.guziki_kontakty = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         self.dodaj_kontakt = Gtk.Button(label="Dodaj kontakt")
+        self.dodaj_kontakt.connect("clicked", self.click_add_contact)
         self.guziki_kontakty.pack_start(self.dodaj_kontakt, True, True, 0)
         self.usun_kontakt = Gtk.Button(label="Usuń kontakt")
         self.guziki_kontakty.pack_start(self.usun_kontakt, True, True, 0)
@@ -503,6 +504,42 @@ class FirstPage(Gtk.Grid):
         
         return self.lista_wiadomosci
 
+    def click_add_contact(self, button):
+        self.window2 = Gtk.Window()
+        self.window2.set_default_size(400, 170)
+
+       
+        label_add = Gtk.Label("Podaj nazwę użytkownika:")
+        self.entry_user = Gtk.Entry()
+        self.entry_user.set_hexpand(False)
+        self.entry_user.set_vexpand(False)
+        self.entry_user.set_text("")  
+
+        self.button_ok = Gtk.Button("Dodaj")
+
+        pion = Gtk.VBox(orientation=Gtk.Orientation.VERTICAL)
+        vbox = Gtk.VBox()
+        vbox.set_halign(3)
+        vbox.pack_start(label_add,True,False, 1)
+        vbox.pack_start(self.entry_user,True, False, 1)
+        self.button_ok.connect("clicked", self.click_add_user_name)
+        #button_cancel = Gtk.Button("Cancel"
+      
+        hbox = Gtk.HBox()
+        hbox.pack_start(self.button_ok,True, False, 1)
+        #hbox.pack_start(button_cancel,True, False, 1)
+       
+        pion.pack_start(vbox,True,False, 1)
+        pion.pack_start(hbox,True,False, 1)
+        self.window2.add(pion)
+        self.window2.show_all()   
+
+    def click_add_user_name(self, button):
+        print(self.entry_user.get_text())
+        self.window2.destroy() 
+        #Tu dodać nazwę użytkownika do znajomych 
+          
+
     def click_contact(self,button):
         self.uzytkownik = button.get_label()
         print(button.get_label())
@@ -600,5 +637,8 @@ class FirstPage(Gtk.Grid):
             grid.attach_next_to(button, previous_button, Gtk.PositionType.BOTTOM, 1, 1)
         
         return grid
+
+   
+			
 
 
