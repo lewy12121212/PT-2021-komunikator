@@ -553,7 +553,8 @@ class FirstPage(Gtk.Grid):
         
         self.chat_window = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
         self.poziomo.pack_start(self.chat_window, True, True, 0)
-        
+        self.chat_name = Gtk.Label()
+        self.chat_name.set_text("")
    
         self.scrolled_window = Gtk.ScrolledWindow()
         self.scrolled_window.set_size_request(600,300)
@@ -581,6 +582,8 @@ class FirstPage(Gtk.Grid):
         self.send_button = Gtk.Button(label="Wyślij")
         self.send_button.connect("clicked", self.send_click)
         self.wysylanie.pack_start(self.send_button, True, True, 0)
+
+        self.chat_window.pack_start(self.chat_name,True,True,0)
         self.chat_window.pack_start(self.scrolled_window, True, True, 0)
         self.chat_window.pack_start(self.wysylanie, True, True, 0)
 
@@ -724,6 +727,7 @@ class FirstPage(Gtk.Grid):
 
     def click_contact(self,button):
         self.uzytkownik = button.get_label()
+        self.chat_name.set_text(self.uzytkownik)
         print(button.get_label())
 
     def send_click(self, button):
@@ -750,7 +754,7 @@ class FirstPage(Gtk.Grid):
 
     #Łukasz
     def refresh_chat(self, mess):
-        print("LLLLLLL: ",mess)
+        #print(mess)
         self.lista_wiadomosci.pack_start(self.add_message(mess), True, False, 1)
         self.scrolled_window.show_all()
 
