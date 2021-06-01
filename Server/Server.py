@@ -124,16 +124,30 @@ class Server:
                             clients[resp["to"]].sendall(self.encrypt(str.encode(resp["data"]), self.clients_publickeys[resp["to"]]))
                     else: 
                         break
-
+        except:
+            DB.Change_Logged(login)
+            with self.clients_lock:                
+                clients[login].close()
+                inform_all = {"signal": "NCL", "data": {"login": login}}
+                del clients[login]                
+                
+                del self.clients_publickeys[login]
+            self.Send_All(str(inform_all))  
+            print("close client")
+            return
+                          
         #po rozłączeniu z klientem - usuwanie z listy wątków                 
         finally:
-            with self.clients_lock:
-                DB.Change_Logged(login)
+            DB.Change_Logged(login)
+            with self.clients_lock:                                
                 clients[login].close()
-                del clients[login]
-                del self.clients_publickeys[login]
+                inform_all = {"signal": "NCL", "data": {"login": login}}
+                del clients[login]                
                 
-                print("close client")
+                del self.clients_publickeys[login]
+        
+        self.Send_All(str(inform_all))  
+        print("close client")
 
     #główna pętla servera (akceptowanie nowych klientów i uruchamianie wątków do transmisji z nimi)
     def Begin_Transmision(self):

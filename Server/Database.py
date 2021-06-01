@@ -36,8 +36,8 @@ class Database:
 
     def Select_User(self, login):
         if self.Exists(login) == True:
-            self.cur.execute("SELECT login, password FROM users WHERE login=%s", [login])
-            # print(repr(self.cur.fetchone()))
+            self.cur.execute("SELECT login, password, auth_key FROM users WHERE login=%s", [login])
+            #print(repr(self.cur.fetchone()))
             return self.cur.fetchone()
         else:
             print("Użytkownik nie istnieje.")
@@ -95,12 +95,12 @@ class Database:
             if self.IfLogged(login):
                 self.cur.execute("UPDATE users SET logged=%s WHERE login=%s", ['0', login])
                 self.conn.commit()
-                print('+')
+                #print(login, '+')
                 return True
             else:
                 self.cur.execute("UPDATE users SET logged=%s WHERE login=%s", ['1', login])
                 self.conn.commit()
-                print('-')
+                #print(login, '-')
                 return True
         else:
             print('++')
@@ -112,7 +112,7 @@ class Database:
         self.cur.execute("SELECT logged FROM users WHERE login LIKE %s", [login])
         es = self.cur.fetchall()
         es = str(es).strip('[](),\'')
-        print(es)
+        print(login, ' ', es)
         if es == '0':
             return False
         else:

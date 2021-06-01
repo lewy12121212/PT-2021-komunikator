@@ -61,6 +61,14 @@ class Response:
             
             #window.refresh_contact_list()
             #window.add_contact(contact)
+        
+         #przybycie nowego uzytkownika
+        elif signal == "NCL":
+            contact = data["login"]
+            print(data)
+            if contact in (global_functions.contact_user_list):
+                global_functions.active_user_list.remove(contact)
+                window.refresh_contact_list_out(contact)
            
         
         #odebranie wiadomosci

@@ -19,6 +19,7 @@ c = Client()
 resp = Response()
 req = Request()
 start_thread = 0
+login = ''
 
 container = Gtk.Grid()
 
@@ -207,7 +208,7 @@ class LoginWindow(Gtk.Grid):
     def Click_login(self, button):
         #Zrobić żeby było tylko jak są złe dane
         #self.Wrong_data()
-        
+        global login
         #Zczytanie danych z wejścia
         login = self.entry_login.get_text()
         password = self.entry_password.get_text()
@@ -467,11 +468,11 @@ class FirstPage(Gtk.Grid):
         self.uzytkownik = ""
         #Łukasz
         self.recv_thread = Thread(target=c.recv_thread, args=(self, ))
-        print("ok")
+        #print("ok")
         #self.recv_thread.start()
         #self.recv_thread.join()
         self.main_chat_window()
-        print("okk")
+        #print("okk")
 
 
     def Show_login_window(self, *args):
@@ -496,7 +497,7 @@ class FirstPage(Gtk.Grid):
 
     def main_chat_window(self):
         
-        print("okkk")
+        #print("okkk")
         self.recv_thread.start()
         self.poziomo = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=15)
         self.add(self.poziomo)
@@ -607,12 +608,20 @@ class FirstPage(Gtk.Grid):
         vertical_interface_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
         #self.add(vertical_interface_box)
 
-        label_main = Gtk.Label("Zresetuj hasło")
+        label_main = Gtk.Label("Zmień hasło")
 
         vertical_labels_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
        
 
         vertical_entries_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        label_old_haslo = Gtk.Label("Aktualne hasło: ")
+        label_old_haslo.set_halign(2)
+        self.old_entry_password = Gtk.Entry()
+        self.old_entry_password.set_visibility(False)
+        self.old_entry_password.set_hexpand(False)
+        self.old_entry_password.set_vexpand(False)
+        self.old_entry_password.set_text("")  
+
         label_haslo = Gtk.Label("Nowe hasło: ")
         label_haslo.set_halign(2)
         self.entry_password = Gtk.Entry()
@@ -637,13 +646,13 @@ class FirstPage(Gtk.Grid):
         self.entry_auth_key.set_text("")  
             
         
-        
+        vertical_labels_box.pack_start(label_old_haslo, True, True, 0)
         vertical_labels_box.pack_start(label_haslo, True, True, 0)
         vertical_labels_box.pack_start(label_second_password, True, True, 0)
         vertical_labels_box.pack_start(label_auth_key, True, True, 0)
         #vertical_labels_box.set_valign(3)
             
-        
+        vertical_entries_box.pack_start(self.old_entry_password, True, True, 0)
         vertical_entries_box.pack_start(self.entry_password, True, True, 0)
         vertical_entries_box.pack_start(self.entry_second_password, True, True, 0)
         vertical_entries_box.pack_start(self.entry_auth_key, True, True, 0)
@@ -681,11 +690,16 @@ class FirstPage(Gtk.Grid):
 
     def Click_reset_password(self, button): 
         print("Zmiana hasła")
+        global login
         #Dodać zmianę hasła
+        data = req.change_password(login,self.old_entry_password.get_text(),self.entry_password.get_text(),self.entry_auth_key.get_text())
+        print(data)
+        c.send(data)
         self.window4.destroy()
 
     def Close_reset(self,button):
         print("a")
+        
         self.window4.destroy()
 
         
@@ -778,6 +792,9 @@ class FirstPage(Gtk.Grid):
 
     def click_delete_user_name(self, button):
         print(self.entry_user.get_text())
+        global login
+        data = req.del_contact(login, self.entry_user.get_text())
+        c.send(data)
         self.window3.destroy() 
         #Tu dodać nazwę użytkownika do znajomych     
 
@@ -813,6 +830,9 @@ class FirstPage(Gtk.Grid):
 
     def click_add_user_name(self, button):
         print(self.entry_user.get_text())
+        global login
+        data = req.add_contact(login, self.entry_user.get_text())
+        c.send(data)
         self.window2.destroy() 
         #Tu dodać nazwę użytkownika do znajomych 
           
@@ -885,6 +905,33 @@ class FirstPage(Gtk.Grid):
         else:
             self.grid_contact.attach_next_to(self.buttons[-1], self.buttons[-2], Gtk.PositionType.BOTTOM, 1, 1)
         #self.grid_contact.show_all()
+        '''    
+        self.scrolled_kontakty = Gtk.ScrolledWindow()
+        self.scrolled_kontakty.set_size_request(100,100)
+        self.scrolled_kontakty.set_max_content_width(50) 
+
+        self.scrolled_kontakty.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        '''
+        #Dodanie wiadmowsci
+        self.scrolled_kontakty.add_with_viewport(self.grid_contact)
+        #self.scrolled_kontakty.show_all()
+        self.kontakty.pack_start(self.scrolled_kontakty, True, True, 0)
+        self.kontakty.show_all()
+
+    def refresh_contact_list_out(self,nazwa):
+        #self.grid_contact = Gtk.Grid()
+        #self.buttons = [] 
+        to_del = None
+        for button in self.buttons:
+            if(button.get_label() == nazwa):
+                to_del = button
+                break
+        self.grid_contact.remove(to_del)
+        self.buttons.remove(to_del)
+        print(len(self.buttons))
+        #global_functions.active_user_list.remove(nazwa)
+        #self.buttons[-1].connect("clicked", self.click_contact)
+        
         '''    
         self.scrolled_kontakty = Gtk.ScrolledWindow()
         self.scrolled_kontakty.set_size_request(100,100)

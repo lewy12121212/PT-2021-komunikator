@@ -134,7 +134,8 @@ class Response:
         if DB.Exists(login):
             if not DB.IfLogged(login):
                 user = DB.Select_User(login)
-                if user == (login, password):
+                #print(repr(user[0:2]))
+                if user[0:2] == (login, password):
                     return True
                 else:
                     return False
