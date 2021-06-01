@@ -736,6 +736,7 @@ class FirstPage(Gtk.Grid):
         self.lista_wiadomosci = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 10)
         self.lista_wiadomosci.set_homogeneous(False)
 
+        print("zmiana czatu ", self.uzytkownik)
         messages = []
         if(self.uzytkownik!=""):
             for message in self.czat._get_msg(self.uzytkownik):
@@ -843,6 +844,7 @@ class FirstPage(Gtk.Grid):
         self.chat_name.set_text(self.uzytkownik)
         self.scrolled_window.add_with_viewport(self.add_messages())
         print(button.get_label())
+        self.scrolled_window.show_all()
 
     def send_click(self, button):
         global income_messages_list
@@ -885,9 +887,9 @@ class FirstPage(Gtk.Grid):
             self.grid_contact.attach_next_to(button, previous_button, Gtk.PositionType.BOTTOM, 1, 1)
         
         #Dodanie wiadmowsci
-        self.scrolled_kontakty.add_with_viewport(self.grid_contact)
+        #self.scrolled_kontakty.add_with_viewport(self.grid_contact)
 
-        self.kontakty.pack_start(self.scrolled_kontakty, True, True, 0)
+        #self.kontakty.pack_start(self.scrolled_kontakty, True, True, 0)
         
         self.kontakty.show_all()
 
@@ -913,9 +915,9 @@ class FirstPage(Gtk.Grid):
         self.scrolled_kontakty.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         '''
         #Dodanie wiadmowsci
-        self.scrolled_kontakty.add_with_viewport(self.grid_contact)
+        #self.scrolled_kontakty.add_with_viewport(self.grid_contact)
         #self.scrolled_kontakty.show_all()
-        self.kontakty.pack_start(self.scrolled_kontakty, True, True, 0)
+        #self.kontakty.pack_start(self.scrolled_kontakty, True, True, 0)
         self.kontakty.show_all()
 
     def refresh_contact_list_out(self,nazwa):
@@ -940,9 +942,11 @@ class FirstPage(Gtk.Grid):
         self.scrolled_kontakty.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         '''
         #Dodanie wiadmowsci
-        self.scrolled_kontakty.add_with_viewport(self.grid_contact)
+        #self.scrolled_kontakty.add_with_viewport(self.grid_contact)
         #self.scrolled_kontakty.show_all()
-        self.kontakty.pack_start(self.scrolled_kontakty, True, True, 0)
+
+        #HERE
+        #self.kontakty.pack_start(self.scrolled_kontakty, True, True, 0)
         self.kontakty.show_all()
 
 

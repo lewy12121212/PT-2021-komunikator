@@ -10,7 +10,7 @@ from cryptography.hazmat.primitives.asymmetric import padding
 
 host = '127.0.0.1'
 port = 9879
-DB = Database.Database()
+
 clients = dict()
 
 class Server:
@@ -32,9 +32,9 @@ class Server:
 
     #przesłanie kluczy publicznych między klientem a serverem, działa do momentu zalogowania użytkonika
     #po czym mapuje login użytkonwnika z jego kanałem i kluczem publicznym 
-    def Set_Parameters(self, client, public_key, private_key):
+    def Set_Parameters(self, client, public_key, private_key, DB):
         login =''
-        rs = Response.Response()
+        rs = Response.Response(DB)
         get_client_key = client.recv(4096)
         #print(get_client_key)
         client_key = serialization.load_pem_public_key(get_client_key) 
@@ -70,6 +70,7 @@ class Server:
             for line in lines:
                 line = line.rstrip()
                 contacts_list.append(line)
+            f.close()
         
         #print(contacts_list)
 
@@ -95,13 +96,16 @@ class Server:
     #wątek z klientem    
     def Transfer_Data(self, client, address):
         print ("Accepted connection from: ", address)
+
+        DB = Database.Database()
+
         #generowanie kluczy rsa servera
         private_key = rsa.generate_private_key(public_exponent=65537, key_size=4096)
         public_key = private_key.public_key()
         public_key_to_send = public_key.public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo)
 
-        login = self.Set_Parameters(client, public_key_to_send, private_key)
-        rs = Response.Response()
+        login = self.Set_Parameters(client, public_key_to_send, private_key, DB)
+        rs = Response.Response(DB)
         #dodanie klienta do listy wątków
         with self.clients_lock:
             clients[login] = client

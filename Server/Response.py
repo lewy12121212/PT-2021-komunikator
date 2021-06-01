@@ -1,15 +1,14 @@
 import json
 
-#from Server import DB
+#from Server import self.DB
 
 import ast
-from Server import DB, clients
 
 
 
 class Response:
-    def __init__(self):
-        self
+    def __init__(self, database):
+        self.DB = database
 
     def Make_Response(self, buffer):
         signal = ""
@@ -23,6 +22,7 @@ class Response:
 
         response = {"to":"",
             "data":""}
+        #print(tmp)
 
         if signal == "CON":
             response["data"]
@@ -60,7 +60,7 @@ class Response:
             if self.LogIn(login, password):
                 response["data"] = '{"signal":"ACK","data":""}'
                 response["to"] = login
-                DB.Change_Logged(login)
+                self.DB.Change_Logged(login)
             else:
                 response["to"] = "self"
                 response["data"] = '{"signal":"RJT","data":""}'
@@ -94,29 +94,45 @@ class Response:
         
         #dodanie użytkownika do kontaktów
         elif signal == "CAD":
-            path = DB.Contacts_Path(data["login"])
+            path = self.DB.Contacts_Path(data["login"])
             with open(path, 'a') as f:
-                f.write('\n'+data["user"])
+                f.write(data["user"]+'\n')
 
             response["data"] = '{"signal":"ACK","data":""}'
             response["to"] = data["login"]
         
         #usuwanie użytkownika
         elif signal == "CDL":
-            path = DB.Contacts_Path(data["login"])
+            #print(tmp)
+            path = self.DB.Contacts_Path(data["login"])
             contacts_list = []
             with open(path, 'r') as f:
-                lines = f.readlines()
-                for line in lines:
-                    contacts_list.append(line)
-            
-            contacts_list.remove(data["user"])
+                contacts_list = f.readlines()
 
-            with open(path, 'w') as f:
-                f.writelines(contacts_list)
             
-            response["data"] = '{"signal":"ACK","data":""}'
-            response["to"] = data["login"]
+            i = 0
+            #print(contacts_list)     
+            for line in contacts_list:
+                s = line.rstrip("\n")
+                contacts_list[i] = s
+                i+=1
+                #contacts_list += s
+                
+            if data["user"] in contacts_list:
+                contacts_list.remove(data["user"])
+                with open(path, 'w') as f:
+                    f.writelines("%s\n" % l for l in contacts_list)
+            
+                response["data"] = '{"signal":"ACK","data":""}'
+                response["to"] = data["login"]
+            else:
+                response["data"] = '{"signal":"RJT","data":""}'
+                response["to"] = data["login"]
+
+            #print(contacts_list)            
+           
+
+            
 
         #szukanie?    
         elif signal == "CSC":
@@ -131,9 +147,9 @@ class Response:
         return response
 
     def LogIn(self, login, password):
-        if DB.Exists(login):
-            if not DB.IfLogged(login):
-                user = DB.Select_User(login)
+        if self.DB.Exists(login):
+            if not self.DB.IfLogged(login):
+                user = self.DB.Select_User(login)
                 #print(repr(user[0:2]))
                 if user[0:2] == (login, password):
                     return True
@@ -143,7 +159,7 @@ class Response:
             return False
 
     def AddUser(self, login, password, auth_key):
-        if DB.Add_User(login, password, auth_key):
+        if self.DB.Add_User(login, password, auth_key):
             return True
         else:
 
@@ -151,19 +167,19 @@ class Response:
 
 
     def ResetPassword(self,login, auth_key, new_password):
-        if DB.Reset_Password(login, new_password, auth_key):
+        if self.DB.Reset_Password(login, new_password, auth_key):
             return True
         else:
             return False
 
     def ChangePassword(self, login, old_password, new_password, auth_key):
-        if DB.Change_Password(login,old_password,new_password, auth_key):
+        if self.DB.Change_Password(login,old_password,new_password, auth_key):
             return True
         else:
             return False
 
     def DeleteUser(self, login, password, auth_key):
-        if DB.Delete_User(login, password, auth_key):
+        if self.DB.Delete_User(login, password, auth_key):
             return True
         else:
             return False

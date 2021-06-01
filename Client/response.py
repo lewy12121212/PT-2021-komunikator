@@ -46,9 +46,11 @@ class Response:
         elif signal == "LAU":
             print(data)
             contact = data["active"].split(',')
-            global_functions.active_user_list = list(set(global_functions.contact_user_list).intersection(contact))
-
-            window.active_users()
+            if global_functions.contact_user_list:
+                global_functions.active_user_list = list(set(global_functions.contact_user_list).intersection(contact))
+            
+            if global_functions.active_user_list:
+                window.active_users()
             
 
         #przybycie nowego uzytkownika
@@ -76,6 +78,9 @@ class Response:
             mess = [data["date"] + "\n" + data["from"] + ":\n" + data["message"], 1]
             #global_functions.income_message_list += mess
             window.refresh_chat(mess)
+
+        else:
+            print("oj ne ne ")
         
         return
 

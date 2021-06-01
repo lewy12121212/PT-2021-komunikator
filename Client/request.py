@@ -87,7 +87,7 @@ class Request:
         request = self.request
         request["signal"] ="CDL"
         request["data"] = {"login": login, "user": contact}
-
+        #print(str(request))
         return str(request)
 
 
