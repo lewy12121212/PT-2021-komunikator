@@ -727,22 +727,22 @@ class FirstPage(Gtk.Grid):
             for message in self.czat._get_msg(self.uzytkownik):
                 messages.append(message) 
                 
-
-            print(messages[-1])
-            for message in messages:
-                if(message[1]==1):
-                    label = Gtk.Label(message[0])
-                    label.set_line_wrap(True)
-                    label.set_max_width_chars(5)
-                    label.set_alignment(0,0)
-                    self.lista_wiadomosci.pack_start(label, True, False, 1)
-                else:
-                    label = Gtk.Label(message[0])
-                    label.set_line_wrap(True)
-                    label.set_max_width_chars(5)
-                    label.set_alignment(1,0)
-                    self.lista_wiadomosci.pack_start(label, True, False, 1)
-            
+            if(len(messages)>0):
+                print(messages[-1])
+                for message in messages:
+                    if(message[1]==1):
+                        label = Gtk.Label(message[0])
+                        label.set_line_wrap(True)
+                        label.set_max_width_chars(5)
+                        label.set_alignment(0,0)
+                        self.lista_wiadomosci.pack_start(label, True, False, 1)
+                    else:
+                        label = Gtk.Label(message[0])
+                        label.set_line_wrap(True)
+                        label.set_max_width_chars(5)
+                        label.set_alignment(1,0)
+                        self.lista_wiadomosci.pack_start(label, True, False, 1)
+                
         
         return self.lista_wiadomosci
 
@@ -818,8 +818,10 @@ class FirstPage(Gtk.Grid):
           
 
     def click_contact(self,button):
+        self.scrolled_window.remove(self.scrolled_window.get_child())
         self.uzytkownik = button.get_label()
         self.chat_name.set_text(self.uzytkownik)
+        self.scrolled_window.add_with_viewport(self.add_messages())
         print(button.get_label())
 
     def send_click(self, button):
