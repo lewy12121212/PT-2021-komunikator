@@ -24,6 +24,7 @@ class Server:
         self.th = []
         self.clients_publickeys = dict()
         self.keys_lock = Lock()
+        self.active_conetion = 0
     
     #tworzenie gniazda
     def Initialize(self):
@@ -49,6 +50,8 @@ class Server:
                     print(data)
                     #wysłanie wiadomości do wybranego klienta    
                     s = rs.Make_Response(data)
+                    if s["data"] == "END":
+                        return login
                     client.sendall(self.encrypt(str.encode(s["data"]), client_key))
             login = s["to"]
 
@@ -100,6 +103,9 @@ class Server:
         DB = Database.Database()
 
         #generowanie kluczy rsa servera
+        #self.active_conetion += 1
+
+        #print("liczba kllientow ", self.active_conetion)
         private_key = rsa.generate_private_key(public_exponent=65537, key_size=4096)
         public_key = private_key.public_key()
         public_key_to_send = public_key.public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo)
@@ -136,8 +142,9 @@ class Server:
             clients[login].shutdown(socket.SHUT_RDWR)
             inform_all = {"signal": "NCL", "data": {"login": login}}
             del clients[login]                
-            print("close client")
+            #print("close client")
             del self.clients_publickeys[login]
+            self.active_conetion -= 1
         
         self.Send_All(str(inform_all))  
         print("close client")
@@ -183,10 +190,12 @@ class Server:
 
     #główna pętla servera (akceptowanie nowych klientów i uruchamianie wątków do transmisji z nimi)
     def Begin_Transmision(self):
-        while True:
+        while self.active_conetion < 3:
             print("Server is listening for connections...")
             client, address = self.s.accept()
             self.th.append(Thread(target=self.Transfer_Data, args = (client,address)).start())
+            self.active_conetion += 1 
+            print("active ",self.active_conetion)
 
 
     def Send_All(self, message):

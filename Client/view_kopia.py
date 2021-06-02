@@ -122,6 +122,7 @@ class LoginWindow(Gtk.Grid):
         label_login = Gtk.Label("Login: ")
         #Wpisywanie loginu
         self.entry_login = Gtk.Entry()
+        self.entry_login.set_max_length(32)
         self.entry_login.set_hexpand(False)
         self.entry_login.set_vexpand(False)
         self.entry_login.set_text("")  
@@ -132,6 +133,7 @@ class LoginWindow(Gtk.Grid):
         label_haslo = Gtk.Label("Hasło: ")
         #Wpisywanie hasła
         self.entry_password = Gtk.Entry()
+        self.entry_password.set_max_length(32)
         self.entry_password.set_visibility(False)
         self.entry_password.set_hexpand(False)
         self.entry_password.set_vexpand(False)
@@ -267,6 +269,7 @@ class ChangePasswordWindow(Gtk.Grid):
         label_login = Gtk.Label("Login: ")
         label_login.set_halign(2)
         self.entry_login = Gtk.Entry()
+        self.entry_login.set_max_length(32)
         self.entry_login.set_hexpand(False)
         self.entry_login.set_vexpand(False)
         self.entry_login.set_text("")  
@@ -275,6 +278,7 @@ class ChangePasswordWindow(Gtk.Grid):
         label_haslo = Gtk.Label("Nowe hasło: ")
         label_haslo.set_halign(2)
         self.entry_password = Gtk.Entry()
+        self.entry_password.set_max_length(32)
         self.entry_password.set_visibility(False)
         self.entry_password.set_hexpand(False)
         self.entry_password.set_vexpand(False)
@@ -283,6 +287,7 @@ class ChangePasswordWindow(Gtk.Grid):
         label_second_password = Gtk.Label("Powtórz nowe hasło: ")
         label_second_password.set_halign(2)
         self.entry_second_password = Gtk.Entry()
+        self.entry_second_password.set_max_length(32)
         self.entry_second_password.set_visibility(False)
         self.entry_second_password.set_hexpand(False)
         self.entry_second_password.set_vexpand(False)
@@ -291,6 +296,7 @@ class ChangePasswordWindow(Gtk.Grid):
         label_auth_key = Gtk.Label("Podaj ulubiony kolor: ")
         label_auth_key.set_halign(2)
         self.entry_auth_key = Gtk.Entry()
+        self.entry_auth_key.set_max_length(32)
         self.entry_auth_key.set_hexpand(False)
         self.entry_auth_key.set_vexpand(False)
         self.entry_auth_key.set_text("")  
@@ -398,6 +404,7 @@ class RegisterWindow(Gtk.Grid):
         label_login = Gtk.Label("Login: ")
         label_login.set_halign(2)
         self.entry_login = Gtk.Entry()
+        self.entry_login.set_max_length(32)
         self.entry_login.set_hexpand(False)
         self.entry_login.set_vexpand(False)
         self.entry_login.set_text("")  
@@ -407,6 +414,7 @@ class RegisterWindow(Gtk.Grid):
         label_haslo.set_halign(2)
         self.entry_password = Gtk.Entry()
         self.entry_password.set_visibility(False)
+        self.entry_password.set_max_length(32)
         self.entry_password.set_hexpand(False)
         self.entry_password.set_vexpand(False)
         self.entry_password.set_text("")  
@@ -414,6 +422,7 @@ class RegisterWindow(Gtk.Grid):
         label_second_password = Gtk.Label("Powtórz hasło: ")
         label_second_password.set_halign(2)
         self.entry_second_password = Gtk.Entry()
+        self.entry_second_password.set_max_length(32)
         self.entry_second_password.set_visibility(False)
         self.entry_second_password.set_hexpand(False)
         self.entry_second_password.set_vexpand(False)
@@ -422,6 +431,7 @@ class RegisterWindow(Gtk.Grid):
         label_auth_key = Gtk.Label("Podaj ulubiony kolor: ")
         label_auth_key.set_halign(2)
         self.entry_auth_key = Gtk.Entry()
+        self.entry_auth_key.set_max_length(32)
         self.entry_auth_key.set_hexpand(False)
         self.entry_auth_key.set_vexpand(False)
         self.entry_auth_key.set_text("")  
@@ -480,6 +490,10 @@ class RegisterWindow(Gtk.Grid):
 
         if(h!=ph):
             print("INNE HASLA")
+        elif len(h)<8:
+            self.Show_alert_window("Podane hasło jest zbyt krótkie.")
+        elif len(l)>32:
+            self.Show_alert_window("Twój login jest zbyt długi.")
         else:
            
             mess = req.register(l,h,pyt)
@@ -613,7 +627,7 @@ class FirstPage(Gtk.Grid):
         self.entry_wysylanie = Gtk.Entry()
         self.entry_wysylanie.set_text("")
         #Maksymalna dlugość wiadomości
-        #self.entry.set_max_length (512)
+        self.entry.set_max_length(350)
         self.wysylanie.pack_start(self.entry_wysylanie, True, True, 0)
 
         #Przycisk do wysyłania tekstu
@@ -654,6 +668,7 @@ class FirstPage(Gtk.Grid):
         label_old_haslo = Gtk.Label("Podaj hasło: ")
         label_old_haslo.set_halign(2)
         self.old_entry_password = Gtk.Entry()
+        self.old_entry_password.set_max_length(32)
         self.old_entry_password.set_visibility(False)
         self.old_entry_password.set_hexpand(False)
         self.old_entry_password.set_vexpand(False)
@@ -662,6 +677,7 @@ class FirstPage(Gtk.Grid):
         label_haslo = Gtk.Label("Powtórz hasło: ")
         label_haslo.set_halign(2)
         self.entry_password = Gtk.Entry()
+        self.entry_password.set_max_length(32)
         self.entry_password.set_visibility(False)
         self.entry_password.set_hexpand(False)
         self.entry_password.set_vexpand(False)
@@ -671,6 +687,7 @@ class FirstPage(Gtk.Grid):
         label_auth_key = Gtk.Label("Podaj ulubiony kolor: ")
         label_auth_key.set_halign(2)
         self.entry_auth_key = Gtk.Entry()
+        self.entry_auth_key.set_max_length(32)
         self.entry_auth_key.set_hexpand(False)
         self.entry_auth_key.set_vexpand(False)
         self.entry_auth_key.set_text("")  
@@ -754,6 +771,7 @@ class FirstPage(Gtk.Grid):
         label_old_haslo = Gtk.Label("Aktualne hasło: ")
         label_old_haslo.set_halign(2)
         self.old_entry_password = Gtk.Entry()
+        self.old_entry_password.set_max_length(32)
         self.old_entry_password.set_visibility(False)
         self.old_entry_password.set_hexpand(False)
         self.old_entry_password.set_vexpand(False)
@@ -762,6 +780,7 @@ class FirstPage(Gtk.Grid):
         label_haslo = Gtk.Label("Nowe hasło: ")
         label_haslo.set_halign(2)
         self.entry_password = Gtk.Entry()
+        self.entry_password.set_max_length(32)
         self.entry_password.set_visibility(False)
         self.entry_password.set_hexpand(False)
         self.entry_password.set_vexpand(False)
@@ -770,6 +789,7 @@ class FirstPage(Gtk.Grid):
         label_second_password = Gtk.Label("Powtórz nowe hasło: ")
         label_second_password.set_halign(2)
         self.entry_second_password = Gtk.Entry()
+        self.entry_second_password.set_max_length(32)
         self.entry_second_password.set_visibility(False)
         self.entry_second_password.set_hexpand(False)
         self.entry_second_password.set_vexpand(False)
@@ -778,6 +798,7 @@ class FirstPage(Gtk.Grid):
         label_auth_key = Gtk.Label("Podaj ulubiony kolor: ")
         label_auth_key.set_halign(2)
         self.entry_auth_key = Gtk.Entry()
+        self.entry_auth_key.set_max_length(32)
         self.entry_auth_key.set_hexpand(False)
         self.entry_auth_key.set_vexpand(False)
         self.entry_auth_key.set_text("")  
@@ -917,6 +938,7 @@ class FirstPage(Gtk.Grid):
        
         label_delete = Gtk.Label("Podaj nazwę użytkownika:")
         self.entry_user = Gtk.Entry()
+        self.entry_user.set_max_length(32)
         self.entry_user.set_hexpand(False)
         self.entry_user.set_vexpand(False)
         self.entry_user.set_text("")  
@@ -960,6 +982,7 @@ class FirstPage(Gtk.Grid):
        
         label_add = Gtk.Label("Podaj nazwę użytkownika:")
         self.entry_user = Gtk.Entry()
+        self.entry_user.set_max_length(32)
         self.entry_user.set_hexpand(False)
         self.entry_user.set_vexpand(False)
         self.entry_user.set_text("")  
@@ -1131,7 +1154,7 @@ class FirstPage(Gtk.Grid):
     def Show_alert_window(self,alert_text):
 
         print(alert_text)
-        
+
         self.wrong_data_window = Gtk.Window()
         self.wrong_data_window.set_default_size(400, 100)
 
