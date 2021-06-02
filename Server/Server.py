@@ -130,7 +130,7 @@ class Server:
                 if not data:
                     break
                 else:
-                    data = self.decrypt(data,private_key)
+                    data = self.decrypt(data, private_key)
                     resp = rs.Make_Response(data)
                     if resp["data"] != "END":
                         #wysłanie wiadomości do wybranego klienta

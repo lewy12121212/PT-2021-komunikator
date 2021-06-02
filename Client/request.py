@@ -90,6 +90,12 @@ class Request:
         #print(str(request))
         return str(request)
 
+    def logOut(self, login):
+        request = self.request
+        request["signal"] ="LOT"
+        request["data"] = {"login": login}
+        #print(str(request))
+        return str(request)
 
     def make_hash(self, to_hash):
         m = hashlib.sha256()

@@ -687,6 +687,11 @@ class FirstPage(Gtk.Grid):
 
     def Click_delete_account_ok(self, button): 
         #dodać wylogowanie użytwkownika
+        global login
+        data = req.delete_account(login,self.entry_password().get_text(), self.entry_auth_key().get_text())
+        c.send(data)
+
+
         self.window5.destroy()  
         self.__parent_window.login_window.entry_login.set_text("")
         self.__parent_window.login_window.entry_password.set_text("") 
