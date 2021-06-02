@@ -41,54 +41,59 @@ class Server:
         #print(client_key)
         client.sendall(public_key)
 
+
         s = {"to": "self", "data": ""}
-        while s["to"] == "self":
-            data = client.recv(4096)
-            if not data:
-                break
-            else:
-                data = self.decrypt(data, private_key)
-                print(data)
-                #wysłanie wiadomości do wybranego klienta    
-                s = rs.Make_Response(data)
-                client.sendall(self.encrypt(str.encode(s["data"]), client_key))
-        login = s["to"]
 
-        with self.keys_lock:
-            self.clients_publickeys[login]=client_key
-        #informowanie wszystkich klientów o nowozalogwanym
-        inform_all = {"signal": "NUR", "data": {"login": login}}
-        self.Send_All(str(inform_all))
+        try:
+            while s["to"] == "self":
+                data = client.recv(4096)
+                if not data:
+                    break
+                else:
+                    data = self.decrypt(data, private_key)
+                    print(data)
+                    #wysłanie wiadomości do wybranego klienta    
+                    s = rs.Make_Response(data)
+                    client.sendall(self.encrypt(str.encode(s["data"]), client_key))
+            login = s["to"]
 
-        #wysłanie klientowi listy zalogowanych klientów
-        contacts_list = []
-        path = DB.Contacts_Path(login)
-        print(path)
+            with self.keys_lock:
+                self.clients_publickeys[login]=client_key
+            #informowanie wszystkich klientów o nowozalogwanym
+            inform_all = {"signal": "NUR", "data": {"login": login}}
+            self.Send_All(str(inform_all))
 
-        with open(path, 'r') as f:
-            lines = f.readlines()
-            for line in lines:
-                line = line.rstrip()
-                contacts_list.append(line)
-            f.close()
-        
-        #print(contacts_list)
+            #wysłanie klientowi listy zalogowanych klientów
+            contacts_list = []
+            path = DB.Contacts_Path(login)
+            print(path)
 
-        str_of_contacts_list = str({"signal": "LCU", "data": {"contacts": ','.join(contacts_list)}})
-        client.sendall(self.encrypt(str.encode(str_of_contacts_list), client_key))
-
-        #wyslanie listy zalogowanych uzytkownikow 
-        time.sleep(0.05) 
-        if clients:
+            with open(path, 'r') as f:
+                lines = f.readlines()
+                for line in lines:
+                    line = line.rstrip()
+                    contacts_list.append(line)
+                f.close()
             
-            list_of_active_users = []
-            with self.clients_lock:
-                for cli in clients:
-                    list_of_active_users.append(cli)
+            #print(contacts_list)
 
-            str_of_users_list = str({"signal": "LAU", "data": {"active": ','.join(list_of_active_users)}})
-            #print(str_of_users_list)
-            client.sendall(self.encrypt(str.encode(str_of_users_list), client_key))
+            str_of_contacts_list = str({"signal": "LCU", "data": {"contacts": ','.join(contacts_list)}})
+            client.sendall(self.encrypt(str.encode(str_of_contacts_list), client_key))
+
+            #wyslanie listy zalogowanych uzytkownikow 
+            time.sleep(0.05) 
+            if clients:
+                
+                list_of_active_users = []
+                with self.clients_lock:
+                    for cli in clients:
+                        list_of_active_users.append(cli)
+
+                str_of_users_list = str({"signal": "LAU", "data": {"active": ','.join(list_of_active_users)}})
+                #print(str_of_users_list)
+                client.sendall(self.encrypt(str.encode(str_of_users_list), client_key))
+        except:
+            return login
 
         return login
 
@@ -105,6 +110,12 @@ class Server:
         public_key_to_send = public_key.public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo)
 
         login = self.Set_Parameters(client, public_key_to_send, private_key, DB)
+        if login == '':
+            client.close()
+            print("ok")
+            return
+        
+        
         rs = Response.Response(DB)
         #dodanie klienta do listy wątków
         with self.clients_lock:
@@ -131,7 +142,7 @@ class Server:
         except:
             DB.Change_Logged(login)
             with self.clients_lock:                
-                clients[login].close()
+                clients[login].shutdown(socket.SHUT_RDWR)
                 inform_all = {"signal": "NCL", "data": {"login": login}}
                 del clients[login]                
                 
@@ -144,10 +155,10 @@ class Server:
         finally:
             DB.Change_Logged(login)
             with self.clients_lock:                                
-                clients[login].close()
+                clients[login].shutdown(socket.SHUT_RDWR)
                 inform_all = {"signal": "NCL", "data": {"login": login}}
                 del clients[login]                
-                
+                print("close client")
                 del self.clients_publickeys[login]
         
         self.Send_All(str(inform_all))  

@@ -79,7 +79,7 @@ class Request:
         request = self.request
         request["signal"] ="CAD"
         request["data"] = {"login": login, "user": contact}
-
+        
         return str(request)
 
     def del_contact(self, login, contact):

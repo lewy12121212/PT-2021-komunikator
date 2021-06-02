@@ -67,22 +67,31 @@ class Client:
 
     def recv_thread(self, window):
         #window = arg[0]
+        try:
+            while True:
+                resp = response.Response()
 
-        while True:
-            resp = response.Response()
+                data = self.sock.recv(4096)
+                if len(data) != 0:
+                    print('received "%s"' % len(data))
+                    mess = self.decrypt(data)
+                        #print(mess)
 
-            data = self.sock.recv(4096)
-            if len(data) != 0:
-                print('received "%s"' % len(data))
-                mess = self.decrypt(data)
-                    #print(mess)
-
-                resp.Make_Response_Thread(mess, window)
+                    resp.Make_Response_Thread(mess, window)
+        except:
+            print('thread except')
+            return
+        finally:
+            print('thread except')
+            return
 
 
 
         #window.refresh_chat()
         #print('received "%s"' % mess)
+
+    def close(self):
+        self.sock.shutdown(socket.SHUT_RDWR)
         
 
 if __name__ == "__main__":

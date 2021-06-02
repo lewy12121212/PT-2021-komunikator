@@ -16,7 +16,7 @@ if __name__ == '__main__':
     #c = Client()
    
     window = App_view()
-    window.connect("delete-event", window.on_destroy)
+    #window.connect("delete-event", window.on_destroy)
     #Łukasz
     #window.chat_window.return_start_page()
     window.login_window.Show_login_window()

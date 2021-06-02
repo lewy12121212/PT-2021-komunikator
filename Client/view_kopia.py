@@ -31,7 +31,7 @@ class App_view(Gtk.Window):
     def __init__(self):
        
         super(App_view, self).__init__(title="Komunikator")
-        self.connect("destroy", Gtk.main_quit)
+        self.connect("delete-event", self.on_destroy)
         self.set_border_width(20)
         self.set_default_size(600, 250)
 
@@ -41,13 +41,7 @@ class App_view(Gtk.Window):
       
         #Okno logowania
         self.login_window = LoginWindow(self)
-        container.add(self.login_window)
-    
-    def on_destroy(self, widget=None, *data):
-        # return True --> no, don't close
-
-        c.send("{'signal':'END','data':''}")
-        
+        container.add(self.login_window) 
         
     def add_chat(self):
         #Okno czatu
@@ -62,6 +56,15 @@ class App_view(Gtk.Window):
     def add_change(self):
         self.change_window = ChangePasswordWindow(self)
         container.add(self.change_window)
+
+    def on_destroy(self, widget=None, *data):
+        # return True --> no, don't close
+        
+        c.send("{'signal':'END','data':''}")
+        self.connect("destroy", Gtk.main_quit)
+        c.close()
+        #Gtk.main_quit
+        return False 
 
 
      
@@ -472,6 +475,8 @@ class FirstPage(Gtk.Grid):
         #self.recv_thread.start()
         #self.recv_thread.join()
         self.main_chat_window()
+
+        #self.connect("destroy", Gtk.main_quit)
         #print("okk")
 
 
