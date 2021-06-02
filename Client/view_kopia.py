@@ -1151,9 +1151,9 @@ class FirstPage(Gtk.Grid):
         
         self.wrong_data_window.show_all()
 
-        time.sleep(2)
+        #time.sleep(2)
 
-        self.wrong_data_window.destroy()
+        #self.wrong_data_window.destroy()
 
     def Click_ok(self, button):
         self.wrong_data_window.destroy()   
