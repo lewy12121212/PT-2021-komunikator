@@ -353,10 +353,20 @@ class ChangePasswordWindow(Gtk.Grid):
         label_wrong_data = Gtk.Label(alert_text)
         wrong_data_box = Gtk.VBox()
         wrong_data_box.pack_start(label_wrong_data,True,True, 1)
+
+        self.ok = Gtk.Button(label="OK")
+        self.ok.connect("clicked", self.Click_ok)
+        self.ok.set_halign(3)
+        self.ok.set_hexpand(True)
         
-        
+        self.wrong_data_box.pack_start(self.ok, True, True, 1)
         self.wrong_data_window.add(wrong_data_box)
-        self.wrong_data_window.show_all()   
+        
+        self.wrong_data_window.show_all()
+
+    def Click_ok(self, button):
+        self.wrong_data_window.destroy()
+   
            
 
 class RegisterWindow(Gtk.Grid):
@@ -1116,5 +1126,15 @@ class FirstPage(Gtk.Grid):
         wrong_data_box.pack_start(label_wrong_data,True,True, 1)
         
         
+        self.ok = Gtk.Button(label="OK")
+        self.ok.connect("clicked", self.Click_ok)
+        self.ok.set_halign(3)
+        self.ok.set_hexpand(True)
+        
+        wrong_data_box.pack_start(self.ok, True, True, 1)
         self.wrong_data_window.add(wrong_data_box)
-        self.wrong_data_window.show_all()   
+        
+        self.wrong_data_window.show_all()
+
+    def Click_ok(self, button):
+        self.wrong_data_window.destroy()   

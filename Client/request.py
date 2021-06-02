@@ -92,7 +92,7 @@ class Request:
 
     def logOut(self, login):
         request = self.request
-        request["signal"] ="LOT"
+        request["signal"] ="ULO"
         request["data"] = {"login": login}
         #print(str(request))
         return str(request)

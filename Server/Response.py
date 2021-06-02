@@ -42,7 +42,7 @@ class Response:
         #dodanie nowego użytwkonika
         elif signal == "LAD":
             if self.AddUser(data["login"], data["password"], data["auth_key"]):
-                response["data"] = '{"signal":"ACK","data":""}'
+                response["data"] = '{"signal":"ACK","data":"Dodano uzytkownika"}'
                 response["to"] = "self"
 
                 #utworzenie pliku z kontaktami
@@ -94,14 +94,17 @@ class Response:
             else:
                 response["to"] = data["login"]
                 response["data"] = '{"signal":"RJT","data":"Bledna odpowiedz autoryzacyjna lub obecne haslo."}'
-        
+        elif signal == "ULO":
+            self.logOut = True
+            response["to"] = "self"
+            response["data"] = "END"
         #dodanie użytkownika do kontaktów
         elif signal == "CAD":
             path = self.DB.Contacts_Path(data["login"])
             with open(path, 'a') as f:
                 f.write(data["user"]+'\n')
 
-            response["data"] = '{"signal":"ACK","data":""}'
+            response["data"] = '{"signal":"ACK","data":"Dodano nowy kontakt."}'
             response["to"] = data["login"]
         
         #usuwanie użytkownika
@@ -133,13 +136,6 @@ class Response:
                 response["to"] = data["login"]
 
             #print(contacts_list)            
-           
-
-            
-
-        #szukanie?    
-        elif signal == "CSC":
-            pass
         #koniec połączenia
         elif signal == "END":
             response["to"] = "self"

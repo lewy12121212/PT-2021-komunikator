@@ -172,6 +172,7 @@ class Server:
                     with self.clients_lock:
                         #zaszyfrowanie wiadomości kluczem publicznym adresowanego klienta i wysłanie do niego
                         clients[resp["to"]].sendall(self.encrypt(str.encode(resp["data"]), self.clients_publickeys[resp["to"]]))
+                    rs.logOut = False
                     break
                 else:
                     end = 1 

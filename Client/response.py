@@ -40,9 +40,14 @@ class Response:
 
         if signal == "ACK":
             self.accept = True
-            print("okejka")
+            if data != "":
+                print("++")
+                window.chat_window.Show_alert_window(data)
+            #print("okejka")
         elif signal == "RJT":
             self.accept = False
+            if data != "":
+                window.chat_window.Show_alert_window(data)
         #lista kontaktow uzytkownika
         elif signal == "LCU":
             contact = data["contacts"].split(',')
@@ -57,7 +62,7 @@ class Response:
                 global_functions.active_user_list = list(set(global_functions.contact_user_list).intersection(contact))
             
             if global_functions.active_user_list:
-                window.active_users()
+                window.chat_window.active_users()
             
 
         #przybycie nowego uzytkownika
@@ -66,7 +71,7 @@ class Response:
             print(repr(contact))
             if contact in (global_functions.contact_user_list):
                 global_functions.active_user_list.append(contact)
-                window.refresh_contact_list(contact)
+                window.chat_window.refresh_contact_list(contact)
             
             #window.refresh_contact_list()
             #window.add_contact(contact)
@@ -77,14 +82,14 @@ class Response:
             print(data)
             if contact in (global_functions.contact_user_list):
                 global_functions.active_user_list.remove(contact)
-                window.refresh_contact_list_out(contact)
+                window.chat_window.refresh_contact_list_out(contact)
            
         
         #odebranie wiadomosci
         elif signal == "MSG":
             mess = [data["date"] + "\n" + data["from"] + ":\n" + data["message"], 1]
             #global_functions.income_message_list += mess
-            window.refresh_chat(mess)
+            window.chat_window.refresh_chat(mess)
 
         else:
             print("oj ne ne ")
