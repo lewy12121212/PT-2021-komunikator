@@ -89,7 +89,7 @@ class Response:
         elif signal == "UDA":
             if self.DeleteUser(data['login'], data['password'], data['auth_key']):
                 response["to"] = data["login"]
-                response["data"] = '{"signal":"ACK","data":"Twoje konto zostanie usunieto po wylogowaniu."}'
+                response["data"] = '{"signal":"ACK","data":"Twoje konto zostalo usuniete."}'
                 self.logOut = True
             else:
                 response["to"] = data["login"]
@@ -101,11 +101,16 @@ class Response:
         #dodanie użytkownika do kontaktów
         elif signal == "CAD":
             path = self.DB.Contacts_Path(data["login"])
-            with open(path, 'a') as f:
-                f.write(data["user"]+'\n')
+            
+            if self.DB.Exists(data['user']):
+                with open(path, 'a') as f:
+                    f.write(data["user"]+'\n')
 
-            response["data"] = '{"signal":"ACK","data":"Dodano nowy kontakt."}'
-            response["to"] = data["login"]
+                response["data"] = '{"signal":"ACK","data":"Dodano nowy kontakt."}'
+                response["to"] = data["login"]
+            else:
+                response["data"] = '{"signal":"RJT","data":"Użytkownik nie istnieje."}'
+                response["to"] = data["login"]
         
         #usuwanie użytkownika
         elif signal == "CDL":
@@ -129,10 +134,10 @@ class Response:
                 with open(path, 'w') as f:
                     f.writelines("%s\n" % l for l in contacts_list)
             
-                response["data"] = '{"signal":"ACK","data":""}'
+                response["data"] = '{"signal":"ACK","data":"Pomyslnie usunięto z listy kontaktów."}'
                 response["to"] = data["login"]
             else:
-                response["data"] = '{"signal":"RJT","data":""}'
+                response["data"] = '{"signal":"RJT","data":"Wybrany kontakt nie istnieje."}'
                 response["to"] = data["login"]
 
             #print(contacts_list)            

@@ -1,4 +1,5 @@
 import json
+import time
 import global_functions
 
 
@@ -41,8 +42,10 @@ class Response:
         if signal == "ACK":
             self.accept = True
             if data != "":
-                print("++")
+                print(type(data))
                 window.chat_window.Show_alert_window(data)
+                
+
             #print("okejka")
         elif signal == "RJT":
             self.accept = False

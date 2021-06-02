@@ -226,7 +226,7 @@ class LoginWindow(Gtk.Grid):
         #data = c.recv()
         #print(data)
         #time.sleep(1)
-        time.sleep(0.05)
+        time.sleep(0.3)
         print("łejt", resp.accept)
         if resp.accept:
             #Poprawne zalogowanie
@@ -728,10 +728,11 @@ class FirstPage(Gtk.Grid):
         
 
         time.sleep(0.5)
-        self.window5.destroy()  
-        self.__parent_window.login_window.entry_login.set_text("")
-        self.__parent_window.login_window.entry_password.set_text("") 
-        self.Show_login_window()
+        if resp.accept:
+            self.window5.destroy()  
+            self.__parent_window.login_window.entry_login.set_text("")
+            self.__parent_window.login_window.entry_password.set_text("") 
+            self.Show_login_window()
 
     def Close_delete_acc(self,button):
        
@@ -826,15 +827,22 @@ class FirstPage(Gtk.Grid):
 
     def Click_reset_password(self, button): 
         #jeśli jakiś błąd
-        self.Show_alert_window("tekst_bledu")
+        #self.Show_alert_window("tekst_bledu")
 
-        print("Zmiana hasła")
-        global login
-        #Dodać zmianę hasła
-        data = req.change_password(login,self.old_entry_password.get_text(),self.entry_password.get_text(),self.entry_auth_key.get_text())
-        print(data)
-        c.send(data)
-        self.window4.destroy()
+        if (self.old_entry_password.get_text() == self.entry_password.get_text()):
+            self.Show_alert_window("Nowe haslo nie może być takie samo jak stare.")
+        elif(self.entry_password.get_text() != self.entry_second_password.get_text()):
+            self.Show_alert_window("Błędnie powtórzono hasło.")
+        else:
+            print("Zmiana hasła")
+            global login
+            #Dodać zmianę hasła
+            data = req.change_password(login,self.old_entry_password.get_text(),self.entry_password.get_text(),self.entry_auth_key.get_text())
+            print(data)
+            c.send(data)
+
+            if resp.accept:
+                self.window4.destroy()
 
     def Close_reset(self,button):
         print("a")
@@ -940,7 +948,9 @@ class FirstPage(Gtk.Grid):
         global login
         data = req.del_contact(login, self.entry_user.get_text())
         c.send(data)
-        self.window3.destroy() 
+        time.sleep(0.3)
+        if resp.accept:
+            self.window3.destroy() 
         #Tu dodać nazwę użytkownika do znajomych     
 
     def click_add_contact(self, button):
@@ -981,7 +991,9 @@ class FirstPage(Gtk.Grid):
         global login
         data = req.add_contact(login, self.entry_user.get_text())
         c.send(data)
-        self.window2.destroy() 
+        time.sleep(0.3)
+        if resp.accept:
+            self.window2.destroy() 
         #Tu dodać nazwę użytkownika do znajomych 
           
 
@@ -1117,24 +1129,31 @@ class FirstPage(Gtk.Grid):
         return grid
 
     def Show_alert_window(self,alert_text):
+
+        print(alert_text)
+        
         self.wrong_data_window = Gtk.Window()
         self.wrong_data_window.set_default_size(400, 100)
 
         
-        label_wrong_data = Gtk.Label(alert_text)
-        wrong_data_box = Gtk.VBox()
-        wrong_data_box.pack_start(label_wrong_data,True,True, 1)
+        self.label_wrong_data = Gtk.Label(alert_text)
+        self.wrong_data_box = Gtk.VBox()
+        self.wrong_data_box.pack_start(self.label_wrong_data,True,True, 1)
         
         
-        self.ok = Gtk.Button(label="OK")
-        self.ok.connect("clicked", self.Click_ok)
-        self.ok.set_halign(3)
-        self.ok.set_hexpand(True)
+        #self.ok = Gtk.Button(label="OK")
+        #self.ok.connect("clicked", self.Click_ok)
+        #self.ok.set_halign(3)
+        #self.ok.set_hexpand(True)
         
-        wrong_data_box.pack_start(self.ok, True, True, 1)
-        self.wrong_data_window.add(wrong_data_box)
+        #wrong_data_box.pack_start(self.ok, True, True, 1)
+        self.wrong_data_window.add(self.wrong_data_box)
         
         self.wrong_data_window.show_all()
+
+        time.sleep(2)
+
+        self.wrong_data_window.destroy()
 
     def Click_ok(self, button):
         self.wrong_data_window.destroy()   
