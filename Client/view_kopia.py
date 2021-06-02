@@ -600,11 +600,101 @@ class FirstPage(Gtk.Grid):
         self.profil.pack_start(self.change_button, False, True, 0)
         self.change_button.connect("clicked", self.change_click)
 
-        self.send_button = Gtk.Button(label="Usuń konto")
-        self.profil.pack_start(self.send_button, False, True, 0)
+        self.delete_acc_button = Gtk.Button(label="Usuń konto")
+        self.profil.pack_start(self.delete_acc_button, False, True, 0)
+        self.delete_acc_button.connect("clicked", self.delete_acc_click)
         
 
         self.poziomo.pack_start(self.profil, False, True, 0)
+
+    def delete_acc_click(self, button):
+        self.window5 = Gtk.Window()
+        self.window5.set_default_size(400, 270)
+
+        vertical_interface_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
+       
+
+        label_main = Gtk.Label("Usuń konto")
+
+        vertical_labels_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+       
+
+        vertical_entries_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        label_old_haslo = Gtk.Label("Podaj hasło: ")
+        label_old_haslo.set_halign(2)
+        self.old_entry_password = Gtk.Entry()
+        self.old_entry_password.set_visibility(False)
+        self.old_entry_password.set_hexpand(False)
+        self.old_entry_password.set_vexpand(False)
+        self.old_entry_password.set_text("")  
+
+        label_haslo = Gtk.Label("Powtórz hasło: ")
+        label_haslo.set_halign(2)
+        self.entry_password = Gtk.Entry()
+        self.entry_password.set_visibility(False)
+        self.entry_password.set_hexpand(False)
+        self.entry_password.set_vexpand(False)
+        self.entry_password.set_text("")  
+
+
+        label_auth_key = Gtk.Label("Podaj ulubiony kolor: ")
+        label_auth_key.set_halign(2)
+        self.entry_auth_key = Gtk.Entry()
+        self.entry_auth_key.set_hexpand(False)
+        self.entry_auth_key.set_vexpand(False)
+        self.entry_auth_key.set_text("")  
+            
+        
+        vertical_labels_box.pack_start(label_old_haslo, True, True, 0)
+        vertical_labels_box.pack_start(label_haslo, True, True, 0)
+        vertical_labels_box.pack_start(label_auth_key, True, True, 0)
+        #vertical_labels_box.set_valign(3)
+            
+        vertical_entries_box.pack_start(self.old_entry_password, True, True, 0)
+        vertical_entries_box.pack_start(self.entry_password, True, True, 0)
+        vertical_entries_box.pack_start(self.entry_auth_key, True, True, 0)
+        #vertical_entries_box.set_valign(3)
+            
+        horizontal_box = Gtk.Box(spacing=6)
+        horizontal_box.set_halign(3)
+        horizontal_box.pack_start(vertical_labels_box, True, True, 0)
+        horizontal_box.pack_start(vertical_entries_box, True, True, 0)
+
+
+        label_main.set_hexpand(True)
+        vertical_interface_box.pack_start(label_main, True, True, 0)
+            
+        vertical_interface_box.pack_start(horizontal_box, True, True, 0)
+        vertical_interface_box.set_valign(3)
+        horizontal_button_box = Gtk.Box(spacing=6)
+        horizontal_button_box.set_halign(3)
+
+        self.register_button = Gtk.Button(label="Usuń konto")
+        self.register_button.connect("clicked", self.Click_delete_account_ok)
+        self.register_button.set_halign(3)
+        self.register_button.set_hexpand(True)
+
+        self.back_to_login_button = Gtk.Button(label="Powrót")
+        self.back_to_login_button.connect("clicked", self.Close_delete_acc)
+        self.back_to_login_button.set_halign(3)
+        self.back_to_login_button.set_hexpand(True)
+
+        horizontal_button_box.pack_start(self.register_button,False,True,0)
+        horizontal_button_box.pack_start(self.back_to_login_button,False,True,0)
+        vertical_interface_box.pack_start(horizontal_button_box, False, True, 0)
+        self.window5.add(vertical_interface_box)
+        self.window5.show_all()
+
+    def Click_delete_account_ok(self, button): 
+        #dodać wylogowanie użytwkownika
+        self.window5.destroy()  
+        self.__parent_window.login_window.entry_login.set_text("")
+        self.__parent_window.login_window.entry_password.set_text("") 
+        self.Show_login_window()
+
+    def Close_delete_acc(self,button):
+       
+        self.window5.destroy()    
 
     def change_click(self, button):
         self.window4 = Gtk.Window()
