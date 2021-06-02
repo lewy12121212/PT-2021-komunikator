@@ -228,7 +228,7 @@ class LoginWindow(Gtk.Grid):
         #data = c.recv()
         #print(data)
         #time.sleep(1)
-        time.sleep(0.3)
+        time.sleep(0.1)
         print("łejt", resp.accept)
         if resp.accept:
             #Poprawne zalogowanie
@@ -627,7 +627,7 @@ class FirstPage(Gtk.Grid):
         self.entry_wysylanie = Gtk.Entry()
         self.entry_wysylanie.set_text("")
         #Maksymalna dlugość wiadomości
-        self.entry.set_max_length(350)
+        self.entry_wysylanie.set_max_length(350)
         self.wysylanie.pack_start(self.entry_wysylanie, True, True, 0)
 
         #Przycisk do wysyłania tekstu

@@ -61,6 +61,7 @@ class Server:
             inform_all = {"signal": "NUR", "data": {"login": login}}
             self.Send_All(str(inform_all))
 
+            time.sleep(0.1) 
             #wysłanie klientowi listy zalogowanych klientów
             contacts_list = []
             path = DB.Contacts_Path(login)
@@ -79,7 +80,7 @@ class Server:
             client.sendall(self.encrypt(str.encode(str_of_contacts_list), client_key))
 
             #wyslanie listy zalogowanych uzytkownikow 
-            time.sleep(0.05) 
+            time.sleep(0.1) 
             if clients:
                 
                 list_of_active_users = []
@@ -190,7 +191,7 @@ class Server:
 
     #główna pętla servera (akceptowanie nowych klientów i uruchamianie wątków do transmisji z nimi)
     def Begin_Transmision(self):
-        while self.active_conetion < 3:
+        while self.active_conetion < 100:
             print("Server is listening for connections...")
             client, address = self.s.accept()
             self.th.append(Thread(target=self.Transfer_Data, args = (client,address)).start())

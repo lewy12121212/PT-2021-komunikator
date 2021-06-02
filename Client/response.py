@@ -93,6 +93,10 @@ class Response:
             mess = [data["date"] + "\n" + data["from"] + ":\n" + data["message"], 1]
             #global_functions.income_message_list += mess
             window.chat_window.refresh_chat(mess)
+            if data["from"] != window.chat_window.uzytkownik:
+                print("nie tutaj")
+                window.chat_window.Show_alert_window("Masz nową wiadomość od użytkownika ",data["from"],".")
+
 
         else:
             print("oj ne ne ")
