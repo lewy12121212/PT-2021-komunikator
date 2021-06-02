@@ -7,8 +7,10 @@ import ast
 
 
 class Response:
+    logOut = False
     def __init__(self, database):
         self.DB = database
+        self.logOut = False
 
     def Make_Response(self, buffer):
         signal = ""
@@ -88,6 +90,7 @@ class Response:
             if self.DeleteUser(data['login'], data['password'], data['auth_key']):
                 response["to"] = data["login"]
                 response["data"] = '{"signal":"ACK","data":"Twoje konto zostanie usunieto po wylogowaniu."}'
+                logOut = True
             else:
                 response["to"] = data["login"]
                 response["data"] = '{"signal":"RJT","data":"Bledna odpowiedz autoryzacyjna lub obecne haslo."}'

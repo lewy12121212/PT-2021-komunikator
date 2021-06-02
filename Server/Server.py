@@ -109,13 +109,39 @@ class Server:
         public_key = private_key.public_key()
         public_key_to_send = public_key.public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo)
 
-        login = self.Set_Parameters(client, public_key_to_send, private_key, DB)
-        if login == '':
-            client.close()
-            print("ok")
-            return
+        end = 0
+
+        while(end != 1):
+            login = self.Set_Parameters(client, public_key_to_send, private_key, DB)
+            if login == '':
+                client.close()
+                print("ok")
+                return
+            else:
+                end = self.MainFunctionThread(login, DB, client, private_key)
+                if end == 1:
+                    inform_all = {"signal": "NCL", "data": {"login": login}}
+                    del clients[login]                
+                    print("close client")
+                    del self.clients_publickeys[login]
+                    self.Send_All(str(inform_all))
+
+        
+        DB.Change_Logged(login)
+        with self.clients_lock:                                
+            clients[login].shutdown(socket.SHUT_RDWR)
+            inform_all = {"signal": "NCL", "data": {"login": login}}
+            del clients[login]                
+            print("close client")
+            del self.clients_publickeys[login]
+        
+        self.Send_All(str(inform_all))  
+        print("close client")
         
         
+
+    def MainFunctionThread(self, login, DB, client, private_key):
+        end = 0
         rs = Response.Response(DB)
         #dodanie klienta do listy wątków
         with self.clients_lock:
@@ -124,45 +150,31 @@ class Server:
         #transmisja
         #self.Send_All('okon')
         resp = {"to": "", "data": ""}
-        try:    
-            while resp["data"] != "END":
-                data = client.recv(4096)
-                if not data:
+          
+        while resp["data"] != "END":
+            data = client.recv(4096)
+            if not data:
+                break
+            else:
+                data = self.decrypt(data, private_key)
+                resp = rs.Make_Response(data)
+                if resp["data"] != "END":
+                        #wysłanie wiadomości do wybranego klienta
+                    with self.clients_lock:
+                            #zaszyfrowanie wiadomości kluczem publicznym adresowanego klienta i wysłanie do niego
+                        clients[resp["to"]].sendall(self.encrypt(str.encode(resp["data"]), self.clients_publickeys[resp["to"]]))
+                elif rs.logOut:
+                    end = 0
+                    with self.clients_lock:
+                        #zaszyfrowanie wiadomości kluczem publicznym adresowanego klienta i wysłanie do niego
+                        clients[resp["to"]].sendall(self.encrypt(str.encode(resp["data"]), self.clients_publickeys[resp["to"]]))
                     break
                 else:
-                    data = self.decrypt(data, private_key)
-                    resp = rs.Make_Response(data)
-                    if resp["data"] != "END":
-                        #wysłanie wiadomości do wybranego klienta
-                        with self.clients_lock:
-                            #zaszyfrowanie wiadomości kluczem publicznym adresowanego klienta i wysłanie do niego
-                            clients[resp["to"]].sendall(self.encrypt(str.encode(resp["data"]), self.clients_publickeys[resp["to"]]))
-                    else: 
-                        break
-        except:
-            DB.Change_Logged(login)
-            with self.clients_lock:                
-                clients[login].shutdown(socket.SHUT_RDWR)
-                inform_all = {"signal": "NCL", "data": {"login": login}}
-                del clients[login]                
-                
-                del self.clients_publickeys[login]
-            self.Send_All(str(inform_all))  
-            print("close client")
-            return
-                          
-        #po rozłączeniu z klientem - usuwanie z listy wątków                 
-        finally:
-            DB.Change_Logged(login)
-            with self.clients_lock:                                
-                clients[login].shutdown(socket.SHUT_RDWR)
-                inform_all = {"signal": "NCL", "data": {"login": login}}
-                del clients[login]                
-                print("close client")
-                del self.clients_publickeys[login]
-        
-        self.Send_All(str(inform_all))  
-        print("close client")
+                    end = 1 
+                    break
+        return end
+
+
 
     #główna pętla servera (akceptowanie nowych klientów i uruchamianie wątków do transmisji z nimi)
     def Begin_Transmision(self):
