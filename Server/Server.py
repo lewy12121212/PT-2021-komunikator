@@ -32,14 +32,9 @@ class Server:
 
     #przesłanie kluczy publicznych między klientem a serverem, działa do momentu zalogowania użytkonika
     #po czym mapuje login użytkonwnika z jego kanałem i kluczem publicznym 
-    def Set_Parameters(self, client, public_key, private_key, DB):
+    def Set_Parameters(self, client, private_key, client_key, DB):
         login =''
         rs = Response.Response(DB)
-        get_client_key = client.recv(4096)
-        #print(get_client_key)
-        client_key = serialization.load_pem_public_key(get_client_key) 
-        #print(client_key)
-        client.sendall(public_key)
 
 
         s = {"to": "self", "data": ""}
@@ -109,22 +104,31 @@ class Server:
         public_key = private_key.public_key()
         public_key_to_send = public_key.public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo)
 
+        #pobranie klucza od klienta
+        get_client_key = client.recv(4096)
+        #print(get_client_key)
+        client_key = serialization.load_pem_public_key(get_client_key) 
+        #print(client_key)
+        client.sendall(public_key_to_send)
+        
         end = 0
 
         while(end != 1):
-            login = self.Set_Parameters(client, public_key_to_send, private_key, DB)
+            login = self.Set_Parameters(client, private_key, client_key, DB)
+            print(login)
             if login == '':
                 client.close()
                 print("ok")
                 return
             else:
                 end = self.MainFunctionThread(login, DB, client, private_key)
-                if end == 1:
+                if end == 0:
                     inform_all = {"signal": "NCL", "data": {"login": login}}
                     del clients[login]                
                     print("close client")
                     del self.clients_publickeys[login]
                     self.Send_All(str(inform_all))
+                    
 
         
         DB.Change_Logged(login)
@@ -158,7 +162,7 @@ class Server:
             else:
                 data = self.decrypt(data, private_key)
                 resp = rs.Make_Response(data)
-                if resp["data"] != "END":
+                if resp["data"] != "END" and not rs.logOut:
                         #wysłanie wiadomości do wybranego klienta
                     with self.clients_lock:
                             #zaszyfrowanie wiadomości kluczem publicznym adresowanego klienta i wysłanie do niego

@@ -4,7 +4,7 @@ import global_functions
 
 class Response:
     def __init__(self):
-        self
+        self.accept = False
 
 
     def Make_Response(self, buffer):
@@ -23,6 +23,8 @@ class Response:
             return True
         elif signal == "RJT":
             return False
+        else:
+            return False
         
             
     def Make_Response_Thread(self, buffer, window):
@@ -36,8 +38,13 @@ class Response:
         signal = tmp["signal"]
         data = tmp["data"]     
 
+        if signal == "ACK":
+            self.accept = True
+            print("okejka")
+        elif signal == "RJT":
+            self.accept = False
         #lista kontaktow uzytkownika
-        if signal == "LCU":
+        elif signal == "LCU":
             contact = data["contacts"].split(',')
             global_functions.contact_user_list = contact
             

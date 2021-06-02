@@ -61,15 +61,16 @@ class Client:
     def recv(self):
         
         data = self.sock.recv(4096)
+        print(len(data))
         mess = self.decrypt(data)
         print('received "%s"' % mess)
         return mess
 
-    def recv_thread(self, window):
+    def recv_thread(self, window, respo):
         #window = arg[0]
         try:
             while True:
-                resp = response.Response()
+                resp = respo
 
                 data = self.sock.recv(4096)
                 if len(data) != 0:

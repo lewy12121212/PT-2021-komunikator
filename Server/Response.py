@@ -90,7 +90,7 @@ class Response:
             if self.DeleteUser(data['login'], data['password'], data['auth_key']):
                 response["to"] = data["login"]
                 response["data"] = '{"signal":"ACK","data":"Twoje konto zostanie usunieto po wylogowaniu."}'
-                logOut = True
+                self.logOut = True
             else:
                 response["to"] = data["login"]
                 response["data"] = '{"signal":"RJT","data":"Bledna odpowiedz autoryzacyjna lub obecne haslo."}'

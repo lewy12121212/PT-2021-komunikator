@@ -22,6 +22,7 @@ start_thread = 0
 login = ''
 
 container = Gtk.Grid()
+th = []
 
 #Okno aplikacji
 class App_view(Gtk.Window):
@@ -34,7 +35,8 @@ class App_view(Gtk.Window):
         self.connect("delete-event", self.on_destroy)
         self.set_border_width(20)
         self.set_default_size(600, 250)
-
+        self.recv_thread = Thread(target=c.recv_thread, args=(self, resp))
+        self.recv_thread.start()
         self.add(container)
         container.show()
 
@@ -79,7 +81,8 @@ class LoginWindow(Gtk.Grid):
         self.__parent_window = parent_window
         self.row_spacing = 10
         self.column_spacing = 10
-        
+        #self.recv_thread = Thread(target=c.recv_thread, args=(self, ))
+
         self.Login_window()
         
     #Pokazuje okno logowania
@@ -220,15 +223,18 @@ class LoginWindow(Gtk.Grid):
         mess = req.logIn(login,password)
         c.send(str(mess))
         #Odebranie odpowiedzi serwera
-        data = c.recv()
-        print(data)
-
-        if resp.Make_Response(data):
+        #data = c.recv()
+        #print(data)
+        #time.sleep(1)
+        time.sleep(0.05)
+        print("łejt", resp.accept)
+        if resp.accept:
             #Poprawne zalogowanie
             print("ACK")
             c.login = login
             self.__parent_window.add_chat()
             #Przejście do okna czatu
+            #self.recv_thread.start()
             self.Show_chat_window()
 
         else:
@@ -470,10 +476,10 @@ class RegisterWindow(Gtk.Grid):
            
 
             c.send(str(mess))
-        
-            data = c.recv()
-            print(data)
-            if resp.Make_Response(data):
+            time.sleep(0.05)
+            #data = c.recv()
+            #print(data)
+            if resp.accept:
                 print("ACK")
 
     def Show_alert_window(self,alert_text):
@@ -499,7 +505,7 @@ class FirstPage(Gtk.Grid):
         self.__parent_window = parent_window
         self.czat = global_functions.MsgList()
         self.uzytkownik = ""
-        self.recv_thread = Thread(target=c.recv_thread, args=(self, ))
+        
 
         self.main_chat_window()
 
@@ -526,7 +532,7 @@ class FirstPage(Gtk.Grid):
     def main_chat_window(self):
         
        
-        self.recv_thread.start()
+        #self.recv_thread.start()
         self.poziomo = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=15)
         self.add(self.poziomo)
 
@@ -707,10 +713,11 @@ class FirstPage(Gtk.Grid):
 
         #dodać wylogowanie użytwkownika
         global login
-        data = req.delete_account(login,self.entry_password().get_text(), self.entry_auth_key().get_text())
+        data = req.delete_account(login,self.entry_password.get_text(), self.entry_auth_key.get_text())
         c.send(data)
+        
 
-
+        time.sleep(0.5)
         self.window5.destroy()  
         self.__parent_window.login_window.entry_login.set_text("")
         self.__parent_window.login_window.entry_password.set_text("") 
