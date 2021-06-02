@@ -176,12 +176,12 @@ class LoginWindow(Gtk.Grid):
         self.reset_button.set_hexpand(True)
         vertical_main_box.pack_start(self.reset_button, True, True, 0) 
 
-    def Wrong_data(self):
+    def Wrong_data(self,alert_text):
         self.wrong_data_window = Gtk.Window()
         self.wrong_data_window.set_default_size(400, 100)
 
        
-        label_wrong_data = Gtk.Label("Wpisano błędny login lub hasło")
+        label_wrong_data = Gtk.Label(alert_text)
         wrong_data_box = Gtk.VBox()
         wrong_data_box.pack_start(label_wrong_data,True,True, 1)
        
@@ -210,7 +210,7 @@ class LoginWindow(Gtk.Grid):
     #Kliknięcie przycisku do zalogowania
     def Click_login(self, button):
         #Zrobić żeby było tylko jak są złe dane
-        #self.Wrong_data()
+        #self.Wrong_data(tekst)
         global login
         #Zczytanie danych z wejścia
         login = self.entry_login.get_text()
@@ -331,11 +331,26 @@ class ChangePasswordWindow(Gtk.Grid):
         vertical_interface_box.pack_start(horizontal_button_box, False, True, 0)
 
     def Click_reset_password(self, button): 
+        ####
+        #self.Show_alert)window(tekst)
         print("Zmiana hasła")
         #Dodać zmianę hasła
 
     def Click_back_to_login(self, button):      
          self.Show_login_window()  
+
+    def Show_alert_window(self,alert_text):
+        self.wrong_data_window = Gtk.Window()
+        self.wrong_data_window.set_default_size(400, 100)
+
+        
+        label_wrong_data = Gtk.Label(alert_text)
+        wrong_data_box = Gtk.VBox()
+        wrong_data_box.pack_start(label_wrong_data,True,True, 1)
+        
+        
+        self.wrong_data_window.add(wrong_data_box)
+        self.wrong_data_window.show_all()   
            
 
 class RegisterWindow(Gtk.Grid):
@@ -440,6 +455,8 @@ class RegisterWindow(Gtk.Grid):
         self.Show_login_window()  
 
     def Click_register(self, button):
+        ###
+        #self.Show_alert_window(tekst)
         l = self.entry_login.get_text()
         h = self.entry_password.get_text()
         ph = self.entry_second_password.get_text()
@@ -459,6 +476,19 @@ class RegisterWindow(Gtk.Grid):
             if resp.Make_Response(data):
                 print("ACK")
 
+    def Show_alert_window(self,alert_text):
+        self.wrong_data_window = Gtk.Window()
+        self.wrong_data_window.set_default_size(400, 100)
+
+        
+        label_wrong_data = Gtk.Label(alert_text)
+        wrong_data_box = Gtk.VBox()
+        wrong_data_box.pack_start(label_wrong_data,True,True, 1)
+        
+        
+        self.wrong_data_window.add(wrong_data_box)
+        self.wrong_data_window.show_all()   
+
 
            
 class FirstPage(Gtk.Grid):
@@ -469,16 +499,9 @@ class FirstPage(Gtk.Grid):
         self.__parent_window = parent_window
         self.czat = global_functions.MsgList()
         self.uzytkownik = ""
-        #Łukasz
         self.recv_thread = Thread(target=c.recv_thread, args=(self, ))
-        #print("ok")
-        #self.recv_thread.start()
-        #self.recv_thread.join()
+
         self.main_chat_window()
-
-        #self.connect("destroy", Gtk.main_quit)
-        #print("okk")
-
 
     def Show_login_window(self, *args):
         self.__parent_window.login_window.show_all()
@@ -491,7 +514,7 @@ class FirstPage(Gtk.Grid):
         label = Gtk.Label("Podaj nazwę użytkownika: ")
         vboxa.pack_start(label, True, True, 0)
 
-        #Okno do wpisywania tekstu
+       
         self.entry = Gtk.Entry()
         self.entry.set_text("")
         #Maksymalna dlugość wiadomości
@@ -502,7 +525,7 @@ class FirstPage(Gtk.Grid):
 
     def main_chat_window(self):
         
-        #print("okkk")
+       
         self.recv_thread.start()
         self.poziomo = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=15)
         self.add(self.poziomo)
@@ -535,8 +558,7 @@ class FirstPage(Gtk.Grid):
 
         self.kontakty.pack_start(self.scrolled_kontakty, True, True, 0)
         
-        #Dla każdego kontaktu z listy tworzy podpisany przycisk
-        #Łukasz
+        
         
         if global_functions.active_user_list:
             #Dla każdego kontaktu z listy tworzy podpisany przycisk
@@ -551,11 +573,6 @@ class FirstPage(Gtk.Grid):
             
         self.kontakty.show_all()
          
-                #Dodanie wiadmowsci
-           
-
-        
-        #koniec if
 
         
         self.chat_window = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
@@ -572,12 +589,10 @@ class FirstPage(Gtk.Grid):
         
         #Dodanie wiadmowsci
         self.scrolled_window.add_with_viewport(self.add_messages())
-        # add the scrolledwindow to the window
-        #self.add(self.scrolled_window)   
+      
 
         self.wysylanie = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        #self.add(vbox)
-
+       
         #Okno do wpisywania tekstu
         self.entry_wysylanie = Gtk.Entry()
         self.entry_wysylanie.set_text("")
@@ -686,6 +701,10 @@ class FirstPage(Gtk.Grid):
         self.window5.show_all()
 
     def Click_delete_account_ok(self, button): 
+        #jeśli jakiś błąd
+        #self.Show_alert_window(tekst_bledu)
+
+
         #dodać wylogowanie użytwkownika
         global login
         data = req.delete_account(login,self.entry_password().get_text(), self.entry_auth_key().get_text())
@@ -789,6 +808,9 @@ class FirstPage(Gtk.Grid):
         self.window4.show_all()
 
     def Click_reset_password(self, button): 
+        #jeśli jakiś błąd
+        self.Show_alert_window("tekst_bledu")
+
         print("Zmiana hasła")
         global login
         #Dodać zmianę hasła
@@ -804,6 +826,8 @@ class FirstPage(Gtk.Grid):
 
         
     def add_contact(self,nazwa):
+        
+
         print("AAA")
         self.buttons.append(Gtk.Button(label=nazwa,xalign=0))
         self.buttons[-1].connect("clicked", self.click_contact)
@@ -892,6 +916,9 @@ class FirstPage(Gtk.Grid):
         self.window3.show_all()   
 
     def click_delete_user_name(self, button):
+        #jeśli jakiś błąd
+        #self.Show_alert_window(tekst_bledu)
+
         print(self.entry_user.get_text())
         global login
         data = req.del_contact(login, self.entry_user.get_text())
@@ -930,6 +957,9 @@ class FirstPage(Gtk.Grid):
         self.window2.show_all()   
 
     def click_add_user_name(self, button):
+        #jeśli jakiś błąd
+        #self.Show_alert_window(tekst_bledu)
+
         print(self.entry_user.get_text())
         global login
         data = req.add_contact(login, self.entry_user.get_text())
@@ -1069,7 +1099,15 @@ class FirstPage(Gtk.Grid):
         
         return grid
 
-   
-			
+    def Show_alert_window(self,alert_text):
+        self.wrong_data_window = Gtk.Window()
+        self.wrong_data_window.set_default_size(400, 100)
 
-
+        
+        label_wrong_data = Gtk.Label(alert_text)
+        wrong_data_box = Gtk.VBox()
+        wrong_data_box.pack_start(label_wrong_data,True,True, 1)
+        
+        
+        self.wrong_data_window.add(wrong_data_box)
+        self.wrong_data_window.show_all()   
