@@ -92,6 +92,7 @@ class Server:
                 #print(str_of_users_list)
                 client.sendall(self.encrypt(str.encode(str_of_users_list), client_key))
         except:
+            self.active_conetion -= 1
             return login
 
         return login

@@ -1,5 +1,5 @@
 import json
-
+import os
 #from Server import self.DB
 
 import ast
@@ -87,10 +87,15 @@ class Response:
         
         #usunięcie konta przez użytkonika
         elif signal == "UDA":
+            path = self.DB.Contacts_Path(data['login'])
             if self.DeleteUser(data['login'], data['password'], data['auth_key']):
                 response["to"] = data["login"]
                 response["data"] = '{"signal":"ACK","data":"Twoje konto zostalo usuniete."}'
                 self.logOut = True
+                if os.path.exists(path):
+                    os.remove(path)
+                else:
+                    print("The file does not exist") 
             else:
                 response["to"] = data["login"]
                 response["data"] = '{"signal":"RJT","data":"Bledna odpowiedz autoryzacyjna lub obecne haslo."}'

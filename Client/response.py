@@ -91,11 +91,13 @@ class Response:
         #odebranie wiadomosci
         elif signal == "MSG":
             mess = [data["date"] + "\n" + data["from"] + ":\n" + data["message"], 1]
+            print("from ", data["from"], " who ",window.chat_window.uzytkownik)
             #global_functions.income_message_list += mess
-            window.chat_window.refresh_chat(mess)
             if data["from"] != window.chat_window.uzytkownik:
                 print("nie tutaj")
-                window.chat_window.Show_alert_window("Masz nową wiadomość od użytkownika ",data["from"],".")
+                alert = "Masz nową wiadomość od użytkownika " + data["from"] +"."
+                #window.chat_window.Show_alert_window(alert)
+            window.chat_window.refresh_chat(mess, data["from"])
 
 
         else:

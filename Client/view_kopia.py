@@ -885,20 +885,20 @@ class FirstPage(Gtk.Grid):
         self.kontakty.pack_start(self.scrolled_kontakty, True, True, 0)
         self.kontakty.show_all()
     
-    def add_message(self,wiad):
-        if(self.uzytkownik!=""):
-            self.czat._append_msg(self.uzytkownik,wiad)
-            if(wiad[1]==1):
-                label = Gtk.Label(wiad[0])
-                label.set_line_wrap(True)
-                label.set_max_width_chars(5)
-                label.set_alignment(0,0)
+    def add_message(self,wiad, od):
+        
+        self.czat._append_msg(od, wiad)
+        if(wiad[1]==1):
+            label = Gtk.Label(wiad[0])
+            label.set_line_wrap(True)
+            label.set_max_width_chars(5)
+            label.set_alignment(0,0)
                 
-            else:
-                label = Gtk.Label(wiad[0])
-                label.set_line_wrap(True)
-                label.set_max_width_chars(5)
-                label.set_alignment(1,0)
+        else:
+            label = Gtk.Label(wiad[0])
+            label.set_line_wrap(True)
+            label.set_max_width_chars(5)
+            label.set_alignment(1,0)
             return label
         return Gtk.Label("")
 
@@ -1032,29 +1032,34 @@ class FirstPage(Gtk.Grid):
         global income_messages_list
         wiadomosc = self.entry_wysylanie.get_text()
         print(wiadomosc)
-        t = time.localtime()
-        global_functions.income_messages_list.append([str(time.strftime("%H:%M:%S", t) + "\nTy:\n" + wiadomosc),2])
-        self.lista_wiadomosci.pack_start(self.add_message([str(time.strftime("%H:%M:%S", t) + "\nTy:\n" + wiadomosc),2]), True, False, 1)
-        self.entry_wysylanie.set_text("")
-        self.entry_wysylanie.show_all()
-        #self.scrolled_window.show_all()
 
+        if self.uzytkownik == "":
+            self.Show_alert_window("Nie wybrano adresata wiadomości.")
+        else:
+            t = time.localtime()
+            global_functions.income_messages_list.append([str(time.strftime("%H:%M:%S", t) + "\nTy:\n" + wiadomosc),2])
+            self.lista_wiadomosci.pack_start(self.add_message([str(time.strftime("%H:%M:%S", t) + "\nTy:\n" + wiadomosc),2], self.uzytkownik), True, False, 1)
+            self.entry_wysylanie.set_text("")
+            self.entry_wysylanie.show_all()
+            #self.scrolled_window.show_all()
+            
 
-        #ŁUKASZ
-        #wysyłanie wiadomości
-        c.send(req.message(self.uzytkownik,c.login,wiadomosc))
+            #ŁUKASZ
+            #wysyłanie wiadomości
+            c.send(req.message(self.uzytkownik,c.login,wiadomosc))
 
-        adj = self.scrolled_window.get_vadjustment()
-        adj.set_value(adj.get_upper() - adj.get_page_size()) #nie pokazuje ostatniej liniki 
-        #samo get_upper lub get_page_size też działa (chyba)
-        #-20 sprawia że nie pokazuje też przedostatniej ale +20 nic nie zmienia
-        self.scrolled_window.show_all()
+            adj = self.scrolled_window.get_vadjustment()
+            adj.set_value(adj.get_upper() - adj.get_page_size()) #nie pokazuje ostatniej liniki 
+            #samo get_upper lub get_page_size też działa (chyba)
+            #-20 sprawia że nie pokazuje też przedostatniej ale +20 nic nie zmienia
+            self.scrolled_window.show_all()
 
     #Łukasz
-    def refresh_chat(self, mess):
+    def refresh_chat(self, mess, od):
         #print(mess)
-        self.lista_wiadomosci.pack_start(self.add_message(mess), True, False, 1)
-        self.scrolled_window.show_all()
+        self.lista_wiadomosci.pack_start(self.add_message(mess, od), True, False, 1)
+        if od == self.uzytkownik:
+            self.scrolled_window.show_all()
 
 
     def active_users(self):
