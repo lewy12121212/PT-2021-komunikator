@@ -43,14 +43,15 @@ class Response:
             self.accept = True
             if data != "":
                 print(type(data))
-                window.chat_window.Show_alert_window(data)
+                #window.chat_window.Show_alert_window(data)
                 
 
             #print("okejka")
         elif signal == "RJT":
             self.accept = False
             if data != "":
-                window.chat_window.Show_alert_window(data)
+                print("a")
+                #window.chat_window.Show_alert_window(data)
         #lista kontaktow uzytkownika
         elif signal == "LCU":
             contact = data["contacts"].split(',')

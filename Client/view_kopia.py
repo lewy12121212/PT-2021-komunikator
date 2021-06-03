@@ -228,7 +228,7 @@ class LoginWindow(Gtk.Grid):
         #data = c.recv()
         #print(data)
         #time.sleep(1)
-        time.sleep(0.1)
+        time.sleep(0.3)
         print("łejt", resp.accept)
         if resp.accept:
             #Poprawne zalogowanie
@@ -1059,6 +1059,9 @@ class FirstPage(Gtk.Grid):
         #print(mess)
         self.lista_wiadomosci.pack_start(self.add_message(mess, od), True, False, 1)
         if od == self.uzytkownik:
+            print("ten sam czat")
+            self.scrolled_window.remove(self.scrolled_window.get_child())
+            self.scrolled_window.add_with_viewport(self.add_messages())
             self.scrolled_window.show_all()
 
 
