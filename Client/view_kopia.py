@@ -600,8 +600,21 @@ class FirstPage(Gtk.Grid):
         self.profil.pack_start(self.delete_acc_button, False, True, 0)
         self.delete_acc_button.connect("clicked", self.delete_acc_click)
         
+        self.log_out_button = Gtk.Button(label="Wyloguj")
+        self.profil.pack_start(self.log_out_button, False, True, 0)
+        self.log_out_button.connect("clicked", self.log_out_click)
 
         self.poziomo.pack_start(self.profil, False, True, 0)
+
+
+    def log_out_click(self, button):
+        print("wyloguj")
+        #dodać wylogowywanie
+        global login
+        login = ""
+        self.__parent_window.login_window.entry_login.set_text("")
+        self.__parent_window.login_window.entry_password.set_text("") 
+        self.Show_login_window()     
 
     def delete_acc_click(self, button):
         self.window5 = Gtk.Window()
