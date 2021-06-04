@@ -181,25 +181,6 @@ class LoginWindow(Gtk.Grid):
         self.reset_button.set_hexpand(True)
         vertical_main_box.pack_start(self.reset_button, True, True, 0) 
 
-    def Wrong_data(self,alert_text):
-        self.wrong_data_window = Gtk.Window()
-        self.wrong_data_window.set_default_size(400, 100)
-
-       
-        label_wrong_data = Gtk.Label(alert_text)
-        wrong_data_box = Gtk.VBox()
-        wrong_data_box.pack_start(label_wrong_data,True,True, 1)
-       
-      
-        self.wrong_data_window.add(wrong_data_box)
-        self.wrong_data_window.show_all()   
-
-        #W tym przypadku dopiero po 5 sek pojawia się tekst i w tym samym momecie zamyka okno
-        #jak nie ma destroy to to widać 
-        '''
-        time.sleep(5)
-        self.wrong_data_window.destroy() 
-        '''
 
     def Click_reset(self,button):
         self.__parent_window.add_change()
@@ -351,25 +332,6 @@ class ChangePasswordWindow(Gtk.Grid):
     def Click_back_to_login(self, button):      
          self.Show_login_window()  
 
-    def Show_alert_window(self,alert_text):
-        self.wrong_data_window = Gtk.Window()
-        self.wrong_data_window.set_default_size(400, 100)
-
-        
-        label_wrong_data = Gtk.Label(alert_text)
-        wrong_data_box = Gtk.VBox()
-        wrong_data_box.pack_start(label_wrong_data,True,True, 1)
-
-        self.ok = Gtk.Button(label="OK")
-        self.ok.connect("clicked", self.Click_ok)
-        self.ok.set_halign(3)
-        self.ok.set_hexpand(True)
-        
-        self.wrong_data_box.pack_start(self.ok, True, True, 1)
-        self.wrong_data_window.add(wrong_data_box)
-        
-        self.wrong_data_window.show_all()
-
     def Click_ok(self, button):
         self.wrong_data_window.destroy()
    
@@ -491,9 +453,12 @@ class RegisterWindow(Gtk.Grid):
         if(h!=ph):
             print("INNE HASLA")
         elif len(h)<8:
-            self.Show_alert_window("Podane hasło jest zbyt krótkie.")
+            alert = Alert_Window.Show_alert_window("Podane hasło jest zbyt krótkie.")
+            #self.Show_alert_window("Podane hasło jest zbyt krótkie.")
         elif len(l)>32:
-            self.Show_alert_window("Twój login jest zbyt długi.")
+            alert = Alert_Window.Show_alert_window("Twój login jest zbyt długi.")
+
+            #self.Show_alert_window("Twój login jest zbyt długi.")
         else:
            
             mess = req.register(l,h,pyt)
@@ -505,20 +470,6 @@ class RegisterWindow(Gtk.Grid):
             #print(data)
             if resp.accept:
                 print("ACK")
-
-    def Show_alert_window(self,alert_text):
-        self.wrong_data_window = Gtk.Window()
-        self.wrong_data_window.set_default_size(400, 100)
-
-        
-        label_wrong_data = Gtk.Label(alert_text)
-        wrong_data_box = Gtk.VBox()
-        wrong_data_box.pack_start(label_wrong_data,True,True, 1)
-        
-        
-        self.wrong_data_window.add(wrong_data_box)
-        self.wrong_data_window.show_all()   
-
 
            
 class FirstPage(Gtk.Grid):
@@ -851,9 +802,11 @@ class FirstPage(Gtk.Grid):
         #self.Show_alert_window("tekst_bledu")
 
         if (self.old_entry_password.get_text() == self.entry_password.get_text()):
-            self.Show_alert_window("Nowe haslo nie może być takie samo jak stare.")
+            alert = Alert_Window.Show_alert_window("Nowe haslo nie może być takie samo jak stare.")
+            #self.Show_alert_window("Nowe haslo nie może być takie samo jak stare.")
         elif(self.entry_password.get_text() != self.entry_second_password.get_text()):
-            self.Show_alert_window("Błędnie powtórzono hasło.")
+            alert = Alert_Window.Show_alert_window("Błędnie powtórzono hasło.")
+            #self.Show_alert_window("Błędnie powtórzono hasło.")
         else:
             print("Zmiana hasła")
             global login
@@ -1036,7 +989,8 @@ class FirstPage(Gtk.Grid):
         print(wiadomosc)
 
         if self.uzytkownik == "":
-            self.Show_alert_window("Nie wybrano adresata wiadomości.")
+            alert = Alert_Window.Show_alert_choose_window("Nie wybrano adresata wiadomości.")
+            #self.Show_alert_window("Nie wybrano adresata wiadomości.")
         else:
             t = time.localtime()
             global_functions.income_messages_list.append([str(time.strftime("%H:%M:%S", t) + "\nTy:\n" + wiadomosc),2])
@@ -1161,32 +1115,48 @@ class FirstPage(Gtk.Grid):
         
         return grid
 
-    def Show_alert_window(self,alert_text):
-
-        print(alert_text)
-
-        self.wrong_data_window = Gtk.Window()
-        self.wrong_data_window.set_default_size(400, 100)
-
-        
-        self.label_wrong_data = Gtk.Label(alert_text)
-        self.wrong_data_box = Gtk.VBox()
-        self.wrong_data_box.pack_start(self.label_wrong_data,True,True, 1)
-        
-        
-        #self.ok = Gtk.Button(label="OK")
-        #self.ok.connect("clicked", self.Click_ok)
-        #self.ok.set_halign(3)
-        #self.ok.set_hexpand(True)
-        
-        #wrong_data_box.pack_start(self.ok, True, True, 1)
-        self.wrong_data_window.add(self.wrong_data_box)
-        
-        self.wrong_data_window.show_all()
-
-        #time.sleep(2)
-
-        #self.wrong_data_window.destroy()
-
     def Click_ok(self, button):
         self.wrong_data_window.destroy()   
+
+
+class Alert_Window(Gtk.Window):
+    
+    def __init__(self,tekst):
+       
+        super().__init__()
+        #self.Show_alert_window(tekst)
+        
+        
+    def Show_alert_window(alert_text):
+        wrong_data_window = Gtk.Window()
+        wrong_data_window.set_default_size(400, 100)
+
+        
+        label_wrong_data = Gtk.Label(alert_text)
+        wrong_data_box = Gtk.VBox()
+        wrong_data_box.pack_start(label_wrong_data,True,True, 1)
+        
+        
+        wrong_data_window.add(wrong_data_box)
+        wrong_data_window.show_all() 
+
+    def Show_alert_choose_window(alert_text):
+        wrong_data_window = Gtk.Window()
+        wrong_data_window.set_default_size(400, 100)
+
+        
+        label_wrong_data = Gtk.Label(alert_text)
+        wrong_data_box = Gtk.VBox(orientation=Gtk.Orientation.VERTICAL)
+        wrong_data_box.pack_start(label_wrong_data,True,True, 1)
+
+        yes = Gtk.Button("Tak")
+        no = Gtk.Button("Nie")
+        button_box = Gtk.VBox(orientation=Gtk.Orientation.HORIZONTAL)
+        button_box.pack_start(yes,False,True,1)
+        button_box.pack_start(no,False,True,1)
+        button_box.set_halign(3)
+        wrong_data_box.pack_start(button_box,False,True, 1)
+
+        
+        wrong_data_window.add(wrong_data_box)
+        wrong_data_window.show_all()     
