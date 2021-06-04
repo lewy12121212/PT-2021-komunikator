@@ -33,8 +33,8 @@ class Response:
         
         #przesyłanie wiadomości do adresata
         elif signal == "MSG":
-            path = self.DB.Contacts_Path(data["login"])
-            
+            #path = self.DB.Contacts_Path(data["login"])
+
             response["to"] = data["to"]
             message = {"signal":"MSG", "data": {"from": data["from"], "date": data["date"], "message": data ["message"]}}
             response["data"] = str(message)

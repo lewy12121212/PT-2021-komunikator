@@ -68,9 +68,10 @@ class Client:
 
     def recv_thread(self, window, respo):
         #window = arg[0]
+        resp = respo
         try:
             while True:
-                resp = respo
+                
 
                 data = self.sock.recv(4096)
                 if len(data) != 0:
