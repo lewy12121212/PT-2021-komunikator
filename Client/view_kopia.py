@@ -1016,6 +1016,8 @@ class FirstPage(Gtk.Grid):
         c.send(data)
         time.sleep(0.3)
         if resp.accept:
+            global_functions.contact_user_list += self.entry_user.get_text()
+            
             self.window2.destroy() 
         #Tu dodać nazwę użytkownika do znajomych 
           

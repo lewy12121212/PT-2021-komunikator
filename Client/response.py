@@ -100,6 +100,17 @@ class Response:
                 #window.chat_window.Show_alert_window(alert)
             window.chat_window.refresh_chat(mess, data["from"])
 
+        #zaproszenie do znajomych
+        elif signal == "CIN":
+            #wyświetlanie okna dialogowego
+            pass
+        
+        elif signal == "CAP":
+            contact = data["user"]
+            print(repr(contact))
+            global_functions.contact_user_list += contact
+            global_functions.active_user_list.append(contact)
+            window.chat_window.refresh_contact_list(contact)
 
         else:
             print("oj ne ne ")

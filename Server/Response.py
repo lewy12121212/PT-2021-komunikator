@@ -33,6 +33,8 @@ class Response:
         
         #przesyłanie wiadomości do adresata
         elif signal == "MSG":
+            path = self.DB.Contacts_Path(data["login"])
+            
             response["to"] = data["to"]
             message = {"signal":"MSG", "data": {"from": data["from"], "date": data["date"], "message": data ["message"]}}
             response["data"] = str(message)
@@ -105,17 +107,35 @@ class Response:
             response["data"] = "END"
         #dodanie użytkownika do kontaktów
         elif signal == "CAD":
-            path = self.DB.Contacts_Path(data["login"])
+            if self.DB.Exists(data['user']):
+                response["to"] = data["user"]
+                mess = {"signal":"CIN","data":{"user": data["login"]}}
+                response["data"] = str(mess)
+            else:
+                response["data"] = '{"signal":"RJT","data":"Użytkownik nie istnieje."}'
+                response["to"] = data["login"]
+
+        elif signal == "CAP":
             
+            path = self.DB.Contacts_Path(data["login"])
+            path1 = self.DB.Contacts_Path(data["user"])
+
             if self.DB.Exists(data['user']):
                 with open(path, 'a') as f:
                     f.write(data["user"]+'\n')
 
-                response["data"] = '{"signal":"ACK","data":"Dodano nowy kontakt."}'
+                with open(path1, 'a') as f:
+                    f.write(data["login"]+'\n') 
+
+                response["data"] = '{"signal":"CAP","data":"Dodano nowy kontakt."}'
                 response["to"] = data["login"]
             else:
                 response["data"] = '{"signal":"RJT","data":"Użytkownik nie istnieje."}'
                 response["to"] = data["login"]
+
+        elif signal == "CRT":
+            response["data"] = '{"signal":"RJT","data":"Nie zaakceptowano zaproszenia."}'
+            response["to"] = data["login"]       
         
         #usuwanie użytkownika
         elif signal == "CDL":

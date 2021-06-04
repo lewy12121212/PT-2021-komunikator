@@ -97,6 +97,20 @@ class Request:
         #print(str(request))
         return str(request)
 
+    def acceptInvite(self,login, user):
+        request = self.request
+        request["signal"] ="CAP"
+        request["data"] = {"login": login, "user": user}
+        #print(str(request))
+        return str(request)
+
+    def rejectInvite(self, login):
+        request = self.request
+        request["signal"] ="CRT"
+        request["data"] = {"login": login}
+        #print(str(request))
+        return str(request)
+
     def make_hash(self, to_hash):
         m = hashlib.sha256()
         m.update(to_hash)
