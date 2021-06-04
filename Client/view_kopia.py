@@ -35,6 +35,7 @@ class App_view(Gtk.Window):
         self.connect("delete-event", self.on_destroy)
         self.set_border_width(20)
         self.set_default_size(600, 250)
+        self.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
         self.recv_thread = Thread(target=c.recv_thread, args=(self, resp))
         self.recv_thread.start()
         self.add(container)
@@ -82,7 +83,7 @@ class LoginWindow(Gtk.Grid):
         self.row_spacing = 10
         self.column_spacing = 10
         #self.recv_thread = Thread(target=c.recv_thread, args=(self, ))
-
+       
         self.Login_window()
         
     #Pokazuje okno logowania
@@ -209,7 +210,7 @@ class LoginWindow(Gtk.Grid):
         #data = c.recv()
         #print(data)
         #time.sleep(1)
-        time.sleep(0.3)
+        time.sleep(0.2)
         print("łejt", resp.accept)
         if resp.accept:
             #Poprawne zalogowanie
@@ -619,7 +620,7 @@ class FirstPage(Gtk.Grid):
     def delete_acc_click(self, button):
         self.window5 = Gtk.Window()
         self.window5.set_default_size(400, 270)
-
+        self.window5.set_position(Gtk.WindowPosition.CENTER)
         vertical_interface_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
        
 
@@ -722,7 +723,7 @@ class FirstPage(Gtk.Grid):
     def change_click(self, button):
         self.window4 = Gtk.Window()
         self.window4.set_default_size(400, 270)
-
+        self.window4.set_position(Gtk.WindowPosition.CENTER)
         vertical_interface_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
         #self.add(vertical_interface_box)
 
@@ -900,7 +901,7 @@ class FirstPage(Gtk.Grid):
     def click_delete_contact(self, button):
         self.window3 = Gtk.Window()
         self.window3.set_default_size(400, 170)
-
+        self.window3.set_position(Gtk.WindowPosition.CENTER)
        
         label_delete = Gtk.Label("Podaj nazwę użytkownika:")
         self.entry_user = Gtk.Entry()
@@ -944,7 +945,7 @@ class FirstPage(Gtk.Grid):
     def click_add_contact(self, button):
         self.window2 = Gtk.Window()
         self.window2.set_default_size(400, 170)
-
+        self.window2.set_position(Gtk.WindowPosition.CENTER)
        
         label_add = Gtk.Label("Podaj nazwę użytkownika:")
         self.entry_user = Gtk.Entry()
@@ -1143,7 +1144,7 @@ class Alert_Window(Gtk.Window):
     def Show_alert_window(alert_text):
         wrong_data_window = Gtk.Window()
         wrong_data_window.set_default_size(400, 100)
-
+        wrong_data_window.set_position(Gtk.WindowPosition.CENTER)
         
         label_wrong_data = Gtk.Label(alert_text)
         wrong_data_box = Gtk.VBox()
@@ -1156,7 +1157,7 @@ class Alert_Window(Gtk.Window):
     def Show_alert_choose_window(alert_text):
         wrong_data_window = Gtk.Window()
         wrong_data_window.set_default_size(400, 100)
-
+        wrong_data_window.set_position(Gtk.WindowPosition.CENTER)
         
         label_wrong_data = Gtk.Label(alert_text)
         wrong_data_box = Gtk.VBox(orientation=Gtk.Orientation.VERTICAL)
