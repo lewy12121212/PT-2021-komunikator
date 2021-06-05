@@ -1,6 +1,11 @@
 import json
 import time
+import gi
+import gui_callbacks
 import global_functions
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, Pango, Gdk
+from gi.repository.GdkPixbuf import Pixbuf
 
 
 class Response:
@@ -41,8 +46,13 @@ class Response:
 
         if signal == "ACK":
             self.accept = True
-            if data != "":
-                print(type(data))
+            if data["action"] == "login":
+                print("daje okejke")
+                window.login_window.After_Login()
+            elif data["action"] == "add_user":
+                window.alert.Show_alert_window(data["data"])
+                
+                #print(type(data))
                 #window.chat_window.Show_alert_window(data)
                 
 

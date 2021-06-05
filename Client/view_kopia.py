@@ -38,6 +38,7 @@ class App_view(Gtk.Window):
         self.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
         self.recv_thread = Thread(target=c.recv_thread, args=(self, resp))
         self.recv_thread.start()
+        self.alert = Alert_Window(self)
         self.add(container)
         container.show()
 
@@ -210,20 +211,20 @@ class LoginWindow(Gtk.Grid):
         #data = c.recv()
         #print(data)
         #time.sleep(1)
-        time.sleep(0.2)
-        print("łejt", resp.accept)
-        if resp.accept:
-            #Poprawne zalogowanie
-            print("ACK")
-            c.login = login
-            self.__parent_window.add_chat()
-            #Przejście do okna czatu
-            #self.recv_thread.start()
-            self.Show_chat_window()
+        #time.sleep(0.2)
 
-        else:
-            #Niepoprawne zalogowanie
-            pass
+    
+    def After_Login(self):
+   
+        print("ACK")
+        global login
+        c.login = login
+        self.__parent_window.add_chat()
+        #Przejście do okna czatu
+        #self.recv_thread.start()
+        self.Show_chat_window()
+        
+    
 
 class ChangePasswordWindow(Gtk.Grid):
     #Konstruktor - wywołuje okno zmiany hasła
@@ -1003,8 +1004,8 @@ class FirstPage(Gtk.Grid):
         print(wiadomosc)
 
         if self.uzytkownik == "":
-            alert = Alert_Window.Show_alert_choose_window("Nie wybrano adresata wiadomości.")
-            #self.Show_alert_window("Nie wybrano adresata wiadomości.")
+            #alert = Alert_Window.Show_alert_choose_window("Nie wybrano adresata wiadomości.")
+            self.alert.Show_alert_window("Nie wybrano adresata wiadomości.")
         else:
             t = time.localtime()
             global_functions.income_messages_list.append([str(time.strftime("%H:%M:%S", t) + "\nTy:\n" + wiadomosc),2])
@@ -1133,15 +1134,18 @@ class FirstPage(Gtk.Grid):
         self.wrong_data_window.destroy()   
 
 
-class Alert_Window(Gtk.Window):
+class Alert_Window(Gtk.Grid):
     
-    def __init__(self,tekst):
+    def __init__(self, parent_window):
        
         super().__init__()
+        self.__parent_window = parent_window
+        #self.connect("destroy", Gtk.main_quit)
+        
         #self.Show_alert_window(tekst)
         
         
-    def Show_alert_window(alert_text):
+    def Show_alert_window(self, alert_text):
         wrong_data_window = Gtk.Window()
         wrong_data_window.set_default_size(400, 100)
         wrong_data_window.set_position(Gtk.WindowPosition.CENTER)
@@ -1153,8 +1157,9 @@ class Alert_Window(Gtk.Window):
         
         wrong_data_window.add(wrong_data_box)
         wrong_data_window.show_all() 
+        
 
-    def Show_alert_choose_window(alert_text):
+    def Show_alert_choose_window(self, alert_text):
         wrong_data_window = Gtk.Window()
         wrong_data_window.set_default_size(400, 100)
         wrong_data_window.set_position(Gtk.WindowPosition.CENTER)

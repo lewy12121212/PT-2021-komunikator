@@ -44,7 +44,7 @@ class Response:
         #dodanie nowego użytwkonika
         elif signal == "LAD":
             if self.AddUser(data["login"], data["password"], data["auth_key"]):
-                response["data"] = '{"signal":"ACK","data":"Dodano uzytkownika"}'
+                response["data"] = '{"signal":"ACK","data":{"action":"add_user", "data":"Dodano uzytkownika"}}'
                 response["to"] = "self"
 
                 #utworzenie pliku z kontaktami
@@ -53,7 +53,7 @@ class Response:
             
             else:
                 response["to"] = "self"
-                response["data"] = '{"signal":"RJT","data":"Uzytkownik istnieje"}'
+                response["data"] = '{"signal":"RJT","data":{"action":"add_user", "data":"Uzytkownik istnieje"}}'
         
         #żądanie logowania
         elif signal == "LOG":
@@ -62,37 +62,37 @@ class Response:
             #jeśli dane do logowania poprawne zwróć ACK i login klienta
             #jeśli nie zwróć RJT i self, aby wątek wiedział, że nie może kończyś funkcji Set_Configuration
             if self.LogIn(login, password):
-                response["data"] = '{"signal":"ACK","data":""}'
+                response["data"] = '{"signal":"ACK","data":{"action":"login"}}'
                 response["to"] = login
                 self.DB.Change_Logged(login)
             else:
                 response["to"] = "self"
-                response["data"] = '{"signal":"RJT","data":""}'
+                response["data"] = '{"signal":"RJT","data":{"action":"login"}}'
         
         #żądanie resetowania hasła przy logowaniu
         elif signal == "LRS":
             if self.ResetPassword(data['login'], data['auth_key'], data['password']):
-                response["data"] = '{"signal":"ACK","data":"Zresetowano haslo."}'
+                response["data"] = '{"signal":"ACK","data":{"action":"pass_reset","data":"Zresetowano haslo."}}'
                 response["to"] = 'self'
             else:
                 response["to"] = "self"
-                response["data"] = '{"signal":"RJT","data":"Bledna odpowiedz autoryzacyjna lub uzytkownik nie istnieje"}'
+                response["data"] = '{"signal":"RJT","data":{"action":"pass_reset","data":"Bledna odpowiedz autoryzacyjna lub uzytkownik nie istnieje"}}'
         
         #zmiana hasła użytkownika
         elif signal == "UCP":
             if self.ChangePassword(data['login'], data['password'], data['new_password'], data['auth_key']):
                 response["to"] = data["login"]
-                response["data"] = '{"signal":"ACK","data":"Pomyslnie zmieniono haslo"}'
+                response["data"] = '{"signal":"ACK","data":{"action":"change_pass", "data": "Pomyslnie zmieniono haslo"}}'
             else:
                 response["to"] = data["login"]
-                response["data"] = '{"signal":"RJT","data":"Bledna odpowiedz autoryzacyjna lub obecne haslo."}'
+                response["data"] = '{"signal":"RJT","data":{"action":"change_pass", "data":"Bledna odpowiedz autoryzacyjna lub obecne haslo."}}'
         
         #usunięcie konta przez użytkonika
         elif signal == "UDA":
             path = self.DB.Contacts_Path(data['login'])
             if self.DeleteUser(data['login'], data['password'], data['auth_key']):
                 response["to"] = data["login"]
-                response["data"] = '{"signal":"ACK","data":"Twoje konto zostalo usuniete."}'
+                response["data"] = '{"signal":"ACK","data":{"action":"del_account", "data": "Twoje konto zostalo usuniete."}}'
                 self.logOut = True
                 if os.path.exists(path):
                     os.remove(path)
@@ -100,7 +100,7 @@ class Response:
                     print("The file does not exist") 
             else:
                 response["to"] = data["login"]
-                response["data"] = '{"signal":"RJT","data":"Bledna odpowiedz autoryzacyjna lub obecne haslo."}'
+                response["data"] = '{"signal":"RJT","data"::{"action":"del_account", "data":"Bledna odpowiedz autoryzacyjna lub obecne haslo."}}'
         elif signal == "ULO":
             self.logOut = True
             response["to"] = "self"
@@ -112,7 +112,7 @@ class Response:
                 mess = {"signal":"CIN","data":{"user": data["login"]}}
                 response["data"] = str(mess)
             else:
-                response["data"] = '{"signal":"RJT","data":"Użytkownik nie istnieje."}'
+                response["data"] = '{"signal":"RJT","data":{"action": "add_contact", "data": "Użytkownik nie istnieje."}}'
                 response["to"] = data["login"]
 
         elif signal == "CAP":
@@ -127,10 +127,10 @@ class Response:
                 with open(path1, 'a') as f:
                     f.write(data["login"]+'\n') 
 
-                response["data"] = '{"signal":"CAP","data":"Dodano nowy kontakt."}'
+                response["data"] = '{"signal":"ACK","data":{"action": "add_contact", "data": "Dodano nowy kontakt."}}'
                 response["to"] = data["login"]
             else:
-                response["data"] = '{"signal":"RJT","data":"Użytkownik nie istnieje."}'
+                response["data"] = '{"signal":"RJT","data":{"action": "add_contact", "data": "Użytkownik nie istnieje."}}'
                 response["to"] = data["login"]
 
         elif signal == "CRT":
@@ -159,10 +159,10 @@ class Response:
                 with open(path, 'w') as f:
                     f.writelines("%s\n" % l for l in contacts_list)
             
-                response["data"] = '{"signal":"ACK","data":"Pomyslnie usunięto z listy kontaktów."}'
+                response["data"] = '{"signal":"ACK","data":{"action": "del_contact", "data": "Pomyslnie usunięto z listy kontaktów."}}'
                 response["to"] = data["login"]
             else:
-                response["data"] = '{"signal":"RJT","data":"Wybrany kontakt nie istnieje."}'
+                response["data"] = '{"signal":"RJT","data":{"action": "del_contact", "data": "Wybrany kontakt nie istnieje."}}'
                 response["to"] = data["login"]
 
             #print(contacts_list)            
