@@ -20,7 +20,7 @@ resp = Response()
 req = Request()
 start_thread = 0
 login = ''
-
+inne = False
 container = Gtk.Grid()
 th = []
 
@@ -38,14 +38,16 @@ class App_view(Gtk.Window):
         self.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
         self.recv_thread = Thread(target=c.recv_thread, args=(self, resp))
         self.recv_thread.start()
-        self.alert = Alert_Window(self)
+        #self.alert = Alert_Window(self)
         self.add(container)
         container.show()
-
+        self.alert_text = ''
       
         #Okno logowania
         self.login_window = LoginWindow(self)
         container.add(self.login_window) 
+
+        #c.recv_thread(self, resp)
         
     def add_chat(self):
         #Okno czatu
@@ -60,6 +62,11 @@ class App_view(Gtk.Window):
     def add_change(self):
         self.change_window = ChangePasswordWindow(self)
         container.add(self.change_window)
+
+    def show_alert(alert_text):
+        print("było tu")
+        alert = Alert_Window.Show_alert_window(alert_text)
+        print("było tu")
 
     def on_destroy(self, widget=None, *data):
         # return True --> no, don't close
@@ -211,7 +218,10 @@ class LoginWindow(Gtk.Grid):
         #data = c.recv()
         #print(data)
         #time.sleep(1)
-        #time.sleep(0.2)
+        time.sleep(0.4)
+
+        if not resp.accept:
+            Alert_Window.Show_alert_window(self.__parent_window.alert_text)
 
     
     def After_Login(self):
@@ -454,6 +464,7 @@ class RegisterWindow(Gtk.Grid):
 
         if(h!=ph):
             print("INNE HASLA")
+            alert = Alert_Window.Show_alert_window("Błędnie powtórzono hasło")
         elif len(h)<8:
             alert = Alert_Window.Show_alert_window("Podane hasło jest zbyt krótkie.")
             #self.Show_alert_window("Podane hasło jest zbyt krótkie.")
@@ -467,11 +478,13 @@ class RegisterWindow(Gtk.Grid):
            
 
             c.send(str(mess))
-            time.sleep(0.05)
+            time.sleep(0.4)
             #data = c.recv()
             #print(data)
-            if resp.accept:
-                print("ACK")
+
+            alert = Alert_Window.Show_alert_window(self.__parent_window.alert_text)
+
+    
 
            
 class FirstPage(Gtk.Grid):
@@ -613,6 +626,8 @@ class FirstPage(Gtk.Grid):
         print("wyloguj")
         #dodać wylogowywanie
         global login
+        c.send(req.logOut(c.login))
+        c.login = ''
         login = ""
         self.__parent_window.login_window.entry_login.set_text("")
         self.__parent_window.login_window.entry_password.set_text("") 
@@ -710,12 +725,15 @@ class FirstPage(Gtk.Grid):
         c.send(data)
         
 
-        time.sleep(0.5)
+        time.sleep(0.4)
         if resp.accept:
+            Alert_Window.Show_alert_window(self.__parent_window.alert_text)
             self.window5.destroy()  
             self.__parent_window.login_window.entry_login.set_text("")
             self.__parent_window.login_window.entry_password.set_text("") 
             self.Show_login_window()
+
+        Alert_Window.Show_alert_window(self.__parent_window.alert_text)
 
     def Close_delete_acc(self,button):
        
@@ -830,8 +848,11 @@ class FirstPage(Gtk.Grid):
             print(data)
             c.send(data)
 
+            time.sleep(0.4)
             if resp.accept:
+                Alert_Window.Show_alert_window(self.__parent_window.alert_text)
                 self.window4.destroy()
+            Alert_Window.Show_alert_window(self.__parent_window.alert_text)
 
     def Close_reset(self,button):
         print("a")
@@ -940,7 +961,9 @@ class FirstPage(Gtk.Grid):
         c.send(data)
         time.sleep(0.3)
         if resp.accept:
+            Alert_Window.Show_alert_window(self.__parent_window.alert_text)
             self.window3.destroy() 
+        Alert_Window.Show_alert_window(self.__parent_window.alert_text)
         #Tu dodać nazwę użytkownika do znajomych     
 
     def click_add_contact(self, button):
@@ -982,11 +1005,13 @@ class FirstPage(Gtk.Grid):
         global login
         data = req.add_contact(login, self.entry_user.get_text())
         c.send(data)
-        time.sleep(0.3)
+        time.sleep(0.4)
         if resp.accept:
+            Alert_Window.Show_alert_window(self.__parent_window.alert_text)
             global_functions.contact_user_list += self.entry_user.get_text()
             
             self.window2.destroy() 
+        Alert_Window.Show_alert_window(self.__parent_window.alert_text)
         #Tu dodać nazwę użytkownika do znajomych 
           
 
@@ -1005,7 +1030,8 @@ class FirstPage(Gtk.Grid):
 
         if self.uzytkownik == "":
             #alert = Alert_Window.Show_alert_choose_window("Nie wybrano adresata wiadomości.")
-            self.alert.Show_alert_window("Nie wybrano adresata wiadomości.")
+            #self.alert.Show_alert_window()
+            Alert_Window.Show_alert_window("Nie wybrano adresata wiadomości.")
         else:
             t = time.localtime()
             global_functions.income_messages_list.append([str(time.strftime("%H:%M:%S", t) + "\nTy:\n" + wiadomosc),2])
@@ -1028,12 +1054,25 @@ class FirstPage(Gtk.Grid):
     #Łukasz
     def refresh_chat(self, mess, od):
         #print(mess)
-        self.lista_wiadomosci.pack_start(self.add_message(mess, od), True, False, 1)
-        if od == self.uzytkownik:
-            print("ten sam czat")
-            self.scrolled_window.remove(self.scrolled_window.get_child())
-            self.scrolled_window.add_with_viewport(self.add_messages())
-            self.scrolled_window.show_all()
+        if od not in global_functions.contact_user_list:
+            al = "ADMINISTRACJA: Użytkownik " + od + " próbuje się z Tobą skontaktować. Dodaj go do listy kontaktów, aby móc z nim rozmawiać."
+            #alert = Alert_Window.Show_alert_window(al)
+            #pass
+            global inne
+            if not inne:
+                self.refresh_contact_list("Inne")
+                inne = True
+            self.lista_wiadomosci.pack_start(self.add_message([al,1], "Inne"), True, False, 0)
+            c.send(req.message(od, c.login, "ADMINISTRACJA: Twoja wiadomość nie zostanie dostarczona ponieważ użytkownik "+ c.login + " nie dodał Cię do swojej listy kontaktów. Poinformujemy go o tym niezwłocznie."))
+        else:
+            self.lista_wiadomosci.pack_start(self.add_message(mess, od), True, False, 1)
+            if od == self.uzytkownik:
+                print("ten sam czat")
+                self.scrolled_window.remove(self.scrolled_window.get_child())
+                self.scrolled_window.add_with_viewport(self.add_messages())
+                self.scrolled_window.show_all()
+            #else:
+                #Alert_Window.Show_alert_window("Użytkownik "+ od + " wysłał Ci wiadomość, by ją odczytać otwórz odpowiednie okno konwersacji.")
 
 
     def active_users(self):
@@ -1136,16 +1175,16 @@ class FirstPage(Gtk.Grid):
 
 class Alert_Window(Gtk.Grid):
     
-    def __init__(self, parent_window):
+    def __init__(self):
        
         super().__init__()
-        self.__parent_window = parent_window
+        #self.__parent_window = parent_window
         #self.connect("destroy", Gtk.main_quit)
         
         #self.Show_alert_window(tekst)
         
         
-    def Show_alert_window(self, alert_text):
+    def Show_alert_window(alert_text):
         wrong_data_window = Gtk.Window()
         wrong_data_window.set_default_size(400, 100)
         wrong_data_window.set_position(Gtk.WindowPosition.CENTER)
@@ -1159,7 +1198,7 @@ class Alert_Window(Gtk.Grid):
         wrong_data_window.show_all() 
         
 
-    def Show_alert_choose_window(self, alert_text):
+    def Show_alert_choose_window(alert_text):
         wrong_data_window = Gtk.Window()
         wrong_data_window.set_default_size(400, 100)
         wrong_data_window.set_position(Gtk.WindowPosition.CENTER)

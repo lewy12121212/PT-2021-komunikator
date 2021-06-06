@@ -69,6 +69,7 @@ class Client:
     def recv_thread(self, window, respo):
         #window = arg[0]
         resp = respo
+        
         try:
             while True:
                 
@@ -78,7 +79,9 @@ class Client:
                     print('received "%s"' % len(data))
                     mess = self.decrypt(data)
                         #print(mess)
-
+                    #t1 = Thread(target=resp.Make_Response_Thread, args=(mess, window))
+                    #t1.start()
+                    #t1.join()
                     resp.Make_Response_Thread(mess, window)
         except:
             print('thread except')

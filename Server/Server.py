@@ -132,6 +132,7 @@ class Server:
                 end = self.MainFunctionThread(login, DB, client, private_key)
                 if end == 0:
                     inform_all = {"signal": "NCL", "data": {"login": login}}
+                    DB.Change_Logged(login)
                     del clients[login]                
                     print("close client")
                     del self.clients_publickeys[login]
@@ -178,14 +179,24 @@ class Server:
                         clients[resp["to"]].sendall(self.encrypt(str.encode(resp["data"]), self.clients_publickeys[resp["to"]]))
                 elif rs.logOut:
                     end = 0
+                    '''
                     with self.clients_lock:
+                        
+                        inform_all = {"signal": "NCL", "data": {"login": login}}
+                        del clients[login]                
+                        #print("close client")
+                        del self.clients_publickeys[login]
+                        self.Send_All(str(inform_all))  
+                        '''
+
                         #zaszyfrowanie wiadomości kluczem publicznym adresowanego klienta i wysłanie do niego
-                        clients[resp["to"]].sendall(self.encrypt(str.encode(resp["data"]), self.clients_publickeys[resp["to"]]))
-                    rs.logOut = False
+                        #clients[resp["to"]].sendall(self.encrypt(str.encode(resp["data"]), self.clients_publickeys[resp["to"]]))
+                    
                     break
                 else:
                     end = 1 
                     break
+        rs.logOut = False
         return end
 
 

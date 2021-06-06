@@ -1,5 +1,6 @@
 import json
 import time
+import threading
 import gi
 import gui_callbacks
 import global_functions
@@ -10,6 +11,7 @@ from gi.repository.GdkPixbuf import Pixbuf
 
 class Response:
     def __init__(self):
+        self.lock = threading.Lock()
         self.accept = False
 
 
@@ -34,6 +36,8 @@ class Response:
         
             
     def Make_Response_Thread(self, buffer, window):
+
+        #self.lock.acquire()
         print(buffer)
         signal = ""
         buffer = buffer.decode("UTF-8").replace("'", '"')
@@ -45,12 +49,33 @@ class Response:
         data = tmp["data"]     
 
         if signal == "ACK":
+            
+            
             self.accept = True
+
             if data["action"] == "login":
                 print("daje okejke")
                 window.login_window.After_Login()
-            elif data["action"] == "add_user":
-                window.alert.Show_alert_window(data["data"])
+            elif data["action"] == "add_contact":
+                global_functions.contact_user_list.append(data["user"])
+                print(type(data["active"]))
+                if data["active"] == 1:
+                    #print(data["user"])
+                    global_functions.active_user_list.append(data["user"])
+                    #print("2")
+                    window.chat_window.refresh_contact_list(data["user"])
+                    #print("3")
+            elif data["action"] == "del_contact":
+                global_functions.contact_user_list.append(data["user"])
+                print("aktywby ", data["active"])
+                if data["active"] == 1:
+                    global_functions.active_user_list.remove(data["user"])
+                    window.chat_window.refresh_contact_list_out(data["user"])
+
+            
+            if data["data"]:
+                window.alert_text = data["data"]
+                #window.Show_alert(data["data"])
                 
                 #print(type(data))
                 #window.chat_window.Show_alert_window(data)
@@ -58,7 +83,10 @@ class Response:
 
             #print("okejka")
         elif signal == "RJT":
-            self.accept = False
+            with self.lock:
+                self.accept = False
+            window.alert_text = data["data"]
+            #self.accept = False
             if data != "":
                 print("a")
                 #window.chat_window.Show_alert_window(data)
@@ -104,10 +132,6 @@ class Response:
             mess = [data["date"] + "\n" + data["from"] + ":\n" + data["message"], 1]
             print("from ", data["from"], " who ",window.chat_window.uzytkownik)
             #global_functions.income_message_list += mess
-            if data["from"] != window.chat_window.uzytkownik:
-                print("nie tutaj")
-                alert = "Masz nową wiadomość od użytkownika " + data["from"] +"."
-                #window.chat_window.Show_alert_window(alert)
             window.chat_window.refresh_chat(mess, data["from"])
 
         #zaproszenie do znajomych
@@ -124,7 +148,7 @@ class Response:
 
         else:
             print("oj ne ne ")
-        
+        #self.lock.release()
         return
 
 

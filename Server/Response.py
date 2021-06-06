@@ -62,12 +62,12 @@ class Response:
             #jeśli dane do logowania poprawne zwróć ACK i login klienta
             #jeśli nie zwróć RJT i self, aby wątek wiedział, że nie może kończyś funkcji Set_Configuration
             if self.LogIn(login, password):
-                response["data"] = '{"signal":"ACK","data":{"action":"login"}}'
+                response["data"] = '{"signal":"ACK","data":{"action":"login", "data": ""}}'
                 response["to"] = login
                 self.DB.Change_Logged(login)
             else:
                 response["to"] = "self"
-                response["data"] = '{"signal":"RJT","data":{"action":"login"}}'
+                response["data"] = '{"signal":"RJT","data":{"action":"login", "data": "Błędny login lub hasło.}}'
         
         #żądanie resetowania hasła przy logowaniu
         elif signal == "LRS":
@@ -108,34 +108,26 @@ class Response:
         #dodanie użytkownika do kontaktów
         elif signal == "CAD":
             if self.DB.Exists(data['user']):
-                response["to"] = data["user"]
-                mess = {"signal":"CIN","data":{"user": data["login"]}}
+
+                path = self.DB.Contacts_Path(data["login"])
+           
+
+                if self.DB.Exists(data['user']):
+                    with open(path, 'a') as f:
+                        f.write(data["user"]+'\n')
+
+                if self.DB.IfLogged(data["user"]):
+                    active = 1
+                else:
+                    active = 0
+
+                response["to"] = data["login"]
+                mess = {"signal":"ACK","data":{"action": "add_contact", "data": "Dodano nowy kontakt.", "user": data["user"], "active": active}}
                 response["data"] = str(mess)
             else:
                 response["data"] = '{"signal":"RJT","data":{"action": "add_contact", "data": "Użytkownik nie istnieje."}}'
                 response["to"] = data["login"]
-
-        elif signal == "CAP":
-            
-            path = self.DB.Contacts_Path(data["login"])
-            path1 = self.DB.Contacts_Path(data["user"])
-
-            if self.DB.Exists(data['user']):
-                with open(path, 'a') as f:
-                    f.write(data["user"]+'\n')
-
-                with open(path1, 'a') as f:
-                    f.write(data["login"]+'\n') 
-
-                response["data"] = '{"signal":"ACK","data":{"action": "add_contact", "data": "Dodano nowy kontakt."}}'
-                response["to"] = data["login"]
-            else:
-                response["data"] = '{"signal":"RJT","data":{"action": "add_contact", "data": "Użytkownik nie istnieje."}}'
-                response["to"] = data["login"]
-
-        elif signal == "CRT":
-            response["data"] = '{"signal":"RJT","data":"Nie zaakceptowano zaproszenia."}'
-            response["to"] = data["login"]       
+ 
         
         #usuwanie użytkownika
         elif signal == "CDL":
@@ -153,13 +145,19 @@ class Response:
                 contacts_list[i] = s
                 i+=1
                 #contacts_list += s
-                
+            if self.DB.IfLogged(data["user"]):
+                active = 1
+            else:
+                active = 0
+
             if data["user"] in contacts_list:
                 contacts_list.remove(data["user"])
                 with open(path, 'w') as f:
                     f.writelines("%s\n" % l for l in contacts_list)
             
-                response["data"] = '{"signal":"ACK","data":{"action": "del_contact", "data": "Pomyslnie usunięto z listy kontaktów."}}'
+            
+                mes = {"signal":"ACK","data":{"action": "del_contact", "data": "Pomyslnie usunięto z listy kontaktów.", "user": data["user"], "active": active}}
+                response["data"] = str(mes)
                 response["to"] = data["login"]
             else:
                 response["data"] = '{"signal":"RJT","data":{"action": "del_contact", "data": "Wybrany kontakt nie istnieje."}}'
