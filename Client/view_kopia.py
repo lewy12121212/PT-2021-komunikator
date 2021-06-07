@@ -293,7 +293,7 @@ class ChangePasswordWindow(Gtk.Grid):
         self.entry_second_password.set_vexpand(False)
         self.entry_second_password.set_text("")  
 
-        label_auth_key = Gtk.Label("Podaj ulubiony kolor: ")
+        label_auth_key = Gtk.Label("Podaj nazwisko panieńskie matki: ")
         label_auth_key.set_halign(2)
         self.entry_auth_key = Gtk.Entry()
         self.entry_auth_key.set_max_length(32)
@@ -409,7 +409,7 @@ class RegisterWindow(Gtk.Grid):
         self.entry_second_password.set_vexpand(False)
         self.entry_second_password.set_text("")  
 
-        label_auth_key = Gtk.Label("Podaj ulubiony kolor: ")
+        label_auth_key = Gtk.Label("Podaj nazwisko panieńskie matki: ")
         label_auth_key.set_halign(2)
         self.entry_auth_key = Gtk.Entry()
         self.entry_auth_key.set_max_length(32)
@@ -639,7 +639,7 @@ class FirstPage(Gtk.Grid):
         for usr in self.buttons:
             pom = usr.get_label()
             global_functions.active_user_list.remove(pom)
-            print("AAAAA USN TO W KOCU:", pom)
+            
             self.refresh_contact_list_out(pom)
         
         
@@ -685,7 +685,7 @@ class FirstPage(Gtk.Grid):
         self.entry_password.set_text("")  
 
 
-        label_auth_key = Gtk.Label("Podaj ulubiony kolor: ")
+        label_auth_key = Gtk.Label("Podaj nazwisko panieńskie matki: ")
         label_auth_key.set_halign(2)
         self.entry_auth_key = Gtk.Entry()
         self.entry_auth_key.set_max_length(32)
@@ -799,7 +799,7 @@ class FirstPage(Gtk.Grid):
         self.entry_second_password.set_vexpand(False)
         self.entry_second_password.set_text("")  
 
-        label_auth_key = Gtk.Label("Podaj ulubiony kolor: ")
+        label_auth_key = Gtk.Label("Podaj nazwisko panieńskie matki: ")
         label_auth_key.set_halign(2)
         self.entry_auth_key = Gtk.Entry()
         self.entry_auth_key.set_max_length(32)
