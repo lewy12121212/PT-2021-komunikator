@@ -213,7 +213,6 @@ class LoginWindow(Gtk.Grid):
         #Zczytanie danych z wejścia
         login = self.entry_login.get_text()
         password = self.entry_password.get_text()
-
         if login == '':
             Alert_Window.Show_alert_window("Nie podano loginu.")
         elif password == '':
@@ -632,11 +631,24 @@ class FirstPage(Gtk.Grid):
 
     def log_out_click(self, button):
         print("wyloguj")
-        #dodać wylogowywanie
+        #dodać wylogowywanie\
+        '''self.scrolled_kontakty.remove(self.scrolled_kontakty.get_child())
+        self.grid_contact = Gtk.Grid()
+        self.scrolled_kontakty.add_with_viewport(self.grid_contact)
+        '''
+        for usr in self.buttons:
+            pom = usr.get_label()
+            global_functions.active_user_list.remove(pom)
+            print("AAAAA USN TO W KOCU:", pom)
+            self.refresh_contact_list_out(pom)
+        
+        
+        
         global login
         c.send(req.logOut(c.login))
         c.login = ''
         login = ""
+        
         self.__parent_window.login_window.entry_login.set_text("")
         self.__parent_window.login_window.entry_password.set_text("") 
         self.Show_login_window()     
@@ -1140,6 +1152,7 @@ class FirstPage(Gtk.Grid):
     def refresh_contact_list_out(self,nazwa):
         #self.grid_contact = Gtk.Grid()
         #self.buttons = [] 
+        print("USUNIETO ",nazwa)
         to_del = None
         for button in self.buttons:
             if(button.get_label() == nazwa):
