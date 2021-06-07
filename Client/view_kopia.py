@@ -23,6 +23,7 @@ login = ''
 inne = False
 container = Gtk.Grid()
 th = []
+new_mess_info = False
 
 #Okno aplikacji
 class App_view(Gtk.Window):
@@ -169,7 +170,8 @@ class LoginWindow(Gtk.Grid):
         horizontal_buttons_box = Gtk.Box(spacing=6)
 
         #Przycisk do logowania
-        self.login_button = Gtk.Button(label="Zaloguj")
+        self.login_button = Gtk.Button(label = "Zaloguj")
+        #self.login_button.get_style_context().add_class("suggested-action")
         self.login_button.connect("clicked", self.Click_login)
         self.login_button.set_halign(2)
         self.login_button.set_hexpand(True)
@@ -207,9 +209,15 @@ class LoginWindow(Gtk.Grid):
         #Zrobić żeby było tylko jak są złe dane
         #self.Wrong_data(tekst)
         global login
+        #button.get_style_context().remove_class("suggested-action")
         #Zczytanie danych z wejścia
         login = self.entry_login.get_text()
         password = self.entry_password.get_text()
+
+        if login == '':
+            Alert_Window.Show_alert_window("Nie podano loginu.")
+        elif password == '':
+            Alert_Window.Show_alert_window("Nie podano hasła.")
 
         #Przesłanie danych do logowania
         mess = req.logIn(login,password)
@@ -221,7 +229,7 @@ class LoginWindow(Gtk.Grid):
         time.sleep(0.4)
 
         if not resp.accept:
-            Alert_Window.Show_alert_window(self.__parent_window.alert_text)
+            Alert_Window.Show_alert_window("Błędny login lub hasło.")
 
     
     def After_Login(self):
@@ -732,8 +740,8 @@ class FirstPage(Gtk.Grid):
             self.__parent_window.login_window.entry_login.set_text("")
             self.__parent_window.login_window.entry_password.set_text("") 
             self.Show_login_window()
-
-        Alert_Window.Show_alert_window(self.__parent_window.alert_text)
+        else:
+            Alert_Window.Show_alert_window(self.__parent_window.alert_text)
 
     def Close_delete_acc(self,button):
        
@@ -852,7 +860,8 @@ class FirstPage(Gtk.Grid):
             if resp.accept:
                 Alert_Window.Show_alert_window(self.__parent_window.alert_text)
                 self.window4.destroy()
-            Alert_Window.Show_alert_window(self.__parent_window.alert_text)
+            else:
+                Alert_Window.Show_alert_window(self.__parent_window.alert_text)
 
     def Close_reset(self,button):
         print("a")
@@ -963,7 +972,8 @@ class FirstPage(Gtk.Grid):
         if resp.accept:
             Alert_Window.Show_alert_window(self.__parent_window.alert_text)
             self.window3.destroy() 
-        Alert_Window.Show_alert_window(self.__parent_window.alert_text)
+        else:
+            Alert_Window.Show_alert_window(self.__parent_window.alert_text)
         #Tu dodać nazwę użytkownika do znajomych     
 
     def click_add_contact(self, button):
@@ -1010,17 +1020,22 @@ class FirstPage(Gtk.Grid):
             Alert_Window.Show_alert_window(self.__parent_window.alert_text)
             global_functions.contact_user_list += self.entry_user.get_text()
             
-            self.window2.destroy() 
-        Alert_Window.Show_alert_window(self.__parent_window.alert_text)
+            self.window2.destroy()
+        else: 
+            Alert_Window.Show_alert_window(self.__parent_window.alert_text)
         #Tu dodać nazwę użytkownika do znajomych 
           
 
     def click_contact(self,button):
+        global new_mess_info
         self.scrolled_window.remove(self.scrolled_window.get_child())
         self.uzytkownik = button.get_label()
         self.chat_name.set_text(self.uzytkownik)
         self.scrolled_window.add_with_viewport(self.add_messages())
         print(button.get_label())
+        if new_mess_info:
+            button.get_style_context().remove_class("suggested-action")
+            new_mess_info = False
         self.scrolled_window.show_all()
 
     def send_click(self, button):
@@ -1066,12 +1081,14 @@ class FirstPage(Gtk.Grid):
             c.send(req.message(od, c.login, "ADMINISTRACJA: Twoja wiadomość nie zostanie dostarczona ponieważ użytkownik "+ c.login + " nie dodał Cię do swojej listy kontaktów. Poinformujemy go o tym niezwłocznie."))
         else:
             self.lista_wiadomosci.pack_start(self.add_message(mess, od), True, False, 1)
+            
             if od == self.uzytkownik:
                 print("ten sam czat")
                 self.scrolled_window.remove(self.scrolled_window.get_child())
                 self.scrolled_window.add_with_viewport(self.add_messages())
                 self.scrolled_window.show_all()
-            #else:
+            else:
+                self.refresh_new_message(od)
                 #Alert_Window.Show_alert_window("Użytkownik "+ od + " wysłał Ci wiadomość, by ją odczytać otwórz odpowiednie okno konwersacji.")
 
 
@@ -1090,7 +1107,7 @@ class FirstPage(Gtk.Grid):
         #self.scrolled_kontakty.add_with_viewport(self.grid_contact)
 
         #self.kontakty.pack_start(self.scrolled_kontakty, True, True, 0)
-        
+        print("ahoj")
         self.kontakty.show_all()
 
 
@@ -1149,6 +1166,21 @@ class FirstPage(Gtk.Grid):
         #self.kontakty.pack_start(self.scrolled_kontakty, True, True, 0)
         self.kontakty.show_all()
 
+    def refresh_new_message(self,nazwa):
+        #self.grid_contact = Gtk.Grid()
+        #self.buttons = [] 
+        global new_mess_info
+        to_del = None
+        for button in self.buttons:
+            if(button.get_label() == nazwa):
+                
+                to_del = button                
+                to_del = button.get_style_context().add_class("suggested-action")
+                new_mess_info = True
+                print("color change ", new_mess_info)
+                break
+
+        self.kontakty.show_all()
 
     #Lista kontaktów
     def contact_list(self):

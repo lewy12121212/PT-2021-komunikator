@@ -66,10 +66,11 @@ class Response:
                     window.chat_window.refresh_contact_list(data["user"])
                     #print("3")
             elif data["action"] == "del_contact":
-                global_functions.contact_user_list.append(data["user"])
+                global_functions.contact_user_list.remove(data["user"])
                 print("aktywby ", data["active"])
                 if data["active"] == 1:
                     global_functions.active_user_list.remove(data["user"])
+                    #window.chat_window.czat._remove_chat(data["user"])
                     window.chat_window.refresh_contact_list_out(data["user"])
 
             
@@ -113,7 +114,9 @@ class Response:
             print(repr(contact))
             if contact in (global_functions.contact_user_list):
                 global_functions.active_user_list.append(contact)
+                print("1")
                 window.chat_window.refresh_contact_list(contact)
+                print("2")
             
             #window.refresh_contact_list()
             #window.add_contact(contact)

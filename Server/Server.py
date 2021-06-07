@@ -13,6 +13,8 @@ port = 9879
 
 clients = dict()
 
+DB = Database.Database()
+
 class Server:
 
 
@@ -33,9 +35,9 @@ class Server:
 
     #przesłanie kluczy publicznych między klientem a serverem, działa do momentu zalogowania użytkonika
     #po czym mapuje login użytkonwnika z jego kanałem i kluczem publicznym 
-    def Set_Parameters(self, client, private_key, client_key, DB):
+    def Set_Parameters(self, client, private_key, client_key, cur):
         login =''
-        rs = Response.Response(DB)
+        rs = Response.Response(cur)
 
 
         s = {"to": "self", "data": ""}
@@ -50,6 +52,7 @@ class Server:
                     print(data)
                     #wysłanie wiadomości do wybranego klienta    
                     s = rs.Make_Response(data)
+                    print(s)
                     if s["data"] == "END":
                         return login
                     client.sendall(self.encrypt(str.encode(s["data"]), client_key))
@@ -64,7 +67,7 @@ class Server:
             time.sleep(0.1) 
             #wysłanie klientowi listy zalogowanych klientów
             contacts_list = []
-            path = DB.Contacts_Path(login)
+            path = DB.Contacts_Path(login, cur)
             print(path)
 
             with open(path, 'r') as f:
@@ -102,7 +105,7 @@ class Server:
     def Transfer_Data(self, client, address):
         print ("Accepted connection from: ", address)
 
-        DB = Database.Database()
+        cur = DB.conn.cursor()
 
         #generowanie kluczy rsa servera
         #self.active_conetion += 1
@@ -122,17 +125,17 @@ class Server:
         end = 0
 
         while(end != 1):
-            login = self.Set_Parameters(client, private_key, client_key, DB)
+            login = self.Set_Parameters(client, private_key, client_key, cur)
             print(login)
             if login == '':
                 client.close()
                 print("ok")
                 return
             else:
-                end = self.MainFunctionThread(login, DB, client, private_key)
+                end = self.MainFunctionThread(login, cur, client, private_key)
                 if end == 0:
                     inform_all = {"signal": "NCL", "data": {"login": login}}
-                    DB.Change_Logged(login)
+                    DB.Change_Logged(login, cur)
                     del clients[login]                
                     print("close client")
                     del self.clients_publickeys[login]
@@ -140,7 +143,7 @@ class Server:
                     
 
         
-        DB.Change_Logged(login)
+        DB.Change_Logged(login, cur)
         with self.clients_lock:                                
             clients[login].shutdown(socket.SHUT_RDWR)
             inform_all = {"signal": "NCL", "data": {"login": login}}
@@ -154,9 +157,9 @@ class Server:
         
         
 
-    def MainFunctionThread(self, login, DB, client, private_key):
+    def MainFunctionThread(self, login, cur, client, private_key):
         end = 0
-        rs = Response.Response(DB)
+        rs = Response.Response(cur)
         #dodanie klienta do listy wątków
         with self.clients_lock:
             clients[login] = client

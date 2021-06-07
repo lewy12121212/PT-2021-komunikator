@@ -1,16 +1,18 @@
 import json
 import os
-#from Server import self.DB
+#from Server import DB
 
 import ast
 
+from Server import DB 
 
 
 class Response:
     logOut = False
     def __init__(self, database):
-        self.DB = database
+        #DB = database
         self.logOut = False
+        self.cur = database
 
     def Make_Response(self, buffer):
         signal = ""
@@ -33,7 +35,7 @@ class Response:
         
         #przesyłanie wiadomości do adresata
         elif signal == "MSG":
-            #path = self.DB.Contacts_Path(data["login"])
+            #path = DB.Contacts_Path(data["login"])
 
             response["to"] = data["to"]
             message = {"signal":"MSG", "data": {"from": data["from"], "date": data["date"], "message": data ["message"]}}
@@ -64,10 +66,11 @@ class Response:
             if self.LogIn(login, password):
                 response["data"] = '{"signal":"ACK","data":{"action":"login", "data": ""}}'
                 response["to"] = login
-                self.DB.Change_Logged(login)
+                DB.Change_Logged(login,self.cur)
             else:
                 response["to"] = "self"
                 response["data"] = '{"signal":"RJT","data":{"action":"login", "data": "Błędny login lub hasło.}}'
+            print(response)
         
         #żądanie resetowania hasła przy logowaniu
         elif signal == "LRS":
@@ -89,7 +92,7 @@ class Response:
         
         #usunięcie konta przez użytkonika
         elif signal == "UDA":
-            path = self.DB.Contacts_Path(data['login'])
+            path = DB.Contacts_Path(data['login'], self.cur)
             if self.DeleteUser(data['login'], data['password'], data['auth_key']):
                 response["to"] = data["login"]
                 response["data"] = '{"signal":"ACK","data":{"action":"del_account", "data": "Twoje konto zostalo usuniete."}}'
@@ -107,16 +110,16 @@ class Response:
             response["data"] = "END"
         #dodanie użytkownika do kontaktów
         elif signal == "CAD":
-            if self.DB.Exists(data['user']):
+            if DB.Exists(data['user'], self.cur):
 
-                path = self.DB.Contacts_Path(data["login"])
+                path = DB.Contacts_Path(data["login"], self.cur)
            
 
-                if self.DB.Exists(data['user']):
+                if DB.Exists(data['user'], self.cur):
                     with open(path, 'a') as f:
                         f.write(data["user"]+'\n')
 
-                if self.DB.IfLogged(data["user"]):
+                if DB.IfLogged(data["user"], self.cur):
                     active = 1
                 else:
                     active = 0
@@ -132,7 +135,7 @@ class Response:
         #usuwanie użytkownika
         elif signal == "CDL":
             #print(tmp)
-            path = self.DB.Contacts_Path(data["login"])
+            path = DB.Contacts_Path(data["login"], self.cur)
             contacts_list = []
             with open(path, 'r') as f:
                 contacts_list = f.readlines()
@@ -145,7 +148,7 @@ class Response:
                 contacts_list[i] = s
                 i+=1
                 #contacts_list += s
-            if self.DB.IfLogged(data["user"]):
+            if DB.IfLogged(data["user"], self.cur):
                 active = 1
             else:
                 active = 0
@@ -174,19 +177,27 @@ class Response:
         return response
 
     def LogIn(self, login, password):
-        if self.DB.Exists(login):
-            if not self.DB.IfLogged(login):
-                user = self.DB.Select_User(login)
+        print("1")
+        if DB.Exists(login, self.cur):
+            print("2")
+            if not DB.IfLogged(login, self.cur):
+                print("3")
+                user = DB.Select_User(login, self.cur)
+                print("4")
                 #print(repr(user[0:2]))
                 if user[0:2] == (login, password):
+                    print("+")
                     return True
+                    
                 else:
+                    print("-")
                     return False
+                    
         else:
             return False
 
     def AddUser(self, login, password, auth_key):
-        if self.DB.Add_User(login, password, auth_key):
+        if DB.Add_User(login, password, auth_key, self.cur):
             return True
         else:
 
@@ -194,19 +205,19 @@ class Response:
 
 
     def ResetPassword(self,login, auth_key, new_password):
-        if self.DB.Reset_Password(login, new_password, auth_key):
+        if DB.Reset_Password(login, new_password, auth_key, self.cur):
             return True
         else:
             return False
 
     def ChangePassword(self, login, old_password, new_password, auth_key):
-        if self.DB.Change_Password(login,old_password,new_password, auth_key):
+        if DB.Change_Password(login,old_password,new_password, auth_key, self.cur):
             return True
         else:
             return False
 
     def DeleteUser(self, login, password, auth_key):
-        if self.DB.Delete_User(login, password, auth_key):
+        if DB.Delete_User(login, password, auth_key, self.cur):
             return True
         else:
             return False

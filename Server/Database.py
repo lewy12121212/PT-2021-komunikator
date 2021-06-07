@@ -15,13 +15,13 @@ class Database:
             user="root",
             database='pt_database'
         )
-        self.cur = self.conn.cursor()
+        #cur = self.conn.cursor()
 
     # dodaje użytkownika
-    def Add_User(self, login, password, auth_key):
+    def Add_User(self, login, password, auth_key, cur):
         # sprawdzenie czy istnieje w bazie
-        if self.Exists(login) == False:
-            self.cur.execute("INSERT INTO users (login,password,auth_key, path) VALUES (%s,%s,%s,%s)",
+        if self.Exists(login,cur) == False:
+            cur.execute("INSERT INTO users (login,password,auth_key, path) VALUES (%s,%s,%s,%s)",
                              [login, password, auth_key, ("./Server/contacts/" + login + ".txt")])
             self.conn.commit()
             print("Dodano użytkownika: ", login)
@@ -30,24 +30,24 @@ class Database:
             print("Użytkownik istnieje.")
             return False
 
-    def Select_All(self):
-        self.cur.execute("SELECT * FROM users")
-        print(self.cur.fetchall())
+    def Select_All(self,cur):
+        cur.execute("SELECT * FROM users")
+        print(cur.fetchall())
 
-    def Select_User(self, login):
-        if self.Exists(login) == True:
-            self.cur.execute("SELECT login, password, auth_key FROM users WHERE login=%s", [login])
-            #print(repr(self.cur.fetchone()))
-            return self.cur.fetchone()
+    def Select_User(self, login, cur):
+        if self.Exists(login, cur) == True:
+            cur.execute("SELECT login, password, auth_key FROM users WHERE login=%s", [login])
+            #print(repr(cur.fetchone()))
+            return cur.fetchone()
         else:
             print("Użytkownik nie istnieje.")
             return 1
 
-    def Delete_User(self, login, password, auth_key):
+    def Delete_User(self, login, password, auth_key, cur):
         # sprawdzanie poprawności danych (czy z formularza zgadzają się z tymi z bazy)
-        user = self.Select_User(login)
+        user = self.Select_User(login, cur)
         if user == (login, password, auth_key):
-            self.cur.execute("DELETE FROM users WHERE login=%s", [login])
+            cur.execute("DELETE FROM users WHERE login=%s", [login])
             self.conn.commit()
             print("Usunięto użytkownika: ", login)
             return True
@@ -55,12 +55,12 @@ class Database:
             print("Użytkownik nie istnieje.")
             return False
 
-    def Change_Password(self, login, old_password, new_password, auth_key):
+    def Change_Password(self, login, old_password, new_password, auth_key, cur):
         # sprawdzanie poprawności danych (czy z formularza zgadzają się z tymi z bazy)
-        user = self.Select_User(login)
+        user = self.Select_User(login, cur)
         if user != 1:
             if user == (login, old_password, auth_key):
-                self.cur.execute("UPDATE users SET password=%s WHERE login=%s", [new_password, login])
+                cur.execute("UPDATE users SET password=%s WHERE login=%s", [new_password, login])
                 self.conn.commit()
                 print("zmieniono haslo uzytkownika: " + login)
                 return True
@@ -71,14 +71,14 @@ class Database:
             # przypadek niemożliwy - użytkonik nie istnieje
             return False
 
-    def Reset_Password(self, login, new_password, auth_key):
+    def Reset_Password(self, login, new_password, auth_key, cur):
         # sprawdzanie poprawności danych (czy z formularza zgadzają się z tymi z bazy)
-        user = self.Select_User(login)
-        if self.Exists(login):
-            self.cur.execute("SELECT auth_key FROM users WHERE login=%s", [login])
-            user_auth_key = self.cur.fetchone()
+        user = self.Select_User(login, cur)
+        if self.Exists(login, cur):
+            cur.execute("SELECT auth_key FROM users WHERE login=%s", [login])
+            user_auth_key = cur.fetchone()
             if user_auth_key[0] == auth_key:
-                self.cur.execute("UPDATE users SET password=%s WHERE login=%s", [new_password, login])
+                cur.execute("UPDATE users SET password=%s WHERE login=%s", [new_password, login])
                 self.conn.commit()
                 print("zresetowano hasło użytkownika: " + login)
                 return True
@@ -89,16 +89,16 @@ class Database:
             # przypadek niemożliwy - użytkonik nie istnieje
             return False
 
-    def Change_Logged(self, login):
+    def Change_Logged(self, login, cur):
         
-        if self.Exists(login):
-            if self.IfLogged(login):
-                self.cur.execute("UPDATE users SET logged=%s WHERE login=%s", ['0', login])
+        if self.Exists(login, cur):
+            if self.IfLogged(login, cur):
+                cur.execute("UPDATE users SET logged=%s WHERE login=%s", ['0', login])
                 self.conn.commit()
                 #print(login, '+')
                 return True
             else:
-                self.cur.execute("UPDATE users SET logged=%s WHERE login=%s", ['1', login])
+                cur.execute("UPDATE users SET logged=%s WHERE login=%s", ['1', login])
                 self.conn.commit()
                 #print(login, '-')
                 return True
@@ -108,9 +108,9 @@ class Database:
             return False
 
 
-    def IfLogged(self, login):
-        self.cur.execute("SELECT logged FROM users WHERE login LIKE %s", [login])
-        es = self.cur.fetchall()
+    def IfLogged(self, login, cur):
+        cur.execute("SELECT logged FROM users WHERE login LIKE %s", [login])
+        es = cur.fetchall()
         es = str(es).strip('[](),\'')
         print(login, ' ', es)
         if es == '0':
@@ -119,19 +119,19 @@ class Database:
             return True
 
 
-    def Exists(self, login):
+    def Exists(self, login, cur):
 
-        self.cur.execute("SELECT * FROM users WHERE login LIKE %s", [login])
-        es = self.cur.fetchall()
+        cur.execute("SELECT * FROM users WHERE login LIKE %s", [login])
+        es = cur.fetchall()
         if not es:
             return False
         else:
             return True
 
-    def Contacts_Path(self, login):
+    def Contacts_Path(self, login, cur):
 
-        self.cur.execute("SELECT path FROM users WHERE login LIKE %s", [login])
-        es = self.cur.fetchall()
+        cur.execute("SELECT path FROM users WHERE login LIKE %s", [login])
+        es = cur.fetchall()
 
         if not es:
             return None
