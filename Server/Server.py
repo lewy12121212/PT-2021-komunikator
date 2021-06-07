@@ -167,38 +167,42 @@ class Server:
         #transmisja
         #self.Send_All('okon')
         resp = {"to": "", "data": ""}
-          
-        while resp["data"] != "END":
-            data = client.recv(4096)
-            if not data:
-                break
-            else:
-                data = self.decrypt(data, private_key)
-                resp = rs.Make_Response(data)
-                if resp["data"] != "END" and not rs.logOut:
-                        #wysłanie wiadomości do wybranego klienta
-                    with self.clients_lock:
-                            #zaszyfrowanie wiadomości kluczem publicznym adresowanego klienta i wysłanie do niego
-                        clients[resp["to"]].sendall(self.encrypt(str.encode(resp["data"]), self.clients_publickeys[resp["to"]]))
-                elif rs.logOut:
-                    end = 0
-                    '''
-                    with self.clients_lock:
-                        
-                        inform_all = {"signal": "NCL", "data": {"login": login}}
-                        del clients[login]                
-                        #print("close client")
-                        del self.clients_publickeys[login]
-                        self.Send_All(str(inform_all))  
-                        '''
-
-                        #zaszyfrowanie wiadomości kluczem publicznym adresowanego klienta i wysłanie do niego
-                        #clients[resp["to"]].sendall(self.encrypt(str.encode(resp["data"]), self.clients_publickeys[resp["to"]]))
-                    
+        try: 
+            while resp["data"] != "END":
+                data = client.recv(4096)
+                if not data:
                     break
                 else:
-                    end = 1 
-                    break
+                    data = self.decrypt(data, private_key)
+                    resp = rs.Make_Response(data)
+                    if resp["data"] != "END" and not rs.logOut:
+                            #wysłanie wiadomości do wybranego klienta
+                        with self.clients_lock:
+                                #zaszyfrowanie wiadomości kluczem publicznym adresowanego klienta i wysłanie do niego
+                            clients[resp["to"]].sendall(self.encrypt(str.encode(resp["data"]), self.clients_publickeys[resp["to"]]))
+                    elif rs.logOut:
+                        end = 0
+                        '''
+                        with self.clients_lock:
+                            
+                            inform_all = {"signal": "NCL", "data": {"login": login}}
+                            del clients[login]                
+                            #print("close client")
+                            del self.clients_publickeys[login]
+                            self.Send_All(str(inform_all))  
+                            '''
+
+                            #zaszyfrowanie wiadomości kluczem publicznym adresowanego klienta i wysłanie do niego
+                            #clients[resp["to"]].sendall(self.encrypt(str.encode(resp["data"]), self.clients_publickeys[resp["to"]]))
+                        
+                        break
+                    else:
+                        end = 1 
+                        break
+        except:
+            rs.logOut = False
+            end = 1
+            return end
         rs.logOut = False
         return end
 
