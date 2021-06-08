@@ -217,18 +217,14 @@ class LoginWindow(Gtk.Grid):
             Alert_Window.Show_alert_window("Nie podano loginu.")
         elif password == '':
             Alert_Window.Show_alert_window("Nie podano hasła.")
+        else:
+    
+            mess = req.logIn(login,password)
+            c.send(str(mess))
+            time.sleep(0.4)
 
-        #Przesłanie danych do logowania
-        mess = req.logIn(login,password)
-        c.send(str(mess))
-        #Odebranie odpowiedzi serwera
-        #data = c.recv()
-        #print(data)
-        #time.sleep(1)
-        time.sleep(0.4)
-
-        if not resp.accept:
-            Alert_Window.Show_alert_window("Błędny login lub hasło.")
+            if not resp.accept:
+                Alert_Window.Show_alert_window("Błędny login lub hasło.")
 
     
     def After_Login(self):
@@ -344,9 +340,23 @@ class ChangePasswordWindow(Gtk.Grid):
 
     def Click_reset_password(self, button): 
         ####
-        #self.Show_alert)window(tekst)
-        print("Zmiana hasła")
-        #Dodać zmianę hasła
+        data = req.reset_password(self.entry_login.get_text(),self.entry_password.get_text(), self.entry_auth_key.get_text())
+        if(self.entry_password.get_text() != self.entry_second_password.get_text()):
+            alert = Alert_Window.Show_alert_window("Błędnie powtórzono hasło.")
+        elif(len(self.entry_password.get_text())<8):
+            alert = Alert_Window.Show_alert_window("Podane hasło jest zbyt krótkie.")
+        else:
+            c.send(data)
+            time.sleep(0.4)
+            print("kacper")
+            if resp.accept:
+                print("kacper")
+                Alert_Window.Show_alert_window("Pomyślnie zresetowano hasło.")
+            else:
+                print("kacper")
+                Alert_Window.Show_alert_window("Błędna odpowiedź na pytanie autoryzacyjne.")
+
+
 
     def Click_back_to_login(self, button):      
          self.Show_login_window()  
@@ -636,12 +646,13 @@ class FirstPage(Gtk.Grid):
         self.grid_contact = Gtk.Grid()
         self.scrolled_kontakty.add_with_viewport(self.grid_contact)
         '''
+        #self.buttons.clear()
         for usr in self.buttons:
             pom = usr.get_label()
-            global_functions.active_user_list.remove(pom)
-            
+            global_functions.active_user_list.remove(pom)            
             self.refresh_contact_list_out(pom)
         
+        global_functions.contact_user_list.clear()
         
         
         global login
@@ -860,6 +871,8 @@ class FirstPage(Gtk.Grid):
         elif(self.entry_password.get_text() != self.entry_second_password.get_text()):
             alert = Alert_Window.Show_alert_window("Błędnie powtórzono hasło.")
             #self.Show_alert_window("Błędnie powtórzono hasło.")
+        elif(len(self.entry_password.get_text())<8):
+            Alert_Window.Show_alert_window("Nowe hasło jest za krótkie.")
         else:
             print("Zmiana hasła")
             global login
@@ -1045,9 +1058,13 @@ class FirstPage(Gtk.Grid):
         self.chat_name.set_text(self.uzytkownik)
         self.scrolled_window.add_with_viewport(self.add_messages())
         print(button.get_label())
-        if new_mess_info:
-            button.get_style_context().remove_class("suggested-action")
-            new_mess_info = False
+        #butt = Gtk.Button()
+        #butt.get_style_context().add_class("suggested-action")
+        print(button.get_css_name())
+        button.get_style_context().remove_class("suggested-action")
+        #if new_mess_info:
+            #button.get_style_context().remove_class("suggested-action")
+            #new_mess_info = False
         self.scrolled_window.show_all()
 
     def send_click(self, button):

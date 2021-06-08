@@ -69,14 +69,14 @@ class Response:
                 DB.Change_Logged(login,self.cur)
             else:
                 response["to"] = "self"
-                response["data"] = '{"signal":"RJT","data":{"action":"login", "data": "Błędny login lub hasło.}}'
+                response["data"] = '{"signal":"RJT","data":{"action":"login", "data": "Błędny login lub hasło."}}'
             print(response)
         
         #żądanie resetowania hasła przy logowaniu
         elif signal == "LRS":
             if self.ResetPassword(data['login'], data['auth_key'], data['password']):
                 response["data"] = '{"signal":"ACK","data":{"action":"pass_reset","data":"Zresetowano haslo."}}'
-                response["to"] = 'self'
+                response["to"] = "self"
             else:
                 response["to"] = "self"
                 response["data"] = '{"signal":"RJT","data":{"action":"pass_reset","data":"Bledna odpowiedz autoryzacyjna lub uzytkownik nie istnieje"}}'
@@ -177,21 +177,23 @@ class Response:
         return response
 
     def LogIn(self, login, password):
-        print("1")
+        #print("1")
         if DB.Exists(login, self.cur):
-            print("2")
+            #print("2")
             if not DB.IfLogged(login, self.cur):
-                print("3")
+                #print("3")
                 user = DB.Select_User(login, self.cur)
-                print("4")
+                #print("4")
                 #print(repr(user[0:2]))
                 if user[0:2] == (login, password):
-                    print("+")
+                    #print("+")
                     return True
                     
                 else:
-                    print("-")
+                    #print("-")
                     return False
+            else:
+                return False
                     
         else:
             return False

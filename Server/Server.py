@@ -55,7 +55,7 @@ class Server:
                     print(s)
                     if s["data"] == "END":
                         return login
-            client.sendall(self.encrypt(str.encode(s["data"]), client_key))        
+                client.sendall(self.encrypt(str.encode(s["data"]), client_key))        
             login = s["to"]
 
             with self.keys_lock:
@@ -129,6 +129,7 @@ class Server:
             print(login)
             if login == '':
                 client.close()
+                self.active_conetion -= 1
                 print("ok")
                 return
             else:

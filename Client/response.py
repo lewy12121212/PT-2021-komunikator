@@ -38,7 +38,7 @@ class Response:
     def Make_Response_Thread(self, buffer, window):
 
         #self.lock.acquire()
-        print(buffer)
+        #print(buffer)
         signal = ""
         buffer = buffer.decode("UTF-8").replace("'", '"')
         
@@ -47,11 +47,12 @@ class Response:
         tmp = json.loads(buffer)
         signal = tmp["signal"]
         data = tmp["data"]     
+        print(signal, " ", data)
 
         if signal == "ACK":
             
-            
-            self.accept = True
+            with self.lock:
+                self.accept = True
 
             if data["action"] == "login":
                 print("daje okejke")
@@ -72,10 +73,12 @@ class Response:
                     global_functions.active_user_list.remove(data["user"])
                     #window.chat_window.czat._remove_chat(data["user"])
                     window.chat_window.refresh_contact_list_out(data["user"])
+            
 
             
-            if data["data"]:
-                window.alert_text = data["data"]
+            print(data["data"]) 
+            window.alert_text = data["data"]
+            return
                 #window.Show_alert(data["data"])
                 
                 #print(type(data))
@@ -84,13 +87,12 @@ class Response:
 
             #print("okejka")
         elif signal == "RJT":
+            #print("rejeeect")
             with self.lock:
                 self.accept = False
             window.alert_text = data["data"]
-            #self.accept = False
-            if data != "":
-                print("a")
-                #window.chat_window.Show_alert_window(data)
+            #print("rejeeect")
+
         #lista kontaktow uzytkownika
         elif signal == "LCU":
             contact = data["contacts"].split(',')
