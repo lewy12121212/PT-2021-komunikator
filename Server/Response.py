@@ -74,12 +74,16 @@ class Response:
         
         #żądanie resetowania hasła przy logowaniu
         elif signal == "LRS":
-            if self.ResetPassword(data['login'], data['auth_key'], data['password']):
+            tmp = self.ResetPassword(data['login'], data['auth_key'], data['password'])
+            if tmp == 2:
                 response["data"] = '{"signal":"ACK","data":{"action":"pass_reset","data":"Zresetowano haslo."}}'
                 response["to"] = "self"
-            else:
+            elif tmp == 1:
                 response["to"] = "self"
                 response["data"] = '{"signal":"RJT","data":{"action":"pass_reset","data":"Bledna odpowiedz autoryzacyjna lub uzytkownik nie istnieje"}}'
+            else:
+                response["to"] = "self"
+                response["data"] = '{"signal":"RJT","data":{"action":"pass_reset_exists","data":"Użytkownik nie istnieje."}}'
         
         #zmiana hasła użytkownika
         elif signal == "UCP":
@@ -207,10 +211,13 @@ class Response:
 
 
     def ResetPassword(self,login, auth_key, new_password):
-        if DB.Reset_Password(login, new_password, auth_key, self.cur):
-            return True
+        if DB.Exists(login, self.cur):
+            if DB.Reset_Password(login, new_password, auth_key, self.cur):
+                return 2
+            else:
+                return 1
         else:
-            return False
+            return 0
 
     def ChangePassword(self, login, old_password, new_password, auth_key):
         if DB.Change_Password(login,old_password,new_password, auth_key, self.cur):

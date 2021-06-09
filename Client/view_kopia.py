@@ -348,13 +348,16 @@ class ChangePasswordWindow(Gtk.Grid):
         else:
             c.send(data)
             time.sleep(0.4)
-            print("kacper")
+            #print("kacper")
             if resp.accept:
-                print("kacper")
+                #print("kacper")
                 Alert_Window.Show_alert_window("Pomyślnie zresetowano hasło.")
             else:
-                print("kacper")
-                Alert_Window.Show_alert_window("Błędna odpowiedź na pytanie autoryzacyjne.")
+                if resp.exists:
+                    Alert_Window.Show_alert_window("Użytkownik nie istnieje.")   
+                    #print("kacper")
+                else:
+                    Alert_Window.Show_alert_window("Błędna odpowiedź na pytanie autoryzacyjne.")
 
 
 

@@ -13,6 +13,7 @@ class Response:
     def __init__(self):
         self.lock = threading.Lock()
         self.accept = False
+        self.exists = False
 
 
     def Make_Response(self, buffer):
@@ -91,6 +92,9 @@ class Response:
             #print("rejeeect")
             with self.lock:
                 self.accept = False
+            if data["action"] == "pass_reset_exists":
+                self.exists = True
+            
             window.alert_text = data["data"]
             #print("rejeeect")
 
