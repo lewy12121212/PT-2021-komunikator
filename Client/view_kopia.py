@@ -496,12 +496,11 @@ class RegisterWindow(Gtk.Grid):
 
             c.send(str(mess))
             time.sleep(0.4)
-            #data = c.recv()
-            #print(data)
+            if resp.accept:
+                Alert_Window.Show_alert_window("Poprawnie dodano konto.")
+            else:
+                Alert_Window.Show_alert_window("Konto już istnieje.")
 
-            alert = Alert_Window.Show_alert_window(self.__parent_window.alert_text)
-
-    
 
            
 class FirstPage(Gtk.Grid):
@@ -758,13 +757,13 @@ class FirstPage(Gtk.Grid):
 
         time.sleep(0.4)
         if resp.accept:
-            Alert_Window.Show_alert_window(self.__parent_window.alert_text)
+            Alert_Window.Show_alert_window("Twoje konto zostało usunięte.")
             self.window5.destroy()  
             self.__parent_window.login_window.entry_login.set_text("")
             self.__parent_window.login_window.entry_password.set_text("") 
             self.Show_login_window()
         else:
-            Alert_Window.Show_alert_window(self.__parent_window.alert_text)
+            Alert_Window.Show_alert_window("Bledna odpowiedz autoryzacyjna lub obecne haslo.")
 
     def Close_delete_acc(self,button):
        
@@ -883,10 +882,10 @@ class FirstPage(Gtk.Grid):
 
             time.sleep(0.4)
             if resp.accept:
-                Alert_Window.Show_alert_window(self.__parent_window.alert_text)
+                Alert_Window.Show_alert_window("Twoje hasło zostało zmienione.")
                 self.window4.destroy()
             else:
-                Alert_Window.Show_alert_window(self.__parent_window.alert_text)
+                Alert_Window.Show_alert_window("Bledna odpowiedz autoryzacyjna lub obecne haslo.")
 
     def Close_reset(self,button):
         print("a")
@@ -995,10 +994,10 @@ class FirstPage(Gtk.Grid):
         c.send(data)
         time.sleep(0.3)
         if resp.accept:
-            Alert_Window.Show_alert_window(self.__parent_window.alert_text)
+            Alert_Window.Show_alert_window("Usunięto kontakt.")
             self.window3.destroy() 
         else:
-            Alert_Window.Show_alert_window(self.__parent_window.alert_text)
+            Alert_Window.Show_alert_window("Wybrany kontakt nie istnieje.")
         #Tu dodać nazwę użytkownika do znajomych     
 
     def click_add_contact(self, button):
@@ -1042,12 +1041,12 @@ class FirstPage(Gtk.Grid):
         c.send(data)
         time.sleep(0.4)
         if resp.accept:
-            Alert_Window.Show_alert_window(self.__parent_window.alert_text)
+            Alert_Window.Show_alert_window("Dodano kontakt.")
             global_functions.contact_user_list += self.entry_user.get_text()
             
             self.window2.destroy()
         else: 
-            Alert_Window.Show_alert_window(self.__parent_window.alert_text)
+            Alert_Window.Show_alert_window("Brak użytkownika o podanym loginie lub jest on niedostępny.")
         #Tu dodać nazwę użytkownika do znajomych 
           
 

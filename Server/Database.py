@@ -15,6 +15,7 @@ class Database:
             user="root",
             database='pt_database'
         )
+        self.conn.autocommit = True
         #cur = self.conn.cursor()
 
     # dodaje użytkownika
@@ -23,6 +24,7 @@ class Database:
         if self.Exists(login,cur) == False:
             cur.execute("INSERT INTO users (login,password,auth_key, path) VALUES (%s,%s,%s,%s)",
                              [login, password, auth_key, ("./Server/contacts/" + login + ".txt")])
+            #cur.commit()
             self.conn.commit()
             print("Dodano użytkownika: ", login)
             return True
@@ -95,11 +97,15 @@ class Database:
             if self.IfLogged(login, cur):
                 cur.execute("UPDATE users SET logged=%s WHERE login=%s", ['0', login])
                 self.conn.commit()
+                #self.conn.close()
+                
                 #print(login, '+')
                 return True
             else:
                 cur.execute("UPDATE users SET logged=%s WHERE login=%s", ['1', login])
                 self.conn.commit()
+                #self.conn.close()
+                
                 #print(login, '-')
                 return True
         else:
