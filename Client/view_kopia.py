@@ -224,7 +224,10 @@ class LoginWindow(Gtk.Grid):
             time.sleep(0.4)
 
             if not resp.accept:
-                Alert_Window.Show_alert_window("Błędny login lub hasło.")
+                if resp.exists:
+                    Alert_Window.Show_alert_window("Użytkownik jest już zalogowany.")
+                else:
+                    Alert_Window.Show_alert_window("Błędny login lub hasło.")
 
     
     def After_Login(self):
@@ -354,7 +357,8 @@ class ChangePasswordWindow(Gtk.Grid):
                 Alert_Window.Show_alert_window("Pomyślnie zresetowano hasło.")
             else:
                 if resp.exists:
-                    Alert_Window.Show_alert_window("Użytkownik nie istnieje.")   
+                    Alert_Window.Show_alert_window("Użytkownik nie istnieje.")
+                    resp.exists = False   
                     #print("kacper")
                 else:
                     Alert_Window.Show_alert_window("Błędna odpowiedź na pytanie autoryzacyjne.")
@@ -547,7 +551,7 @@ class FirstPage(Gtk.Grid):
 
         self.kontakty = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
         self.poziomo.pack_start(self.kontakty, False, True, 0)
-        self.label_kontakty = Gtk.Label("Lista kontaktów")
+        self.label_kontakty = Gtk.Label("Lista aktywnych kontaktów")
         self.label_kontakty.set_valign(1)
         self.kontakty.pack_start(self.label_kontakty, False, True, 0)
 
@@ -561,7 +565,7 @@ class FirstPage(Gtk.Grid):
         self.guziki_kontakty.set_valign(1)
         
         self.guziki_kontakty_2 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        self.wyswietl_wszystkie = Gtk.Button(label="Wyświetl kontakty")
+        self.wyswietl_wszystkie = Gtk.Button(label="Wyświetl wszystkie kontakty")
         self.wyswietl_wszystkie.connect("clicked", self.click_show_all_contacts)
         self.guziki_kontakty_2.pack_start(self.wyswietl_wszystkie, True, True, 0)
         self.guziki_kontakty_2.set_valign(1)

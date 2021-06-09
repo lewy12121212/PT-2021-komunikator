@@ -94,6 +94,8 @@ class Response:
                 self.accept = False
             if data["action"] == "pass_reset_exists":
                 self.exists = True
+            elif data["action"] == "login_exists":
+                self.exists = True
             
             window.alert_text = data["data"]
             #print("rejeeect")

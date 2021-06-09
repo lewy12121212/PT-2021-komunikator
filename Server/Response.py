@@ -61,16 +61,20 @@ class Response:
         elif signal == "LOG":
             login = data["login"]
             password = data["password"]
+            tmp = self.LogIn(login, password)
             #jeśli dane do logowania poprawne zwróć ACK i login klienta
             #jeśli nie zwróć RJT i self, aby wątek wiedział, że nie może kończyś funkcji Set_Configuration
-            if self.LogIn(login, password):
+            if tmp == 2:
                 response["data"] = '{"signal":"ACK","data":{"action":"login", "data": ""}}'
                 response["to"] = login
                 DB.Change_Logged(login,self.cur)
-            else:
+            elif tmp == 1:
                 response["to"] = "self"
                 response["data"] = '{"signal":"RJT","data":{"action":"login", "data": "Błędny login lub hasło."}}'
-            print(response)
+            else:
+                response["to"] = "self"
+                response["data"] = '{"signal":"RJT","data":{"action":"login_exists", "data": "Błędny login lub hasło."}}'
+            #print(response)
         
         #żądanie resetowania hasła przy logowaniu
         elif signal == "LRS":
@@ -191,16 +195,16 @@ class Response:
                 #print(repr(user[0:2]))
                 if user[0:2] == (login, password):
                     #print("+")
-                    return True
+                    return 2
                     
                 else:
                     #print("-")
-                    return False
+                    return 1
             else:
-                return False
+                return 0
                     
         else:
-            return False
+            return 1
 
     def AddUser(self, login, password, auth_key):
         if DB.Add_User(login, password, auth_key, self.cur):
