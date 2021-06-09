@@ -58,7 +58,8 @@ class Response:
                 print("daje okejke")
                 window.login_window.After_Login()
             elif data["action"] == "add_contact":
-                global_functions.contact_user_list.append(data["user"])
+                print("DANE: ",data["user"])
+                global_functions.contact_user_list.append(str(data["user"]))
                 print(type(data["active"]))
                 if data["active"] == 1:
                     #print(data["user"])

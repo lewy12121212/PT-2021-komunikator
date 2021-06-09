@@ -556,7 +556,14 @@ class FirstPage(Gtk.Grid):
         self.usun_kontakt.connect("clicked", self.click_delete_contact)
         self.guziki_kontakty.pack_start(self.usun_kontakt, True, True, 0)
         self.guziki_kontakty.set_valign(1)
+        
+        self.guziki_kontakty_2 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        self.wyswietl_wszystkie = Gtk.Button(label="Wyświetl kontakty")
+        self.wyswietl_wszystkie.connect("clicked", self.click_show_all_contacts)
+        self.guziki_kontakty_2.pack_start(self.wyswietl_wszystkie, True, True, 0)
+        self.guziki_kontakty_2.set_valign(1)
         self.kontakty.pack_start(self.guziki_kontakty, False, True, 0)
+        self.kontakty.pack_start(self.guziki_kontakty_2, False, True, 0)
         
         self.grid_contact = Gtk.Grid()
        
@@ -636,6 +643,33 @@ class FirstPage(Gtk.Grid):
         self.log_out_button.connect("clicked", self.log_out_click)
 
         self.poziomo.pack_start(self.profil, False, True, 0)
+
+    def click_show_all_contacts(self,button):
+        self.window6 = Gtk.Window()
+        self.window6.set_default_size(400, 300)
+        self.window6.set_position(Gtk.WindowPosition.CENTER)
+        vertical_interface_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
+       
+
+        label_main = Gtk.Label("Kontakty")
+   
+       
+        label_main.set_hexpand(True)
+        vertical_interface_box.pack_start(label_main, True, True, 0)
+        if global_functions.contact_user_list:
+            
+            for user in global_functions.contact_user_list:
+                print(user)
+                lab = Gtk.Label(user)
+                vertical_interface_box.pack_start(lab, True, True, 0)
+    
+
+        vertical_interface_box.set_valign(1)
+        self.window6.add(vertical_interface_box)
+        
+       
+       
+        self.window6.show_all()
 
 
     def log_out_click(self, button):
@@ -1042,7 +1076,7 @@ class FirstPage(Gtk.Grid):
         time.sleep(0.4)
         if resp.accept:
             Alert_Window.Show_alert_window("Dodano kontakt.")
-            global_functions.contact_user_list += self.entry_user.get_text()
+            #global_functions.contact_user_list += self.entry_user.get_text()
             
             self.window2.destroy()
         else: 
