@@ -15,8 +15,13 @@ def split_msg(msg):
                     if msg[j] == " ":
                         msg.insert(j, '\n')
                         break
-                    else:
-                        j -= 1
+                    
+                    if j == 0:
+                        msg.insert(iterator, '\n')
+                        
+                    j -= 1
+
+                    
             
         iterator += 1
 
