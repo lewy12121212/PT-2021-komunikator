@@ -92,7 +92,12 @@ class LoginWindow(Gtk.Grid):
         self.row_spacing = 10
         self.column_spacing = 10
         #self.recv_thread = Thread(target=c.recv_thread, args=(self, ))
-       
+        screen = Gdk.Screen.get_default()
+        css_provider = Gtk.CssProvider()
+        css_provider.load_from_path('style.css')
+        priority = Gtk.STYLE_PROVIDER_PRIORITY_USER
+        context = Gtk.StyleContext()
+        context.add_provider_for_screen(screen, css_provider, priority)
         self.Login_window()
         
     #Pokazuje okno logowania
@@ -124,12 +129,12 @@ class LoginWindow(Gtk.Grid):
         self.add(vertical_main_box)
 
         #Etykieta okna
-        label_main_login = Gtk.Label("Logowanie")
+        label_main_login = Gtk.Label("Logowanie",name="white_label")
 
         #Poziome okno do przechowyania elementów loginu
         horizontal_login_box = Gtk.Box(spacing=6)
         #Etykieta loginu
-        label_login = Gtk.Label("Login: ")
+        label_login = Gtk.Label("Login: ",name="white_label")
         #Wpisywanie loginu
         self.entry_login = Gtk.Entry()
         self.entry_login.set_max_length(32)
@@ -140,7 +145,7 @@ class LoginWindow(Gtk.Grid):
         #Poziome okno do przechowyania elementów hasła
         horizontal_password_box = Gtk.Box(spacing=6)
         #Etykieta hasła
-        label_haslo = Gtk.Label("Hasło: ")
+        label_haslo = Gtk.Label("Hasło: ",name="white_label")
         #Wpisywanie hasła
         self.entry_password = Gtk.Entry()
         self.entry_password.set_max_length(32)
@@ -170,7 +175,7 @@ class LoginWindow(Gtk.Grid):
         horizontal_buttons_box = Gtk.Box(spacing=6)
 
         #Przycisk do logowania
-        self.login_button = Gtk.Button(label = "Zaloguj")
+        self.login_button = Gtk.Button(label = "Zaloguj",name="button_one")
         #self.login_button.get_style_context().add_class("suggested-action")
         self.login_button.connect("clicked", self.Click_login)
         self.login_button.set_halign(2)
@@ -178,7 +183,7 @@ class LoginWindow(Gtk.Grid):
         horizontal_buttons_box.pack_start(self.login_button, True, True, 0)
 
         #Przycisk do rejestracji
-        self.register_button = Gtk.Button(label="Zarejestruj się")
+        self.register_button = Gtk.Button(label="Zarejestruj się",name="button_one")
         self.register_button.connect("clicked", self.Click_register)
         self.register_button.set_halign(1)
         self.register_button.set_hexpand(True)
@@ -186,7 +191,7 @@ class LoginWindow(Gtk.Grid):
         vertical_main_box.pack_start(horizontal_buttons_box, True, True, 0) 
 
         #Przycisk do pytania kontrolnego
-        self.reset_button = Gtk.Button(label="Zresetuj hasło")
+        self.reset_button = Gtk.Button(label="Zresetuj hasło",name="button_one")
         self.reset_button.connect("clicked", self.Click_reset)
         self.reset_button.set_halign(3)
         self.reset_button.set_hexpand(True)
@@ -262,10 +267,10 @@ class ChangePasswordWindow(Gtk.Grid):
         vertical_interface_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
         self.add(vertical_interface_box)
 
-        label_main = Gtk.Label("Zresetuj hasło")
+        label_main = Gtk.Label("Zresetuj hasło",name="white_label")
 
         vertical_labels_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        label_login = Gtk.Label("Login: ")
+        label_login = Gtk.Label("Login: ",name="white_label")
         label_login.set_halign(2)
         self.entry_login = Gtk.Entry()
         self.entry_login.set_max_length(32)
@@ -274,7 +279,7 @@ class ChangePasswordWindow(Gtk.Grid):
         self.entry_login.set_text("")  
 
         vertical_entries_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        label_haslo = Gtk.Label("Nowe hasło: ")
+        label_haslo = Gtk.Label("Nowe hasło: ",name="white_label")
         label_haslo.set_halign(2)
         self.entry_password = Gtk.Entry()
         self.entry_password.set_max_length(32)
@@ -283,7 +288,7 @@ class ChangePasswordWindow(Gtk.Grid):
         self.entry_password.set_vexpand(False)
         self.entry_password.set_text("")  
 
-        label_second_password = Gtk.Label("Powtórz nowe hasło: ")
+        label_second_password = Gtk.Label("Powtórz nowe hasło: ",name="white_label")
         label_second_password.set_halign(2)
         self.entry_second_password = Gtk.Entry()
         self.entry_second_password.set_max_length(32)
@@ -292,7 +297,7 @@ class ChangePasswordWindow(Gtk.Grid):
         self.entry_second_password.set_vexpand(False)
         self.entry_second_password.set_text("")  
 
-        label_auth_key = Gtk.Label("Podaj nazwisko panieńskie matki: ")
+        label_auth_key = Gtk.Label("Podaj nazwisko panieńskie matki: ",name="white_label")
         label_auth_key.set_halign(2)
         self.entry_auth_key = Gtk.Entry()
         self.entry_auth_key.set_max_length(32)
@@ -327,12 +332,12 @@ class ChangePasswordWindow(Gtk.Grid):
         horizontal_button_box = Gtk.Box(spacing=6)
         horizontal_button_box.set_halign(3)
 
-        self.register_button = Gtk.Button(label="Zmień hasło")
+        self.register_button = Gtk.Button(label="Zmień hasło",name="button_one")
         self.register_button.connect("clicked", self.Click_reset_password)
         self.register_button.set_halign(3)
         self.register_button.set_hexpand(True)
 
-        self.back_to_login_button = Gtk.Button(label="Powrót")
+        self.back_to_login_button = Gtk.Button(label="Powrót",name="button_one")
         self.back_to_login_button.connect("clicked", self.Click_back_to_login)
         self.back_to_login_button.set_halign(3)
         self.back_to_login_button.set_hexpand(True)
@@ -396,10 +401,10 @@ class RegisterWindow(Gtk.Grid):
         vertical_interface_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
         self.add(vertical_interface_box)
 
-        label_main = Gtk.Label("Rejestracja")
+        label_main = Gtk.Label("Rejestracja",name="white_label")
 
         vertical_labels_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        label_login = Gtk.Label("Login: ")
+        label_login = Gtk.Label("Login: ",name="white_label")
         label_login.set_halign(2)
         self.entry_login = Gtk.Entry()
         self.entry_login.set_max_length(32)
@@ -408,7 +413,7 @@ class RegisterWindow(Gtk.Grid):
         self.entry_login.set_text("")  
 
         vertical_entries_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        label_haslo = Gtk.Label("Hasło: ")
+        label_haslo = Gtk.Label("Hasło: ",name="white_label")
         label_haslo.set_halign(2)
         self.entry_password = Gtk.Entry()
         self.entry_password.set_visibility(False)
@@ -417,7 +422,7 @@ class RegisterWindow(Gtk.Grid):
         self.entry_password.set_vexpand(False)
         self.entry_password.set_text("")  
 
-        label_second_password = Gtk.Label("Powtórz hasło: ")
+        label_second_password = Gtk.Label("Powtórz hasło: ",name="white_label")
         label_second_password.set_halign(2)
         self.entry_second_password = Gtk.Entry()
         self.entry_second_password.set_max_length(32)
@@ -426,7 +431,7 @@ class RegisterWindow(Gtk.Grid):
         self.entry_second_password.set_vexpand(False)
         self.entry_second_password.set_text("")  
 
-        label_auth_key = Gtk.Label("Podaj nazwisko panieńskie matki: ")
+        label_auth_key = Gtk.Label("Podaj nazwisko panieńskie matki: ",name="white_label")
         label_auth_key.set_halign(2)
         self.entry_auth_key = Gtk.Entry()
         self.entry_auth_key.set_max_length(32)
@@ -461,12 +466,12 @@ class RegisterWindow(Gtk.Grid):
         horizontal_button_box = Gtk.Box(spacing=6)
         horizontal_button_box.set_halign(3)
 
-        self.register_button = Gtk.Button(label="Zarejestruj się")
+        self.register_button = Gtk.Button(label="Zarejestruj się",name="button_one")
         self.register_button.connect("clicked", self.Click_register)
         self.register_button.set_halign(3)
         self.register_button.set_hexpand(True)
 
-        self.back_to_login_button = Gtk.Button(label="Powrót")
+        self.back_to_login_button = Gtk.Button(label="Powrót",name="button_one")
         self.back_to_login_button.connect("clicked", self.Click_back_to_login)
         self.back_to_login_button.set_halign(3)
         self.back_to_login_button.set_hexpand(True)
@@ -530,7 +535,7 @@ class FirstPage(Gtk.Grid):
         vboxa = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
         self.add(vboxa)
         vboxa.set_hexpand(True)
-        label = Gtk.Label("Podaj nazwę użytkownika: ")
+        label = Gtk.Label("Podaj nazwę użytkownika: ",name="white_label")
         vboxa.pack_start(label, True, True, 0)
 
        
@@ -551,21 +556,21 @@ class FirstPage(Gtk.Grid):
 
         self.kontakty = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
         self.poziomo.pack_start(self.kontakty, False, True, 0)
-        self.label_kontakty = Gtk.Label("Lista aktywnych kontaktów")
+        self.label_kontakty = Gtk.Label("Lista aktywnych kontaktów",name="white_label")
         self.label_kontakty.set_valign(1)
         self.kontakty.pack_start(self.label_kontakty, False, True, 0)
 
         self.guziki_kontakty = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        self.dodaj_kontakt = Gtk.Button(label="Dodaj kontakt")
+        self.dodaj_kontakt = Gtk.Button(label="Dodaj kontakt",name="button_one")
         self.dodaj_kontakt.connect("clicked", self.click_add_contact)
         self.guziki_kontakty.pack_start(self.dodaj_kontakt, True, True, 0)
-        self.usun_kontakt = Gtk.Button(label="Usuń kontakt")
+        self.usun_kontakt = Gtk.Button(label="Usuń kontakt",name="button_one")
         self.usun_kontakt.connect("clicked", self.click_delete_contact)
         self.guziki_kontakty.pack_start(self.usun_kontakt, True, True, 0)
         self.guziki_kontakty.set_valign(1)
         
         self.guziki_kontakty_2 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        self.wyswietl_wszystkie = Gtk.Button(label="Wyświetl wszystkie kontakty")
+        self.wyswietl_wszystkie = Gtk.Button(label="Wyświetl wszystkie kontakty",name="button_one")
         self.wyswietl_wszystkie.connect("clicked", self.click_show_all_contacts)
         self.guziki_kontakty_2.pack_start(self.wyswietl_wszystkie, True, True, 0)
         self.guziki_kontakty_2.set_valign(1)
@@ -580,7 +585,7 @@ class FirstPage(Gtk.Grid):
         self.scrolled_kontakty.set_max_content_width(50) 
 
         self.scrolled_kontakty.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
-        self.scrolled_kontakty.add_with_viewport(self.grid_contact)
+        self.scrolled_kontakty.add(self.grid_contact)
 
         self.kontakty.pack_start(self.scrolled_kontakty, True, True, 0)
         
@@ -589,7 +594,7 @@ class FirstPage(Gtk.Grid):
         if global_functions.active_user_list:
             #Dla każdego kontaktu z listy tworzy podpisany przycisk
             for user in global_functions.active_user_list:
-                self.buttons.append(Gtk.Button(label=user,xalign=0))
+                self.buttons.append(Gtk.Button(label=user,xalign=0,name="button_contact"))
                 self.buttons[-1].connect("clicked", self.click_contact)
                 self.czat._append_user(user)
 
@@ -602,19 +607,22 @@ class FirstPage(Gtk.Grid):
 
         
         self.chat_window = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
-        self.poziomo.pack_start(self.chat_window, True, True, 0)
-        self.chat_name = Gtk.Label()
+        self.poziomo.pack_start(self.chat_window, False, False, 0)
+        self.chat_name = Gtk.Label(name="white_label")
         self.chat_name.set_text("")
    
         self.scrolled_window = Gtk.ScrolledWindow()
         self.scrolled_window.set_size_request(600,300)
-        self.scrolled_window.set_max_content_width(50) 
+        self.scrolled_window.set_vexpand(False)
+        self.scrolled_window.set_max_content_width(10) 
+        #self.scrolled_window.vexpand(False)
+       
         self.scrolled_window.set_border_width(10) ##Odstęp po prawej
-
+        #self.scrolled_window.set_vexpand(False)
         self.scrolled_window.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         
         #Dodanie wiadmowsci
-        self.scrolled_window.add_with_viewport(self.add_messages())
+        self.scrolled_window.add(self.add_messages())
       
 
         self.wysylanie = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
@@ -627,25 +635,25 @@ class FirstPage(Gtk.Grid):
         self.wysylanie.pack_start(self.entry_wysylanie, True, True, 0)
 
         #Przycisk do wysyłania tekstu
-        self.send_button = Gtk.Button(label="Wyślij")
+        self.send_button = Gtk.Button(label="Wyślij",name="button_one")
         self.send_button.connect("clicked", self.send_click)
         self.wysylanie.pack_start(self.send_button, True, True, 0)
 
         self.chat_window.pack_start(self.chat_name,True,True,0)
-        self.chat_window.pack_start(self.scrolled_window, True, True, 0)
+        self.chat_window.pack_start(self.scrolled_window, False, False, 0)
         self.chat_window.pack_start(self.wysylanie, True, True, 0)
 
         self.profil = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
        
-        self.change_button = Gtk.Button(label="Zmiana hasła")
+        self.change_button = Gtk.Button(label="Zmiana hasła",name="button_one")
         self.profil.pack_start(self.change_button, False, True, 0)
         self.change_button.connect("clicked", self.change_click)
 
-        self.delete_acc_button = Gtk.Button(label="Usuń konto")
+        self.delete_acc_button = Gtk.Button(label="Usuń konto",name="button_one")
         self.profil.pack_start(self.delete_acc_button, False, True, 0)
         self.delete_acc_button.connect("clicked", self.delete_acc_click)
         
-        self.log_out_button = Gtk.Button(label="Wyloguj")
+        self.log_out_button = Gtk.Button(label="Wyloguj",name="button_one")
         self.profil.pack_start(self.log_out_button, False, True, 0)
         self.log_out_button.connect("clicked", self.log_out_click)
 
@@ -658,7 +666,7 @@ class FirstPage(Gtk.Grid):
         vertical_interface_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
        
 
-        label_main = Gtk.Label("Kontakty")
+        label_main = Gtk.Label("Kontakty",name="white_label")
    
        
         label_main.set_hexpand(True)
@@ -684,7 +692,7 @@ class FirstPage(Gtk.Grid):
         #dodać wylogowywanie\
         '''self.scrolled_kontakty.remove(self.scrolled_kontakty.get_child())
         self.grid_contact = Gtk.Grid()
-        self.scrolled_kontakty.add_with_viewport(self.grid_contact)
+        self.scrolled_kontakty.add(self.grid_contact)
         '''
         #self.buttons.clear()
         for usr in self.buttons:
@@ -711,13 +719,13 @@ class FirstPage(Gtk.Grid):
         vertical_interface_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
        
 
-        label_main = Gtk.Label("Usuń konto")
+        label_main = Gtk.Label("Usuń konto",name="white_label")
 
         vertical_labels_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
        
 
         vertical_entries_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        label_old_haslo = Gtk.Label("Podaj hasło: ")
+        label_old_haslo = Gtk.Label("Podaj hasło: ",name="white_label")
         label_old_haslo.set_halign(2)
         self.old_entry_password = Gtk.Entry()
         self.old_entry_password.set_max_length(32)
@@ -726,7 +734,7 @@ class FirstPage(Gtk.Grid):
         self.old_entry_password.set_vexpand(False)
         self.old_entry_password.set_text("")  
 
-        label_haslo = Gtk.Label("Powtórz hasło: ")
+        label_haslo = Gtk.Label("Powtórz hasło: ",name="white_label")
         label_haslo.set_halign(2)
         self.entry_password = Gtk.Entry()
         self.entry_password.set_max_length(32)
@@ -736,7 +744,7 @@ class FirstPage(Gtk.Grid):
         self.entry_password.set_text("")  
 
 
-        label_auth_key = Gtk.Label("Podaj nazwisko panieńskie matki: ")
+        label_auth_key = Gtk.Label("Podaj nazwisko panieńskie matki: ",name="white_label")
         label_auth_key.set_halign(2)
         self.entry_auth_key = Gtk.Entry()
         self.entry_auth_key.set_max_length(32)
@@ -769,12 +777,12 @@ class FirstPage(Gtk.Grid):
         horizontal_button_box = Gtk.Box(spacing=6)
         horizontal_button_box.set_halign(3)
 
-        self.register_button = Gtk.Button(label="Usuń konto")
+        self.register_button = Gtk.Button(label="Usuń konto",name="button_one")
         self.register_button.connect("clicked", self.Click_delete_account_ok)
         self.register_button.set_halign(3)
         self.register_button.set_hexpand(True)
 
-        self.back_to_login_button = Gtk.Button(label="Powrót")
+        self.back_to_login_button = Gtk.Button(label="Powrót",name="button_one")
         self.back_to_login_button.connect("clicked", self.Close_delete_acc)
         self.back_to_login_button.set_halign(3)
         self.back_to_login_button.set_hexpand(True)
@@ -817,13 +825,13 @@ class FirstPage(Gtk.Grid):
         vertical_interface_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
         #self.add(vertical_interface_box)
 
-        label_main = Gtk.Label("Zmień hasło")
+        label_main = Gtk.Label("Zmień hasło",name="white_label")
 
         vertical_labels_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
        
 
         vertical_entries_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        label_old_haslo = Gtk.Label("Aktualne hasło: ")
+        label_old_haslo = Gtk.Label("Aktualne hasło: ",name="white_label")
         label_old_haslo.set_halign(2)
         self.old_entry_password = Gtk.Entry()
         self.old_entry_password.set_max_length(32)
@@ -832,7 +840,7 @@ class FirstPage(Gtk.Grid):
         self.old_entry_password.set_vexpand(False)
         self.old_entry_password.set_text("")  
 
-        label_haslo = Gtk.Label("Nowe hasło: ")
+        label_haslo = Gtk.Label("Nowe hasło: ",name="white_label")
         label_haslo.set_halign(2)
         self.entry_password = Gtk.Entry()
         self.entry_password.set_max_length(32)
@@ -841,7 +849,7 @@ class FirstPage(Gtk.Grid):
         self.entry_password.set_vexpand(False)
         self.entry_password.set_text("")  
 
-        label_second_password = Gtk.Label("Powtórz nowe hasło: ")
+        label_second_password = Gtk.Label("Powtórz nowe hasło: ",name="white_label")
         label_second_password.set_halign(2)
         self.entry_second_password = Gtk.Entry()
         self.entry_second_password.set_max_length(32)
@@ -850,7 +858,7 @@ class FirstPage(Gtk.Grid):
         self.entry_second_password.set_vexpand(False)
         self.entry_second_password.set_text("")  
 
-        label_auth_key = Gtk.Label("Podaj nazwisko panieńskie matki: ")
+        label_auth_key = Gtk.Label("Podaj nazwisko panieńskie matki: ",name="white_label")
         label_auth_key.set_halign(2)
         self.entry_auth_key = Gtk.Entry()
         self.entry_auth_key.set_max_length(32)
@@ -885,12 +893,12 @@ class FirstPage(Gtk.Grid):
         horizontal_button_box = Gtk.Box(spacing=6)
         horizontal_button_box.set_halign(3)
 
-        self.register_button = Gtk.Button(label="Zmień hasło")
+        self.register_button = Gtk.Button(label="Zmień hasło",name="button_one")
         self.register_button.connect("clicked", self.Click_reset_password)
         self.register_button.set_halign(3)
         self.register_button.set_hexpand(True)
 
-        self.back_to_login_button = Gtk.Button(label="Powrót")
+        self.back_to_login_button = Gtk.Button(label="Powrót",name="button_one")
         self.back_to_login_button.connect("clicked", self.Close_reset)
         self.back_to_login_button.set_halign(3)
         self.back_to_login_button.set_hexpand(True)
@@ -938,12 +946,12 @@ class FirstPage(Gtk.Grid):
         
 
         print("AAA")
-        self.buttons.append(Gtk.Button(label=nazwa,xalign=0))
+        self.buttons.append(Gtk.Button(label=nazwa,xalign=0,name="button_contact"))
         self.buttons[-1].connect("clicked", self.click_contact)
         self.czat._append_user(nazwa)
 
         self.grid_contact.add(self.buttons[-1])
-        self.scrolled_kontakty.add_with_viewport(self.grid_contact)
+        self.scrolled_kontakty.add(self.grid_contact)
 
         self.kontakty.pack_start(self.scrolled_kontakty, True, True, 0)
         self.kontakty.show_all()
@@ -952,22 +960,35 @@ class FirstPage(Gtk.Grid):
         
         self.czat._append_msg(od, wiad)
         if(wiad[1]==1):
-            label = Gtk.Label(wiad[0])
+            label = Gtk.Label(wiad[0],name="message_come")
             label.set_line_wrap(True)
-            label.set_max_width_chars(5)
+            label.set_lines(-1)
+            label.set_max_width_chars(15)
             label.set_alignment(0,0)
+            label.set_halign(True)
+            label.set_size_request(10,10)
+            
                 
         else:
-            label = Gtk.Label(wiad[0])
+            label = Gtk.Label(wiad[0],name="message_out")
             label.set_line_wrap(True)
-            label.set_max_width_chars(5)
+            label.set_lines(-1)
+            label.set_max_width_chars(15)
             label.set_alignment(1,0)
+            label.set_halign(True)
+            label.set_size_request(10,10)
+            
             return label
         return Gtk.Label("")
 
     def add_messages(self):   
-        self.lista_wiadomosci = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 10)
-        self.lista_wiadomosci.set_homogeneous(False)
+        self.lista_wiadomosci = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 10,name="message_list")
+        self.lista_wiadomosci.set_size_request(600,100)
+        
+        self.lista_wiadomosci.set_vexpand(False)
+        #self.lista_wiadomosci.set_homogeneous(True)
+        #self.lista_wiadomosci.fill(True)
+        #self.lista_wiadomosci.set_valign(3)
 
         print("zmiana czatu ", self.uzytkownik)
         messages = []
@@ -979,19 +1000,28 @@ class FirstPage(Gtk.Grid):
                 print(messages[-1])
                 for message in messages:
                     if(message[1]==1):
-                        label = Gtk.Label(message[0])
+                        label = Gtk.Label(message[0],name="message_come")
                         label.set_line_wrap(True)
-                        label.set_max_width_chars(5)
+                        label.set_lines(-1)
+                        label.set_max_width_chars(15)
                         label.set_alignment(0,0)
-                        self.lista_wiadomosci.pack_start(label, True, False, 1)
+                        label.set_vexpand(False)
+                        label.set_halign(True)
+                        label.set_size_request(10,10)
+                        
+                        self.lista_wiadomosci.pack_start(label, True, True, 0)
                     else:
-                        label = Gtk.Label(message[0])
+                        label = Gtk.Label(message[0],name="message_out")
                         label.set_line_wrap(True)
-                        label.set_max_width_chars(5)
+                        label.set_lines(-1)
+                        label.set_max_width_chars(15)
                         label.set_alignment(1,0)
-                        self.lista_wiadomosci.pack_start(label, True, False, 1)
+                        label.set_vexpand(False)
+                        label.set_halign(True)
+                        label.set_size_request(10,10)
+                        self.lista_wiadomosci.pack_start(label, True, True, 0)
                 
-        
+        self.lista_wiadomosci.set_halign(3)
         return self.lista_wiadomosci
 
     def click_delete_contact(self, button):
@@ -999,14 +1029,14 @@ class FirstPage(Gtk.Grid):
         self.window3.set_default_size(400, 170)
         self.window3.set_position(Gtk.WindowPosition.CENTER)
        
-        label_delete = Gtk.Label("Podaj nazwę użytkownika:")
+        label_delete = Gtk.Label("Podaj nazwę użytkownika:",name="white_label")
         self.entry_user = Gtk.Entry()
         self.entry_user.set_max_length(32)
         self.entry_user.set_hexpand(False)
         self.entry_user.set_vexpand(False)
         self.entry_user.set_text("")  
 
-        self.button_del = Gtk.Button("Usuń")
+        self.button_del = Gtk.Button("Usuń",name="button_one")
 
         pion = Gtk.VBox(orientation=Gtk.Orientation.VERTICAL)
         vbox = Gtk.VBox()
@@ -1046,14 +1076,14 @@ class FirstPage(Gtk.Grid):
         self.window2.set_default_size(400, 170)
         self.window2.set_position(Gtk.WindowPosition.CENTER)
        
-        label_add = Gtk.Label("Podaj nazwę użytkownika:")
+        label_add = Gtk.Label("Podaj nazwę użytkownika:",name="white_label")
         self.entry_user = Gtk.Entry()
         self.entry_user.set_max_length(32)
         self.entry_user.set_hexpand(False)
         self.entry_user.set_vexpand(False)
         self.entry_user.set_text("")  
 
-        self.button_ok = Gtk.Button("Dodaj")
+        self.button_ok = Gtk.Button("Dodaj",name="button_one")
 
         pion = Gtk.VBox(orientation=Gtk.Orientation.VERTICAL)
         vbox = Gtk.VBox()
@@ -1095,12 +1125,14 @@ class FirstPage(Gtk.Grid):
         global new_mess_info
         self.scrolled_window.remove(self.scrolled_window.get_child())
         self.uzytkownik = button.get_label()
+
         self.chat_name.set_text(self.uzytkownik)
-        self.scrolled_window.add_with_viewport(self.add_messages())
+        self.scrolled_window.add(self.add_messages())
         print(button.get_label())
         #butt = Gtk.Button()
         #butt.get_style_context().add_class("suggested-action")
         print(button.get_css_name())
+        button.set_name("button_contact")
         button.get_style_context().remove_class("suggested-action")
         #if new_mess_info:
             #button.get_style_context().remove_class("suggested-action")
@@ -1154,7 +1186,7 @@ class FirstPage(Gtk.Grid):
             if od == self.uzytkownik:
                 print("ten sam czat")
                 self.scrolled_window.remove(self.scrolled_window.get_child())
-                self.scrolled_window.add_with_viewport(self.add_messages())
+                self.scrolled_window.add(self.add_messages())
                 self.scrolled_window.show_all()
             else:
                 self.refresh_new_message(od)
@@ -1164,7 +1196,7 @@ class FirstPage(Gtk.Grid):
     def active_users(self):
        
         for user in global_functions.active_user_list:
-            self.buttons.append(Gtk.Button(label=user,xalign=0))
+            self.buttons.append(Gtk.Button(label=user,xalign=0,name="button_contact"))
             self.buttons[-1].connect("clicked", self.click_contact)
             self.czat._append_user(user)
 
@@ -1173,7 +1205,7 @@ class FirstPage(Gtk.Grid):
             self.grid_contact.attach_next_to(button, previous_button, Gtk.PositionType.BOTTOM, 1, 1)
         
         #Dodanie wiadmowsci
-        #self.scrolled_kontakty.add_with_viewport(self.grid_contact)
+        #self.scrolled_kontakty.add(self.grid_contact)
 
         #self.kontakty.pack_start(self.scrolled_kontakty, True, True, 0)
         print("ahoj")
@@ -1185,7 +1217,7 @@ class FirstPage(Gtk.Grid):
         #self.grid_contact = Gtk.Grid()
         #self.buttons = [] 
             
-        self.buttons.append(Gtk.Button(label=nazwa,xalign=0))
+        self.buttons.append(Gtk.Button(label=nazwa,xalign=0,name="button_contact"))
         self.buttons[-1].connect("clicked", self.click_contact)
         self.czat._append_user(nazwa)
         if(len(self.buttons)==1):
@@ -1201,7 +1233,7 @@ class FirstPage(Gtk.Grid):
         self.scrolled_kontakty.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         '''
         #Dodanie wiadmowsci
-        #self.scrolled_kontakty.add_with_viewport(self.grid_contact)
+        #self.scrolled_kontakty.add(self.grid_contact)
         #self.scrolled_kontakty.show_all()
         #self.kontakty.pack_start(self.scrolled_kontakty, True, True, 0)
         self.kontakty.show_all()
@@ -1229,7 +1261,7 @@ class FirstPage(Gtk.Grid):
         self.scrolled_kontakty.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         '''
         #Dodanie wiadmowsci
-        #self.scrolled_kontakty.add_with_viewport(self.grid_contact)
+        #self.scrolled_kontakty.add(self.grid_contact)
         #self.scrolled_kontakty.show_all()
 
         #HERE
@@ -1245,6 +1277,8 @@ class FirstPage(Gtk.Grid):
             if(button.get_label() == nazwa):
                 
                 to_del = button                
+                #to_del.background = #red
+                to_del.set_name("alert_button")
                 to_del = button.get_style_context().add_class("suggested-action")
                 new_mess_info = True
                 print("color change ", new_mess_info)
@@ -1261,7 +1295,7 @@ class FirstPage(Gtk.Grid):
         
         #Dla każdego kontaktu z listy tworzy podpisany przycisk
         for user in global_functions.active_user_list:
-            buttons.append(Gtk.Button(label=user))
+            buttons.append(Gtk.Button(label=user,name="button_contact"))
             self.buttons[-1].connect("clicked", self.click_contact)
             self.czat._append_user(user)
 
@@ -1291,7 +1325,7 @@ class Alert_Window(Gtk.Grid):
         wrong_data_window.set_default_size(400, 100)
         wrong_data_window.set_position(Gtk.WindowPosition.CENTER)
         
-        label_wrong_data = Gtk.Label(alert_text)
+        label_wrong_data = Gtk.Label(alert_text,name="white_label")
         wrong_data_box = Gtk.VBox()
         wrong_data_box.pack_start(label_wrong_data,True,True, 1)
         
@@ -1309,8 +1343,8 @@ class Alert_Window(Gtk.Grid):
         wrong_data_box = Gtk.VBox(orientation=Gtk.Orientation.VERTICAL)
         wrong_data_box.pack_start(label_wrong_data,True,True, 1)
 
-        yes = Gtk.Button("Tak")
-        no = Gtk.Button("Nie")
+        yes = Gtk.Button("Tak",name="button_one")
+        no = Gtk.Button("Nie",name="button_one")
         button_box = Gtk.VBox(orientation=Gtk.Orientation.HORIZONTAL)
         button_box.pack_start(yes,False,True,1)
         button_box.pack_start(no,False,True,1)

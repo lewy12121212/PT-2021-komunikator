@@ -1,0 +1,115 @@
+
+
+entry {
+    color: black;
+    background: #999999;
+}
+
+button#button_one{
+    /*padding:0.3em 1.2em;
+    margin:0 0.3em 0.3em 0;*/
+    border-radius:0.5em;
+    border: 0;
+    text-decoration:none;
+    font-family:'Roboto',sans-serif;
+    font-weight:300;
+    color:black;
+    background:#999999;
+    /*transition: all 0.2s;*/
+    }
+button#button_one:hover{
+    background:#5c5c5c;
+    }
+
+button#button_contact{
+    /*padding:0.3em 1.2em;
+    margin:0 0.3em 0.3em 0;*/
+    border-radius:0em;
+    border: 0;
+    text-decoration:none;
+    font-family:'Roboto',sans-serif;
+    font-weight:300;
+    color:black;
+    background:#999999;
+    /*transition: all 0.2s;*/
+    }
+button#button_contact:hover{
+    background:#5c5c5c;
+    }  
+    
+button#alert_button{
+    /*padding:0.3em 1.2em;
+    margin:0 0.3em 0.3em 0;*/
+    border-radius:0em;
+    border: 0;
+    text-decoration:none;
+    font-family:'Roboto',sans-serif;
+    font-weight:300;
+    color:black;
+    background:red;
+    /*transition: all 0.2s;*/
+    }
+button#alert_button:hover{
+    background:rgb(160, 0, 0);
+    }      
+
+
+window{
+    background: #333333;
+}
+
+label#white_label{
+    color: white;
+}
+
+#message_list{
+    background: #5c5c5c;
+}
+
+
+label#message_come{
+    border: 10px;
+    background: rgb(0, 102, 0);
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    color: white;
+  
+}
+
+/*
+#message_come {
+    border: none;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    
+    color: rgba(0,0,0,1);
+    
+    background: #1abc9c;
+  }
+  
+#message_come:before {
+    
+    content: "";
+    top: 26px;
+    right: 100%;
+    border: 13px solid rgba(0,0,0,0);
+    border-right: 26px solid #1abc9c;
+    border-left: 0 solid;
+    font: normal 100%/normal Arial, Helvetica, sans-serif;
+    color: rgba(0,0,0,1);
+    -o-text-overflow: clip;
+    text-overflow: clip;
+    text-shadow: none;
+  }  
+  */
+
+
+label#message_out{
+    border: 10px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    color: white;
+    background: rgb(57, 165, 57);
+}
