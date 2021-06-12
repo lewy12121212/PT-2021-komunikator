@@ -6,19 +6,18 @@ def split_msg(msg):
     iterator = 0
 
     while iterator <= len(msg):
-        if iterator % 40 == 0:
+        if iterator % 50 == 0:
             if msg[iterator] == " ":
                 msg.insert(iterator, '\n')
             else:
                 j = iterator
-                while True:
+                while j>=0:
                     if msg[j] == " ":
-                        msg.insert(j, '\n')
+                        msg[j] = '\n'
                         break
                     
                     if j == 0:
                         msg.insert(iterator, '\n')
-                        
                     j -= 1
 
                     

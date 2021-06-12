@@ -8,7 +8,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Pango, Gdk
 from gi.repository.GdkPixbuf import Pixbuf
 
-
+from split_msg import main_split
 class Response:
     def __init__(self):
         self.lock = threading.Lock()
@@ -141,7 +141,7 @@ class Response:
         
         #odebranie wiadomosci
         elif signal == "MSG":
-            mess = [data["date"] + "\n" + data["from"] + ":\n" + data["message"], 1]
+            mess = [data["date"] + "\n" + data["from"] + ":" + main_split(data["message"]), 1]
             print("from ", data["from"], " who ",window.chat_window.uzytkownik)
             #global_functions.income_message_list += mess
             window.chat_window.refresh_chat(mess, data["from"])

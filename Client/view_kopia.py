@@ -9,6 +9,7 @@ from gi.repository.GdkPixbuf import Pixbuf
 from client import Client
 from response import Response
 from request import Request
+from split_msg import main_split
 import sys
 #import client
 
@@ -1154,16 +1155,19 @@ class FirstPage(Gtk.Grid):
     def send_click(self, button):
         global income_messages_list
         wiadomosc = self.entry_wysylanie.get_text()
-        print(wiadomosc)
+        #print(wiadomosc)
 
         if self.uzytkownik == "":
             #alert = Alert_Window.Show_alert_choose_window("Nie wybrano adresata wiadomości.")
             #self.alert.Show_alert_window()
             Alert_Window.Show_alert_window("Nie wybrano adresata wiadomości.")
         else:
+            c.send(req.message(self.uzytkownik,c.login,wiadomosc))
+
             t = time.localtime()
-            global_functions.income_messages_list.append([str(time.strftime("%H:%M:%S", t) + "\nTy:\n" + wiadomosc),2])
-            self.lista_wiadomosci.pack_start(self.add_message([str(time.strftime("%H:%M:%S", t) + "\nTy:\n" + wiadomosc),2], self.uzytkownik), True, False, 1)
+            wiadomosc = main_split(self.entry_wysylanie.get_text())
+            global_functions.income_messages_list.append([str(time.strftime("%H:%M:%S", t) + "\nTy:" + wiadomosc),2])
+            self.lista_wiadomosci.pack_start(self.add_message([str(time.strftime("%H:%M:%S", t) + "\nTy:" + wiadomosc),2], self.uzytkownik), True, False, 1)
             self.entry_wysylanie.set_text("")
             self.entry_wysylanie.show_all()
             #self.scrolled_window.show_all()
@@ -1171,7 +1175,7 @@ class FirstPage(Gtk.Grid):
 
             #ŁUKASZ
             #wysyłanie wiadomości
-            c.send(req.message(self.uzytkownik,c.login,wiadomosc))
+            
 
             adj = self.scrolled_window.get_vadjustment()
             adj.set_value(adj.get_upper() - adj.get_page_size()) #nie pokazuje ostatniej liniki 
