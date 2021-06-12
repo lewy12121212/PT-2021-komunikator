@@ -962,21 +962,26 @@ class FirstPage(Gtk.Grid):
         if(wiad[1]==1):
             label = Gtk.Label(wiad[0],name="message_come")
             label.set_line_wrap(True)
-            label.set_lines(-1)
+            #label.set_lines(-1)
             label.set_max_width_chars(15)
-            label.set_alignment(0,0)
+            #label.set_alignment(0,0)
             label.set_halign(True)
-            label.set_size_request(10,10)
+            label.set_valign(True)
+            label.set_size_request(10,-1)
             
                 
         else:
             label = Gtk.Label(wiad[0],name="message_out")
             label.set_line_wrap(True)
-            label.set_lines(-1)
+            #label.set_lines(-1)
             label.set_max_width_chars(15)
-            label.set_alignment(1,0)
-            label.set_halign(True)
-            label.set_size_request(10,10)
+            #label.set_alignment(1,0)  #nie przesuwa w prawo
+            #label.set_xalign (1.0)
+            #label.set_valign(3)
+            label.set_halign(2)
+            label.set_valign(True)
+            #label.set_halign(True)
+            label.set_size_request(10,-1)
             
             return label
         return Gtk.Label("")
@@ -1002,26 +1007,33 @@ class FirstPage(Gtk.Grid):
                     if(message[1]==1):
                         label = Gtk.Label(message[0],name="message_come")
                         label.set_line_wrap(True)
-                        label.set_lines(-1)
+                        #label.set_lines(-1)
                         label.set_max_width_chars(15)
-                        label.set_alignment(0,0)
-                        label.set_vexpand(False)
+                        #label.set_alignment(0,0)
+                        #label.set_vexpand(False)
+                        label.set_valign(True)
                         label.set_halign(True)
-                        label.set_size_request(10,10)
+                        label.set_size_request(10,-1)
                         
                         self.lista_wiadomosci.pack_start(label, True, True, 0)
                     else:
                         label = Gtk.Label(message[0],name="message_out")
                         label.set_line_wrap(True)
-                        label.set_lines(-1)
+                        #label.set_lines(-1)
                         label.set_max_width_chars(15)
-                        label.set_alignment(1,0)
-                        label.set_vexpand(False)
-                        label.set_halign(True)
-                        label.set_size_request(10,10)
+                        #label.set_alignment(1,0)  #nie przesuwa w prawo
+                        #label.set_valign(3)
+                        #label.set_xalign (1.0) #0.0 nie działa, 1.0 też nie
+                        label.set_halign(2)
+                        #label.set_vexpand(False)
+                        label.set_valign(True) #nie rozciąga w górę
+                        #label.set_halign(True) #nie rozciąga w bok
+                        label.set_size_request(10,-1)
                         self.lista_wiadomosci.pack_start(label, True, True, 0)
                 
         self.lista_wiadomosci.set_halign(3)
+        adj = self.scrolled_window.get_vadjustment()
+        adj.set_value(adj.get_upper() - adj.get_page_size()+20)
         return self.lista_wiadomosci
 
     def click_delete_contact(self, button):
@@ -1179,17 +1191,24 @@ class FirstPage(Gtk.Grid):
                 self.refresh_contact_list("Inne")
                 inne = True
             self.lista_wiadomosci.pack_start(self.add_message([al,1], "Inne"), True, False, 0)
+            adj = self.scrolled_window.get_vadjustment()
+            adj.set_value(adj.get_upper() - adj.get_page_size()+20)
             c.send(req.message(od, c.login, "ADMINISTRACJA: Twoja wiadomość nie zostanie dostarczona ponieważ użytkownik "+ c.login + " nie dodał Cię do swojej listy kontaktów. Poinformujemy go o tym niezwłocznie."))
         else:
             self.lista_wiadomosci.pack_start(self.add_message(mess, od), True, False, 1)
-            
+            adj = self.scrolled_window.get_vadjustment()
+            adj.set_value(adj.get_upper() - adj.get_page_size()+20)
             if od == self.uzytkownik:
                 print("ten sam czat")
                 self.scrolled_window.remove(self.scrolled_window.get_child())
                 self.scrolled_window.add(self.add_messages())
                 self.scrolled_window.show_all()
+                adj = self.scrolled_window.get_vadjustment()
+                adj.set_value(adj.get_upper() - adj.get_page_size()+20)
             else:
                 self.refresh_new_message(od)
+                adj = self.scrolled_window.get_vadjustment()
+                adj.set_value(adj.get_upper() - adj.get_page_size()+20)
                 #Alert_Window.Show_alert_window("Użytkownik "+ od + " wysłał Ci wiadomość, by ją odczytać otwórz odpowiednie okno konwersacji.")
 
 

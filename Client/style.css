@@ -110,6 +110,7 @@ label#message_out{
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
     border-radius: 10px;
+
     color: white;
     background: rgb(57, 165, 57);
 }
