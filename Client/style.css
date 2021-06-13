@@ -47,16 +47,18 @@ button#button_contact:hover{
     }  
     
 button#alert_button{
-    /*padding:0.3em 1.2em;
-    margin:0 0.3em 0.3em 0;*/
-    border-radius:0em;
-    border: 0;
+    border-radius:10px;
+    border: 2px solid black;
     text-decoration:none;
     font-family:'Roboto',sans-serif;
     font-weight:300;
     color:black;
-    background:red;
-    /*transition: all 0.2s;*/
+    background:rgb(160, 0, 0);
+    font-size: large;
+    min-width: 200px;
+    margin: 2px;
+    margin-left: 10px;
+    margin-right: 10px;
     }
 button#alert_button:hover{
     background:rgb(160, 0, 0);
@@ -92,6 +94,14 @@ label#white_label_title{
     text-decoration: underline;
 }
 
+label#chat_label{
+    color: white;
+    font-weight: bold;
+    font-size: x-large;
+    
+
+}
+
 #message_list{
     background: #5c5c5c;
     
@@ -100,13 +110,16 @@ label#white_label_title{
 
 label#message_come{
     border: 10px;
-    background: rgb(0, 102, 0);
+    background: #50a58a;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
     border-radius: 10px;
     padding: 5px;
-    margin: 5px;
-    color: white;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    margin-left: 5px;
+    margin-right: 5px;
+    color: black;
   
 }
 
@@ -144,7 +157,10 @@ label#message_out{
     -webkit-border-radius: 10px;
     border-radius: 10px;
     padding: 5px;
-    margin: 5px;
-    color: white;
-    background: rgb(57, 165, 57);
+    margin-top: 2px;
+    margin-bottom: 2px;
+    margin-left: 5px;
+    margin-right: 5px;
+    color: black;
+    background: #459aa3;
 }

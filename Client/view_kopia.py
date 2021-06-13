@@ -611,14 +611,17 @@ class FirstPage(Gtk.Grid):
         
         self.chat_window = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
         self.poziomo.pack_start(self.chat_window, False, False, 0)
-        self.chat_name = Gtk.Label(name="white_label")
+        self.chat_name = Gtk.Label(name="chat_label")
+        self.chat_name.set_halign(True)
+        self.chat_name.set_valign(3)
+        self.chat_name.set_halign(3)
         self.chat_name.set_text("")
    
         self.scrolled_window = Gtk.ScrolledWindow()
         self.scrolled_window.set_size_request(600,300)
-        self.scrolled_window.set_vexpand(False)
+        #self.scrolled_window.set_vexpand(False)
         self.scrolled_window.set_max_content_width(10) 
-        #self.scrolled_window.vexpand(False)
+        self.scrolled_window.set_hexpand(False)
        
         self.scrolled_window.set_border_width(10) ##Odstęp po prawej
         #self.scrolled_window.set_vexpand(False)
@@ -643,7 +646,7 @@ class FirstPage(Gtk.Grid):
         self.wysylanie.pack_start(self.send_button, True, True, 0)
 
         self.chat_window.pack_start(self.chat_name,True,True,0)
-        self.chat_window.pack_start(self.scrolled_window, False, False, 0)
+        self.chat_window.pack_start(self.scrolled_window, True, True, 0)
         self.chat_window.pack_start(self.wysylanie, True, True, 0)
 
         self.profil = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
@@ -692,11 +695,7 @@ class FirstPage(Gtk.Grid):
 
     def log_out_click(self, button):
         print("wyloguj")
-        #dodać wylogowywanie\
-        '''self.scrolled_kontakty.remove(self.scrolled_kontakty.get_child())
-        self.grid_contact = Gtk.Grid()
-        self.scrolled_kontakty.add(self.grid_contact)
-        '''
+        
         #self.buttons.clear()
         for usr in self.buttons:
             pom = usr.get_label()
@@ -1169,7 +1168,8 @@ class FirstPage(Gtk.Grid):
             t = time.localtime()
             wiadomosc = main_split(self.entry_wysylanie.get_text())
             global_functions.income_messages_list.append([str(time.strftime("%H:%M:%S", t) + "\nTy:\n" + wiadomosc),2])
-            self.lista_wiadomosci.pack_start(self.add_message([str(time.strftime("%H:%M:%S", t) + "\nTy:\n" + wiadomosc),2], self.uzytkownik), True, False, 1)
+            self.lista_wiadomosci.pack_start(self.add_message([str(time.strftime("%H:%M:%S", t) + "\nTy:\n" + wiadomosc),2], self.uzytkownik), True, True, 1)
+    
             self.entry_wysylanie.set_text("")
             self.entry_wysylanie.show_all()
             #self.scrolled_window.show_all()
@@ -1196,25 +1196,26 @@ class FirstPage(Gtk.Grid):
             if not inne:
                 self.refresh_contact_list("Inne")
                 inne = True
-            self.lista_wiadomosci.pack_start(self.add_message([al,1], "Inne"), True, False, 0)
+            self.lista_wiadomosci.pack_start(self.add_message([al,1], "Inne"), True, True, 1)
             adj = self.scrolled_window.get_vadjustment()
-            adj.set_value(adj.get_upper() - adj.get_page_size()+20)
+            adj.set_value(adj.get_lower())
             c.send(req.message(od, c.login, "ADMINISTRACJA: Twoja wiadomość nie zostanie dostarczona ponieważ użytkownik "+ c.login + " nie dodał Cię do swojej listy kontaktów. Poinformujemy go o tym niezwłocznie."))
         else:
-            self.lista_wiadomosci.pack_start(self.add_message(mess, od), True, False, 1)
+            self.lista_wiadomosci.pack_start(self.add_message(mess, od), True, True, 1)
             adj = self.scrolled_window.get_vadjustment()
-            adj.set_value(adj.get_upper() - adj.get_page_size()+20)
+            adj.set_value(adj.get_lower())
             if od == self.uzytkownik:
                 print("ten sam czat")
                 self.scrolled_window.remove(self.scrolled_window.get_child())
                 self.scrolled_window.add(self.add_messages())
-                self.scrolled_window.show_all()
                 adj = self.scrolled_window.get_vadjustment()
-                adj.set_value(adj.get_upper() - adj.get_page_size()+20)
+                adj.set_value(adj.get_lower())
+                self.scrolled_window.show_all()
+               
             else:
                 self.refresh_new_message(od)
                 adj = self.scrolled_window.get_vadjustment()
-                adj.set_value(adj.get_upper() - adj.get_page_size()+20)
+                adj.set_value(adj.get_lower())
                 #Alert_Window.Show_alert_window("Użytkownik "+ od + " wysłał Ci wiadomość, by ją odczytać otwórz odpowiednie okno konwersacji.")
 
 
@@ -1230,9 +1231,7 @@ class FirstPage(Gtk.Grid):
             self.grid_contact.attach_next_to(button, previous_button, Gtk.PositionType.BOTTOM, 1, 1)
         
         #Dodanie wiadmowsci
-        #self.scrolled_kontakty.add(self.grid_contact)
-
-        #self.kontakty.pack_start(self.scrolled_kontakty, True, True, 0)
+       
         print("ahoj")
         self.kontakty.show_all()
 
@@ -1249,18 +1248,7 @@ class FirstPage(Gtk.Grid):
             self.grid_contact.add(self.buttons[0])
         else:
             self.grid_contact.attach_next_to(self.buttons[-1], self.buttons[-2], Gtk.PositionType.BOTTOM, 1, 1)
-        #self.grid_contact.show_all()
-        '''    
-        self.scrolled_kontakty = Gtk.ScrolledWindow()
-        self.scrolled_kontakty.set_size_request(100,100)
-        self.scrolled_kontakty.set_max_content_width(50) 
 
-        self.scrolled_kontakty.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
-        '''
-        #Dodanie wiadmowsci
-        #self.scrolled_kontakty.add(self.grid_contact)
-        #self.scrolled_kontakty.show_all()
-        #self.kontakty.pack_start(self.scrolled_kontakty, True, True, 0)
         self.kontakty.show_all()
 
     def refresh_contact_list_out(self,nazwa):
@@ -1275,20 +1263,7 @@ class FirstPage(Gtk.Grid):
         self.grid_contact.remove(to_del)
         self.buttons.remove(to_del)
         print(len(self.buttons))
-        #global_functions.active_user_list.remove(nazwa)
-        #self.buttons[-1].connect("clicked", self.click_contact)
-        
-        '''    
-        self.scrolled_kontakty = Gtk.ScrolledWindow()
-        self.scrolled_kontakty.set_size_request(100,100)
-        self.scrolled_kontakty.set_max_content_width(50) 
-
-        self.scrolled_kontakty.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
-        '''
-        #Dodanie wiadmowsci
-        #self.scrolled_kontakty.add(self.grid_contact)
-        #self.scrolled_kontakty.show_all()
-
+       
         #HERE
         #self.kontakty.pack_start(self.scrolled_kontakty, True, True, 0)
         self.kontakty.show_all()
@@ -1308,7 +1283,8 @@ class FirstPage(Gtk.Grid):
                 new_mess_info = True
                 print("color change ", new_mess_info)
                 break
-
+        adj = self.scrolled_window.get_vadjustment()
+        adj.set_value(adj.get_lower())            
         self.kontakty.show_all()
 
     #Lista kontaktów
