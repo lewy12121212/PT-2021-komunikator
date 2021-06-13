@@ -561,6 +561,18 @@ class FirstPage(Gtk.Grid):
         self.label_kontakty.set_valign(1)
         self.kontakty.pack_start(self.label_kontakty, False, True, 0)
 
+        self.grid_contact = Gtk.Grid(name='contact_grid')
+       
+        self.buttons = [] 
+        self.scrolled_kontakty = Gtk.ScrolledWindow()
+        self.scrolled_kontakty.set_size_request(100,100)
+        self.scrolled_kontakty.set_max_content_width(50) 
+
+        self.scrolled_kontakty.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        self.scrolled_kontakty.add(self.grid_contact)
+
+        self.kontakty.pack_start(self.scrolled_kontakty, True, True, 0)
+
         self.guziki_kontakty = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         self.dodaj_kontakt = Gtk.Button(label="Dodaj kontakt",name="button_one")
         self.dodaj_kontakt.connect("clicked", self.click_add_contact)
@@ -578,24 +590,14 @@ class FirstPage(Gtk.Grid):
         self.kontakty.pack_start(self.guziki_kontakty, False, True, 0)
         self.kontakty.pack_start(self.guziki_kontakty_2, False, True, 0)
         
-        self.grid_contact = Gtk.Grid()
-       
-        self.buttons = [] 
-        self.scrolled_kontakty = Gtk.ScrolledWindow()
-        self.scrolled_kontakty.set_size_request(100,100)
-        self.scrolled_kontakty.set_max_content_width(50) 
 
-        self.scrolled_kontakty.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
-        self.scrolled_kontakty.add(self.grid_contact)
-
-        self.kontakty.pack_start(self.scrolled_kontakty, True, True, 0)
         
         
         
         if global_functions.active_user_list:
             #Dla każdego kontaktu z listy tworzy podpisany przycisk
             for user in global_functions.active_user_list:
-                self.buttons.append(Gtk.Button(label=user,xalign=0,name="button_contact"))
+                self.buttons.append(Gtk.Button(label=user,xalign=1, valign = 1, halign = 1,name="button_contact"))
                 self.buttons[-1].connect("clicked", self.click_contact)
                 self.czat._append_user(user)
 
@@ -667,7 +669,7 @@ class FirstPage(Gtk.Grid):
         vertical_interface_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
        
 
-        label_main = Gtk.Label("Kontakty",name="white_label")
+        label_main = Gtk.Label("Kontakty",name="white_label_title")
    
        
         label_main.set_hexpand(True)
@@ -676,7 +678,7 @@ class FirstPage(Gtk.Grid):
             
             for user in global_functions.contact_user_list:
                 print(user)
-                lab = Gtk.Label(user)
+                lab = Gtk.Label(user,name="white_label_contact")
                 vertical_interface_box.pack_start(lab, True, True, 0)
     
 
@@ -964,7 +966,7 @@ class FirstPage(Gtk.Grid):
             label = Gtk.Label(wiad[0],name="message_come")
             label.set_line_wrap(True)
             #label.set_lines(-1)
-            label.set_max_width_chars(15)
+            #label.set_max_width_chars(15)
             #label.set_alignment(0,0)
             label.set_halign(True)
             label.set_valign(True)
@@ -975,7 +977,7 @@ class FirstPage(Gtk.Grid):
             label = Gtk.Label(wiad[0],name="message_out")
             label.set_line_wrap(True)
             #label.set_lines(-1)
-            label.set_max_width_chars(15)
+            #label.set_max_width_chars(15)
             #label.set_alignment(1,0)  #nie przesuwa w prawo
             #label.set_xalign (1.0)
             #label.set_valign(3)
@@ -1009,7 +1011,7 @@ class FirstPage(Gtk.Grid):
                         label = Gtk.Label(message[0],name="message_come")
                         label.set_line_wrap(True)
                         #label.set_lines(-1)
-                        label.set_max_width_chars(15)
+                        #label.set_max_width_chars(15)
                         #label.set_alignment(0,0)
                         #label.set_vexpand(False)
                         label.set_valign(True)
@@ -1021,7 +1023,7 @@ class FirstPage(Gtk.Grid):
                         label = Gtk.Label(message[0],name="message_out")
                         label.set_line_wrap(True)
                         #label.set_lines(-1)
-                        label.set_max_width_chars(15)
+                        #label.set_max_width_chars(15)
                         #label.set_alignment(1,0)  #nie przesuwa w prawo
                         #label.set_valign(3)
                         #label.set_xalign (1.0) #0.0 nie działa, 1.0 też nie
@@ -1166,8 +1168,8 @@ class FirstPage(Gtk.Grid):
 
             t = time.localtime()
             wiadomosc = main_split(self.entry_wysylanie.get_text())
-            global_functions.income_messages_list.append([str(time.strftime("%H:%M:%S", t) + "\nTy:" + wiadomosc),2])
-            self.lista_wiadomosci.pack_start(self.add_message([str(time.strftime("%H:%M:%S", t) + "\nTy:" + wiadomosc),2], self.uzytkownik), True, False, 1)
+            global_functions.income_messages_list.append([str(time.strftime("%H:%M:%S", t) + "\nTy:\n" + wiadomosc),2])
+            self.lista_wiadomosci.pack_start(self.add_message([str(time.strftime("%H:%M:%S", t) + "\nTy:\n" + wiadomosc),2], self.uzytkownik), True, False, 1)
             self.entry_wysylanie.set_text("")
             self.entry_wysylanie.show_all()
             #self.scrolled_window.show_all()

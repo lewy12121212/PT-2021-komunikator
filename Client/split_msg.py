@@ -4,25 +4,25 @@ def split_by_chars(word):
 
 def split_msg(msg):
     iterator = 0
-
-    while iterator <= len(msg):
+    old_iterator = 50
+    while iterator <= len(msg) -1:
         if iterator % 50 == 0:
             if msg[iterator] == " ":
-                msg.insert(iterator, '\n')
+                msg[iterator] = '\n'
             else:
                 j = iterator
-                while j>=0:
+                while j>=old_iterator:
                     if msg[j] == " ":
                         msg[j] = '\n'
                         break
                     
-                    if j == 0:
-                        msg.insert(iterator, '\n')
+                    if j == old_iterator:
+                        msg[iterator] = '\n'
                     j -= 1
 
                     
-            
-        iterator += 1
+        old_iterator = iterator
+        iterator += 50
 
     msg_join = ''.join(msg)
     print(msg_join)

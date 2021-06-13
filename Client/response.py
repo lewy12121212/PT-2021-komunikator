@@ -141,7 +141,7 @@ class Response:
         
         #odebranie wiadomosci
         elif signal == "MSG":
-            mess = [data["date"] + "\n" + data["from"] + ":" + main_split(data["message"]), 1]
+            mess = [data["date"] + "\n" + data["from"] + ":\n" + main_split(data["message"]), 1]
             print("from ", data["from"], " who ",window.chat_window.uzytkownik)
             #global_functions.income_message_list += mess
             window.chat_window.refresh_chat(mess, data["from"])
