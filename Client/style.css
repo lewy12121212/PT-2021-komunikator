@@ -53,7 +53,7 @@ button#alert_button{
     font-family:'Roboto',sans-serif;
     font-weight:300;
     color:black;
-    background:rgb(160, 0, 0);
+    background:#50a58a;
     font-size: large;
     min-width: 200px;
     margin: 2px;
@@ -61,7 +61,7 @@ button#alert_button{
     margin-right: 10px;
     }
 button#alert_button:hover{
-    background:rgb(160, 0, 0);
+    background:#3b7965;
     }      
 
 
