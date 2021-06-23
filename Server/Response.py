@@ -111,7 +111,7 @@ class Response:
                     print("The file does not exist") 
             else:
                 response["to"] = data["login"]
-                response["data"] = '{"signal":"RJT","data"::{"action":"del_account", "data":"Bledna odpowiedz autoryzacyjna lub obecne haslo."}}'
+                response["data"] = '{"signal":"RJT","data":{"action":"del_account", "data":"Bledna odpowiedz autoryzacyjna lub obecne haslo."}}'
         elif signal == "ULO":
             self.logOut = True
             response["to"] = "self"
