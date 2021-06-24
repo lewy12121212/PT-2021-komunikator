@@ -676,17 +676,19 @@ class FirstPage(Gtk.Grid):
    
        
         label_main.set_hexpand(True)
-        vertical_interface_box.pack_start(label_main, True, True, 0)
+
         if global_functions.contact_user_list:
-            
+            vertical_interface_box.pack_start(label_main, True, True, 0)
             for user in global_functions.contact_user_list:
                 print(user)
                 lab = Gtk.Label(user,name="white_label_contact")
                 vertical_interface_box.pack_start(lab, True, True, 0)
+            vertical_interface_box.set_valign(1)
+            self.window6.add(vertical_interface_box)
     
 
-        vertical_interface_box.set_valign(1)
-        self.window6.add(vertical_interface_box)
+        
+       
         
        
        
@@ -699,7 +701,8 @@ class FirstPage(Gtk.Grid):
         #self.buttons.clear()
         for usr in self.buttons:
             pom = usr.get_label()
-            global_functions.active_user_list.remove(pom)            
+            if pom != "Inne":
+                global_functions.active_user_list.remove(pom)            
             self.refresh_contact_list_out(pom)
         
         global_functions.contact_user_list.clear()
@@ -1162,6 +1165,10 @@ class FirstPage(Gtk.Grid):
             #alert = Alert_Window.Show_alert_choose_window("Nie wybrano adresata wiadomości.")
             #self.alert.Show_alert_window()
             Alert_Window.Show_alert_window("Nie wybrano adresata wiadomości.")
+        elif self.uzytkownik == "Inne":
+            Alert_Window.Show_alert_window("Nie możesz wysłać tu wiadomości.")
+        elif self.uzytkownik not in global_functions.active_user_list:
+            Alert_Window.Show_alert_window("Użytkownik wylogowany.")
         else:
             c.send(req.message(self.uzytkownik,c.login,wiadomosc))
 
