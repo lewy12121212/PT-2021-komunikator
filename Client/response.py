@@ -61,16 +61,16 @@ class Response:
             elif data["action"] == "add_contact":
                 print("DANE: ",data["user"])
                 global_functions.contact_user_list.append(str(data["user"]))
-                print(type(data["active"]))
+                #print(type(data["active"]))
                 if data["active"] == 1:
                     #print(data["user"])
                     global_functions.active_user_list.append(data["user"])
                     #print("2")
-                    window.chat_window.refresh_contact_list(data["user"])
+                    window.chat_window.refresh_contact_list(str(data["user"]))
                     #print("3")
             elif data["action"] == "del_contact":
                 global_functions.contact_user_list.remove(data["user"])
-                print("aktywby ", data["active"])
+                #print("aktywby ", data["active"])
                 if data["active"] == 1:
                     global_functions.active_user_list.remove(data["user"])
                     #window.chat_window.czat._remove_chat(data["user"])
@@ -102,8 +102,11 @@ class Response:
 
         #lista kontaktow uzytkownika
         elif signal == "LCU":
+
             contact = data["contacts"].split(',')
-            global_functions.contact_user_list = contact
+            #print("LCU: ", contact, " len: ", len(contact) )
+            if contact[0] != '':
+                global_functions.contact_user_list = contact
             
 
         #lista aktywnych kontaktow
