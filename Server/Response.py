@@ -118,7 +118,7 @@ class Response:
             response["data"] = "END"
         #dodanie użytkownika do kontaktów
         elif signal == "CAD":
-            if DB.Exists(data['user'], self.cur):
+            if DB.Exists(data['user'], self.cur) and data["user"] != "Inne":
 
                 path = DB.Contacts_Path(data["login"], self.cur)
            

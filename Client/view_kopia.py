@@ -699,19 +699,30 @@ class FirstPage(Gtk.Grid):
 
 
     def log_out_click(self, button):
+        '''
+        c.send("{'signal':'END','data':''}")
+        self.connect("destroy", Gtk.main_quit)
+        c.close()
+        #Gtk.main_quit
+        Gtk.main_quit()
+        return False 
+        #self.__parent_window.on_destroy()
+        '''
         print("wyloguj")
         
         #self.buttons.clear()
+        print("out kontakty ", len(self.buttons))
         for usr in self.buttons:
             pom = usr.get_label()
             print(pom)
-            if pom != "Inne":
-                global_functions.active_user_list.remove(pom)
-                print("+1")            
-            self.refresh_contact_list_out(pom)
+        for usr in self.buttons:
+            pom = usr.get_label()
+            print(pom)         
+            self.contact_list_out(pom)
         
+        self.buttons.clear()
         global_functions.contact_user_list.clear()
-        
+        global_functions.active_user_list.clear()
         
         global login
         c.send(req.logOut(c.login))
@@ -721,6 +732,7 @@ class FirstPage(Gtk.Grid):
         self.__parent_window.login_window.entry_login.set_text("")
         self.__parent_window.login_window.entry_password.set_text("") 
         self.Show_login_window()     
+
 
     def delete_acc_click(self, button):
         self.window5 = Gtk.Window()
@@ -812,12 +824,21 @@ class FirstPage(Gtk.Grid):
         global login
         data = req.delete_account(login,self.entry_password.get_text(), self.entry_auth_key.get_text())
         c.send(data)
+        c.login = ""
+        login = ""
         
 
         time.sleep(0.4)
         if resp.accept:
             Alert_Window.Show_alert_window("Twoje konto zostało usunięte.")
             self.window5.destroy()  
+            for usr in self.buttons:
+                pom = usr.get_label()        
+            self.contact_list_out(pom)
+        
+            self.buttons.clear()
+            global_functions.contact_user_list.clear()
+            global_functions.active_user_list.clear()
             self.__parent_window.login_window.entry_login.set_text("")
             self.__parent_window.login_window.entry_password.set_text("") 
             self.Show_login_window()
@@ -1261,7 +1282,24 @@ class FirstPage(Gtk.Grid):
         else:
             self.grid_contact.attach_next_to(self.buttons[-1], self.buttons[-2], Gtk.PositionType.BOTTOM, 1, 1)
 
+        print("dluglosc listy kontaktow: ", len(self.buttons))
         self.kontakty.show_all()
+
+
+    def contact_list_out(self,nazwa):
+        #self.grid_contact = Gtk.Grid()
+        #self.buttons = [] 
+        print("USUNIETO ",nazwa)
+        to_del = None
+        for button in self.buttons:
+            if(button.get_label() == nazwa):
+                to_del = button
+                break
+        self.grid_contact.remove(to_del)
+        #self.buttons.remove(to_del)
+        print(len(self.buttons))
+
+
 
     def refresh_contact_list_out(self,nazwa):
         #self.grid_contact = Gtk.Grid()
