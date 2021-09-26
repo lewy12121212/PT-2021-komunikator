@@ -20,22 +20,26 @@ class Request:
 
         return str(request)
 
-    def register(self, login, password, auth_key):
+    def register(self, login, password, auth_key1, auth_key2, auth_key3):
         request = self.request
         password = self.make_hash(str.encode(password))
-        auth_key = self.make_hash(str.encode(auth_key))
+        auth_key1 = self.make_hash(str.encode(auth_key1))
+        auth_key2 = self.make_hash(str.encode(auth_key2))
+        auth_key3 = self.make_hash(str.encode(auth_key3))
         request["signal"] ="LAD"
-        request["data"] = {"login": login, "password": password, "auth_key": auth_key}
+        request["data"] = {"login": login, "password": password, "auth_key1": auth_key1, "auth_key2": auth_key2, "auth_key3": auth_key3}
 
         return str(request)
 
     #po poprawnej autoryzacji zmienia hasło na podane przez klienta
-    def reset_password(self, login, password, auth_key):
+    def reset_password(self, login, password, auth_key1, auth_key2, auth_key3):
         request = self.request
         password = self.make_hash(str.encode(password))
-        auth_key = self.make_hash(str.encode(auth_key))
+        auth_key1 = self.make_hash(str.encode(auth_key1))
+        auth_key2 = self.make_hash(str.encode(auth_key2))
+        auth_key3 = self.make_hash(str.encode(auth_key3))
         request["signal"] ="LRS"
-        request["data"] = {"login": login,  "auth_key": auth_key, "password": password}
+        request["data"] = {"login": login,  "auth_key1": auth_key1, "auth_key2": auth_key2, "auth_key3": auth_key3, "password": password}
 
         return str(request)
 
@@ -48,28 +52,30 @@ class Request:
 
         return str(request)
 
-    def change_password(self, login, password, new_password, auth_key):
+    def change_password(self, login, password, new_password):
 
         request = self.request
 
         password = self.make_hash(str.encode(password))
         new_password = self.make_hash(str.encode(new_password))
-        auth_key = self.make_hash(str.encode(auth_key))
+
 
         request["signal"] ="UCP"
-        request["data"] = {"login": login, "password": password, "new_password": new_password, "auth_key": auth_key}
+        request["data"] = {"login": login, "password": password, "new_password": new_password}
 
         return str(request)
 
     
-    def delete_account(self, login, password, auth_key):
+    def delete_account(self, login, password, auth_key1, auth_key2, auth_key3):
 
         request = self.request
         password = self.make_hash(str.encode(password))
-        auth_key = self.make_hash(str.encode(auth_key))
+        auth_key1 = self.make_hash(str.encode(auth_key1))
+        auth_key2 = self.make_hash(str.encode(auth_key2))
+        auth_key3 = self.make_hash(str.encode(auth_key3))
 
         request["signal"] ="UDA"
-        request["data"] = {"login": login, "password": password, "auth_key": auth_key}
+        request["data"] = {"login": login, "password": password, "auth_key1": auth_key1, "auth_key2": auth_key2, "auth_key3": auth_key3}
 
         return str(request)
 
@@ -82,12 +88,34 @@ class Request:
         
         return str(request)
 
+    def accept(self):
+    
+        request = self.request
+        request["signal"] ="ACK"
+        request["data"] = {"data": "accept"}
+        
+        return str(request)
+
     def del_contact(self, login, contact):
     
         request = self.request
         request["signal"] ="CDL"
         request["data"] = {"login": login, "user": contact}
         #print(str(request))
+        return str(request)
+
+    def inform_income(self, login):
+        request = self.request
+        request["signal"] ="NUR"
+        request["data"] = {"login": login}
+
+        return str(request)
+
+    def inform_outcome(self, login):
+        request = self.request
+        request["signal"] ="NCL"
+        request["data"] = {"login": login}
+
         return str(request)
 
     def logOut(self, login):

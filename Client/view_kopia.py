@@ -75,6 +75,9 @@ class App_view(Gtk.Window):
         
         c.send("{'signal':'END','data':''}")
         self.connect("destroy", Gtk.main_quit)
+        mess = req.inform_outcome(login)
+        c.send(mess)
+
         c.close()
         #Gtk.main_quit
         return False 
@@ -220,7 +223,9 @@ class LoginWindow(Gtk.Grid):
         login = self.entry_login.get_text()
         password = self.entry_password.get_text()
         if login == '':
-            Alert_Window.Show_alert_window("Nie podano loginu.")
+            #Alert_Window.set_titlebar("Komunikator")
+            Alert_Window.Show_alert_window("Nie podano loginu.", title="Komunikator")
+            
         elif password == '':
             Alert_Window.Show_alert_window("Nie podano hasła.")
         else:
@@ -231,6 +236,7 @@ class LoginWindow(Gtk.Grid):
 
             if not resp.accept:
                 if resp.exists:
+                    
                     Alert_Window.Show_alert_window("Użytkownik jest już zalogowany.")
                 else:
                     Alert_Window.Show_alert_window("Błędny login lub hasło.")
@@ -241,10 +247,15 @@ class LoginWindow(Gtk.Grid):
         print("ACK")
         global login
         c.login = login
+
+        
         self.__parent_window.add_chat()
         #Przejście do okna czatu
         #self.recv_thread.start()
         self.Show_chat_window()
+
+        mess = req.inform_income(login)
+        c.send(str(mess))
         
     
 
@@ -298,25 +309,45 @@ class ChangePasswordWindow(Gtk.Grid):
         self.entry_second_password.set_vexpand(False)
         self.entry_second_password.set_text("")  
 
-        label_auth_key = Gtk.Label("Podaj nazwisko panieńskie matki: ",name="white_label")
+        label_auth_key = Gtk.Label("Jakie było Twoje przezwisko w dzieciństwie? ",name="white_label")
         label_auth_key.set_halign(2)
         self.entry_auth_key = Gtk.Entry()
         self.entry_auth_key.set_max_length(32)
         self.entry_auth_key.set_hexpand(False)
         self.entry_auth_key.set_vexpand(False)
         self.entry_auth_key.set_text("")  
+
+        label_auth_key1 = Gtk.Label("Jak nazywa się miasto, w którym spotkali się Twoi rodzice? ",name="white_label")
+        label_auth_key1.set_halign(2)
+        self.entry_auth_key1 = Gtk.Entry()
+        self.entry_auth_key1.set_max_length(32)
+        self.entry_auth_key1.set_hexpand(False)
+        self.entry_auth_key1.set_vexpand(False)
+        self.entry_auth_key1.set_text("")  
+
+        label_auth_key2 = Gtk.Label("Jak nazywa się Twoja pierwsza szkoła? ",name="white_label")
+        label_auth_key2.set_halign(2)
+        self.entry_auth_key2 = Gtk.Entry()
+        self.entry_auth_key2.set_max_length(32)
+        self.entry_auth_key2.set_hexpand(False)
+        self.entry_auth_key2.set_vexpand(False)
+        self.entry_auth_key2.set_text("")  
             
         
         vertical_labels_box.pack_start(label_login, True, True, 0)
         vertical_labels_box.pack_start(label_haslo, True, True, 0)
         vertical_labels_box.pack_start(label_second_password, True, True, 0)
         vertical_labels_box.pack_start(label_auth_key, True, True, 0)
+        vertical_labels_box.pack_start(label_auth_key1, True, True, 0)
+        vertical_labels_box.pack_start(label_auth_key2, True, True, 0)
 
             
         vertical_entries_box.pack_start(self.entry_login, True, True, 0)
         vertical_entries_box.pack_start(self.entry_password, True, True, 0)
         vertical_entries_box.pack_start(self.entry_second_password, True, True, 0)
         vertical_entries_box.pack_start(self.entry_auth_key, True, True, 0)
+        vertical_entries_box.pack_start(self.entry_auth_key1, True, True, 0)
+        vertical_entries_box.pack_start(self.entry_auth_key2, True, True, 0)
 
             
         horizontal_box = Gtk.Box(spacing=6)
@@ -349,14 +380,14 @@ class ChangePasswordWindow(Gtk.Grid):
 
     def Click_reset_password(self, button): 
         ####
-        data = req.reset_password(self.entry_login.get_text(),self.entry_password.get_text(), self.entry_auth_key.get_text())
+        data = req.reset_password(self.entry_login.get_text(),self.entry_password.get_text(), self.entry_auth_key.get_text(), self.entry_auth_key1.get_text(), self.entry_auth_key2.get_text() )
         if(self.entry_password.get_text() != self.entry_second_password.get_text()):
             alert = Alert_Window.Show_alert_window("Błędnie powtórzono hasło.")
         elif(len(self.entry_password.get_text())<8):
             alert = Alert_Window.Show_alert_window("Podane hasło jest zbyt krótkie.")
         else:
             c.send(data)
-            time.sleep(0.4)
+            #time.sleep(0.4)
             #print("kacper")
             if resp.accept:
                 #print("kacper")
@@ -432,25 +463,45 @@ class RegisterWindow(Gtk.Grid):
         self.entry_second_password.set_vexpand(False)
         self.entry_second_password.set_text("")  
 
-        label_auth_key = Gtk.Label("Podaj nazwisko panieńskie matki: ",name="white_label")
+        label_auth_key = Gtk.Label("Jakie było Twoje przezwisko w dzieciństwie? ",name="white_label")
         label_auth_key.set_halign(2)
         self.entry_auth_key = Gtk.Entry()
         self.entry_auth_key.set_max_length(32)
         self.entry_auth_key.set_hexpand(False)
         self.entry_auth_key.set_vexpand(False)
         self.entry_auth_key.set_text("")  
+
+        label_auth_key1 = Gtk.Label("Jak nazywa się miasto, w którym spotkali się Twoi rodzice? ",name="white_label")
+        label_auth_key1.set_halign(2)
+        self.entry_auth_key1 = Gtk.Entry()
+        self.entry_auth_key1.set_max_length(32)
+        self.entry_auth_key1.set_hexpand(False)
+        self.entry_auth_key1.set_vexpand(False)
+        self.entry_auth_key1.set_text("")  
+
+        label_auth_key2 = Gtk.Label("Jak nazywa się Twoja pierwsza szkoła? ",name="white_label")
+        label_auth_key2.set_halign(2)
+        self.entry_auth_key2 = Gtk.Entry()
+        self.entry_auth_key2.set_max_length(32)
+        self.entry_auth_key2.set_hexpand(False)
+        self.entry_auth_key2.set_vexpand(False)
+        self.entry_auth_key2.set_text("")  
         
        
         vertical_labels_box.pack_start(label_login, True, True, 0)
         vertical_labels_box.pack_start(label_haslo, True, True, 0)
         vertical_labels_box.pack_start(label_second_password, True, True, 0)
         vertical_labels_box.pack_start(label_auth_key, True, True, 0)
+        vertical_labels_box.pack_start(label_auth_key1, True, True, 0)
+        vertical_labels_box.pack_start(label_auth_key2, True, True, 0)
 
         
         vertical_entries_box.pack_start(self.entry_login, True, True, 0)
         vertical_entries_box.pack_start(self.entry_password, True, True, 0)
         vertical_entries_box.pack_start(self.entry_second_password, True, True, 0)
         vertical_entries_box.pack_start(self.entry_auth_key, True, True, 0)
+        vertical_entries_box.pack_start(self.entry_auth_key1, True, True, 0)
+        vertical_entries_box.pack_start(self.entry_auth_key2, True, True, 0)
 
         
         horizontal_box = Gtk.Box(spacing=6)
@@ -491,6 +542,8 @@ class RegisterWindow(Gtk.Grid):
         h = self.entry_password.get_text()
         ph = self.entry_second_password.get_text()
         pyt = self.entry_auth_key.get_text()
+        pyt1 = self.entry_auth_key1.get_text()
+        pyt2 = self.entry_auth_key2.get_text()
 
         if(h!=ph):
             print("INNE HASLA")
@@ -504,13 +557,13 @@ class RegisterWindow(Gtk.Grid):
             #self.Show_alert_window("Twój login jest zbyt długi.")
         else:
            
-            mess = req.register(l,h,pyt)
+            mess = req.register(l,h,pyt, pyt1, pyt2)
            
 
             c.send(str(mess))
-            time.sleep(0.4)
+            #time.sleep(0.4)
             if resp.accept:
-                Alert_Window.Show_alert_window("Poprawnie dodano konto.")
+                Alert_Window.Show_alert_window("Poprawnie dodano konto. Pamiętaj, że pytania weryfikacyjne nie są odporne na ataki słownikowe.")
             else:
                 Alert_Window.Show_alert_window("Konto już istnieje.")
 
@@ -524,6 +577,7 @@ class FirstPage(Gtk.Grid):
         self.__parent_window = parent_window
         self.czat = global_functions.MsgList()
         self.uzytkownik = ""
+        self.contact_lock = Lock()
         
 
         self.main_chat_window()
@@ -726,6 +780,8 @@ class FirstPage(Gtk.Grid):
         
         global login
         c.send(req.logOut(c.login))
+        time.sleep(0.5)
+        c.send(req.inform_outcome(login))
         c.login = ''
         login = ""
         
@@ -735,7 +791,7 @@ class FirstPage(Gtk.Grid):
 
 
     def delete_acc_click(self, button):
-        self.window5 = Gtk.Window()
+        self.window5 = Gtk.Window(title = "Komunikator")
         self.window5.set_default_size(400, 270)
         self.window5.set_position(Gtk.WindowPosition.CENTER)
         vertical_interface_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
@@ -766,23 +822,43 @@ class FirstPage(Gtk.Grid):
         self.entry_password.set_text("")  
 
 
-        label_auth_key = Gtk.Label("Podaj nazwisko panieńskie matki: ",name="white_label")
+        label_auth_key = Gtk.Label("Jakie było Twoje przezwisko w dzieciństwie? ",name="white_label")
         label_auth_key.set_halign(2)
         self.entry_auth_key = Gtk.Entry()
         self.entry_auth_key.set_max_length(32)
         self.entry_auth_key.set_hexpand(False)
         self.entry_auth_key.set_vexpand(False)
         self.entry_auth_key.set_text("")  
+
+        label_auth_key1 = Gtk.Label("Jak nazywa się miasto, w którym spotkali się Twoi rodzice? ",name="white_label")
+        label_auth_key1.set_halign(2)
+        self.entry_auth_key1 = Gtk.Entry()
+        self.entry_auth_key1.set_max_length(32)
+        self.entry_auth_key1.set_hexpand(False)
+        self.entry_auth_key1.set_vexpand(False)
+        self.entry_auth_key1.set_text("")  
+
+        label_auth_key2 = Gtk.Label("Jak nazywa się Twoja pierwsza szkoła? ",name="white_label")
+        label_auth_key2.set_halign(2)
+        self.entry_auth_key2 = Gtk.Entry()
+        self.entry_auth_key2.set_max_length(32)
+        self.entry_auth_key2.set_hexpand(False)
+        self.entry_auth_key2.set_vexpand(False)
+        self.entry_auth_key2.set_text("")
             
         
         vertical_labels_box.pack_start(label_old_haslo, True, True, 0)
         vertical_labels_box.pack_start(label_haslo, True, True, 0)
         vertical_labels_box.pack_start(label_auth_key, True, True, 0)
+        vertical_labels_box.pack_start(label_auth_key1, True, True, 0)
+        vertical_labels_box.pack_start(label_auth_key2, True, True, 0)
         #vertical_labels_box.set_valign(3)
             
         vertical_entries_box.pack_start(self.old_entry_password, True, True, 0)
         vertical_entries_box.pack_start(self.entry_password, True, True, 0)
         vertical_entries_box.pack_start(self.entry_auth_key, True, True, 0)
+        vertical_entries_box.pack_start(self.entry_auth_key1, True, True, 0)
+        vertical_entries_box.pack_start(self.entry_auth_key2, True, True, 0)
         #vertical_entries_box.set_valign(3)
             
         horizontal_box = Gtk.Box(spacing=6)
@@ -822,25 +898,28 @@ class FirstPage(Gtk.Grid):
 
         #dodać wylogowanie użytwkownika
         global login
-        data = req.delete_account(login,self.entry_password.get_text(), self.entry_auth_key.get_text())
+        data = req.delete_account(login,self.entry_password.get_text(), self.entry_auth_key.get_text(), self.entry_auth_key1.get_text(), self.entry_auth_key2.get_text())
         c.send(data)
+        temp_login = login
         c.login = ""
         login = ""
         
 
-        time.sleep(0.4)
+        #time.sleep(0.4)
         if resp.accept:
             Alert_Window.Show_alert_window("Twoje konto zostało usunięte.")
             self.window5.destroy()  
             for usr in self.buttons:
                 pom = usr.get_label()        
-            self.contact_list_out(pom)
+                self.contact_list_out(pom)
         
             self.buttons.clear()
             global_functions.contact_user_list.clear()
             global_functions.active_user_list.clear()
             self.__parent_window.login_window.entry_login.set_text("")
             self.__parent_window.login_window.entry_password.set_text("") 
+            mess = req.logOut(temp_login)
+            c.send(mess)
             self.Show_login_window()
         else:
             Alert_Window.Show_alert_window("Bledna odpowiedz autoryzacyjna lub obecne haslo.")
@@ -850,7 +929,7 @@ class FirstPage(Gtk.Grid):
         self.window5.destroy()    
 
     def change_click(self, button):
-        self.window4 = Gtk.Window()
+        self.window4 = Gtk.Window(title = "Komunikator")
         self.window4.set_default_size(400, 270)
         self.window4.set_position(Gtk.WindowPosition.CENTER)
         vertical_interface_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
@@ -889,25 +968,17 @@ class FirstPage(Gtk.Grid):
         self.entry_second_password.set_vexpand(False)
         self.entry_second_password.set_text("")  
 
-        label_auth_key = Gtk.Label("Podaj nazwisko panieńskie matki: ",name="white_label")
-        label_auth_key.set_halign(2)
-        self.entry_auth_key = Gtk.Entry()
-        self.entry_auth_key.set_max_length(32)
-        self.entry_auth_key.set_hexpand(False)
-        self.entry_auth_key.set_vexpand(False)
-        self.entry_auth_key.set_text("")  
-            
         
         vertical_labels_box.pack_start(label_old_haslo, True, True, 0)
         vertical_labels_box.pack_start(label_haslo, True, True, 0)
         vertical_labels_box.pack_start(label_second_password, True, True, 0)
-        vertical_labels_box.pack_start(label_auth_key, True, True, 0)
         #vertical_labels_box.set_valign(3)
             
         vertical_entries_box.pack_start(self.old_entry_password, True, True, 0)
         vertical_entries_box.pack_start(self.entry_password, True, True, 0)
         vertical_entries_box.pack_start(self.entry_second_password, True, True, 0)
-        vertical_entries_box.pack_start(self.entry_auth_key, True, True, 0)
+
+
         #vertical_entries_box.set_valign(3)
             
         horizontal_box = Gtk.Box(spacing=6)
@@ -956,16 +1027,16 @@ class FirstPage(Gtk.Grid):
             print("Zmiana hasła")
             global login
             #Dodać zmianę hasła
-            data = req.change_password(login,self.old_entry_password.get_text(),self.entry_password.get_text(),self.entry_auth_key.get_text())
+            data = req.change_password(login,self.old_entry_password.get_text(),self.entry_password.get_text())
             print(data)
             c.send(data)
 
-            time.sleep(0.4)
+            #time.sleep(0.4)
             if resp.accept:
                 Alert_Window.Show_alert_window("Twoje hasło zostało zmienione.")
                 self.window4.destroy()
             else:
-                Alert_Window.Show_alert_window("Bledna odpowiedz autoryzacyjna lub obecne haslo.")
+                Alert_Window.Show_alert_window("Blednie podano haslo")
 
     def Close_reset(self,button):
         print("a")
@@ -1068,7 +1139,7 @@ class FirstPage(Gtk.Grid):
         return self.lista_wiadomosci
 
     def click_delete_contact(self, button):
-        self.window3 = Gtk.Window()
+        self.window3 = Gtk.Window(title = "Komunikator")
         self.window3.set_default_size(400, 170)
         self.window3.set_position(Gtk.WindowPosition.CENTER)
        
@@ -1106,7 +1177,7 @@ class FirstPage(Gtk.Grid):
         global login
         data = req.del_contact(login, self.entry_user.get_text())
         c.send(data)
-        time.sleep(0.3)
+        #time.sleep(0.3)
         if resp.accept:
             Alert_Window.Show_alert_window("Usunięto kontakt.")
             self.window3.destroy() 
@@ -1115,7 +1186,7 @@ class FirstPage(Gtk.Grid):
         #Tu dodać nazwę użytkownika do znajomych     
 
     def click_add_contact(self, button):
-        self.window2 = Gtk.Window()
+        self.window2 = Gtk.Window(title = "Komunikator")
         self.window2.set_default_size(400, 170)
         self.window2.set_position(Gtk.WindowPosition.CENTER)
        
@@ -1153,7 +1224,7 @@ class FirstPage(Gtk.Grid):
         global login
         data = req.add_contact(login, self.entry_user.get_text())
         c.send(data)
-        time.sleep(0.4)
+        #time.sleep(0.4)
         if resp.accept:
             Alert_Window.Show_alert_window("Dodano kontakt.")
             #global_functions.contact_user_list += self.entry_user.get_text()
@@ -1229,10 +1300,13 @@ class FirstPage(Gtk.Grid):
             if not inne:
                 self.refresh_contact_list("Inne")
                 inne = True
+            
             self.lista_wiadomosci.pack_start(self.add_message([al,1], "Inne"), True, True, 1)
+           
             adj = self.scrolled_window.get_vadjustment()
             adj.set_value(adj.get_lower())
-            c.send(req.message(od, c.login, "ADMINISTRACJA: Twoja wiadomość nie zostanie dostarczona ponieważ użytkownik "+ c.login + " nie dodał Cię do swojej listy kontaktów. Poinformujemy go o tym niezwłocznie."))
+            
+            c.send(req.message(od, c.login, "ADMINISTRACJA: Twoja wiadomosc nie zostanie dostarczona poniewaz uzytkownik "+ c.login + " nie dodal Cie do swojej listy kontaktow. Poinformujemy go o tym niezwlocznie."))
         else:
             self.lista_wiadomosci.pack_start(self.add_message(mess, od), True, True, 1)
             adj = self.scrolled_window.get_vadjustment()
@@ -1258,8 +1332,9 @@ class FirstPage(Gtk.Grid):
             self.buttons.append(Gtk.Button(label=user,xalign=0,name="button_contact"))
             self.buttons[-1].connect("clicked", self.click_contact)
             self.czat._append_user(user)
-
         self.grid_contact.add(self.buttons[0])
+
+        
         for previous_button, button in zip(self.buttons,self.buttons[1:]):
             self.grid_contact.attach_next_to(button, previous_button, Gtk.PositionType.BOTTOM, 1, 1)
         
@@ -1273,29 +1348,32 @@ class FirstPage(Gtk.Grid):
     def refresh_contact_list(self,nazwa):
         #self.grid_contact = Gtk.Grid()
         #self.buttons = [] 
-            
-        self.buttons.append(Gtk.Button(label=nazwa,xalign=0,name="button_contact"))
-        self.buttons[-1].connect("clicked", self.click_contact)
-        self.czat._append_user(nazwa)
-        if(len(self.buttons)==1):
-            self.grid_contact.add(self.buttons[0])
-        else:
-            self.grid_contact.attach_next_to(self.buttons[-1], self.buttons[-2], Gtk.PositionType.BOTTOM, 1, 1)
+        global_functions.active_user_list.append(nazwa)
+        with self.contact_lock:
+            self.buttons.append(Gtk.Button(label=nazwa,xalign=0,name="button_contact"))
+            self.buttons[-1].connect("clicked", self.click_contact)
+            self.czat._append_user(nazwa)
+            if(len(self.buttons)==1):
+                self.grid_contact.add(self.buttons[0])
+            else:
+                self.grid_contact.attach_next_to(self.buttons[-1], self.buttons[-2], Gtk.PositionType.BOTTOM, 1, 1)
 
-        print("dluglosc listy kontaktow: ", len(self.buttons))
-        self.kontakty.show_all()
+            print("dluglosc listy kontaktow: ", len(self.buttons))
+            self.kontakty.show_all()
 
 
     def contact_list_out(self,nazwa):
         #self.grid_contact = Gtk.Grid()
         #self.buttons = [] 
+        global_functions.active_user_list.remove(nazwa)
         print("USUNIETO ",nazwa)
         to_del = None
-        for button in self.buttons:
-            if(button.get_label() == nazwa):
-                to_del = button
-                break
-        self.grid_contact.remove(to_del)
+        with self.contact_lock:
+            for button in self.buttons:
+                if(button.get_label() == nazwa):
+                    to_del = button
+                    break
+            self.grid_contact.remove(to_del)
         #self.buttons.remove(to_del)
         print(len(self.buttons))
 
@@ -1372,7 +1450,7 @@ class Alert_Window(Gtk.Grid):
         
         
     def Show_alert_window(alert_text):
-        wrong_data_window = Gtk.Window()
+        wrong_data_window = Gtk.Window(title = "Komunikator")
         wrong_data_window.set_default_size(400, 100)
         wrong_data_window.set_position(Gtk.WindowPosition.CENTER)
         
@@ -1386,7 +1464,7 @@ class Alert_Window(Gtk.Grid):
         
 
     def Show_alert_choose_window(alert_text):
-        wrong_data_window = Gtk.Window()
+        wrong_data_window = Gtk.Window(title = "Komunikator")
         wrong_data_window.set_default_size(400, 100)
         wrong_data_window.set_position(Gtk.WindowPosition.CENTER)
         

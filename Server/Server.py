@@ -3,13 +3,16 @@ import time
 from threading import Thread, Lock
 import Database
 import Response
+import os
+import json 
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import hashes, keywrap
+#from cryptography.hazmat.primitives.asymmetric import padding
 
 host = '127.0.0.1'
-port = 9879
+port = 50000
 
 clients = dict()
 
@@ -27,7 +30,7 @@ class Server:
         self.clients_publickeys = dict()
         self.keys_lock = Lock()
         self.active_conetion = 0
-    
+
     #tworzenie gniazda
     def Initialize(self):
         self.s.bind((host, port))
@@ -35,7 +38,7 @@ class Server:
 
     #przesłanie kluczy publicznych między klientem a serverem, działa do momentu zalogowania użytkonika
     #po czym mapuje login użytkonwnika z jego kanałem i kluczem publicznym 
-    def Set_Parameters(self, client, private_key, client_key, cur):
+    def Set_Parameters(self, client, cipher, cur):
         login =''
         rs = Response.Response(cur)
 
@@ -48,27 +51,29 @@ class Server:
                 if not data:
                     break
                 else:
-                    data = self.decrypt(data, private_key)
-                    print(data)
+                    data = self.decrypt(data, cipher)
+                    #print(data)
                     #wysłanie wiadomości do wybranego klienta    
                     s = rs.Make_Response(data)
-                    print(s)
+                    #print(s)
                     if s["data"] == "END":
                         return login
-                client.sendall(self.encrypt(str.encode(s["data"]), client_key))        
-            login = s["to"]
+                
+                pad = s["data"]
+                #print(repr(pad))
+                packet = self.padding(pad)
+               
+                client.sendall(self.encrypt(str.encode(packet), cipher))
+                        
+                login = s["to"]
+                #print(login)
+            
 
-            with self.keys_lock:
-                self.clients_publickeys[login]=client_key
-            #informowanie wszystkich klientów o nowozalogwanym
-            inform_all = {"signal": "NUR", "data": {"login": login}}
-            self.Send_All(str(inform_all))
-
-            time.sleep(0.1) 
+            #time.sleep(0.1) 
             #wysłanie klientowi listy zalogowanych klientów
             contacts_list = []
             path = DB.Contacts_Path(login, cur)
-            print(path)
+            #print(path)
 
             with open(path, 'r') as f:
                 lines = f.readlines()
@@ -80,85 +85,125 @@ class Server:
             #print(contacts_list)
 
             str_of_contacts_list = str({"signal": "LCU", "data": {"contacts": ','.join(contacts_list)}})
-            client.sendall(self.encrypt(str.encode(str_of_contacts_list), client_key))
+            packet = self.padding(str_of_contacts_list)
+            client.sendall(self.encrypt(str.encode(packet), cipher))
 
             #wyslanie listy zalogowanych uzytkownikow 
-            time.sleep(0.1) 
-            if clients:
+            #data = client.recv(4096)
+            time.sleep(0.4)
                 
-                list_of_active_users = []
+            list_of_active_users = []
+            if clients:
                 with self.clients_lock:
                     for cli in clients:
                         list_of_active_users.append(cli)
 
-                str_of_users_list = str({"signal": "LAU", "data": {"active": ','.join(list_of_active_users)}})
+            str_of_users_list = str({"signal": "LAU", "data": {"active": ','.join(list_of_active_users)}})
                 #print(str_of_users_list)
-                client.sendall(self.encrypt(str.encode(str_of_users_list), client_key))
+            packet = self.padding(str_of_users_list)
+            client.sendall(self.encrypt(str.encode(packet), cipher))
         except:
             self.active_conetion -= 1
+            t = time.localtime()
+            print(time.strftime("%H:%M:%S", t)," Active connetion: ", self.active_conetion)
             return login
+        
+        data = client.recv(4096)
+
+        with self.keys_lock:
+            self.clients_publickeys[login]=cipher
+            #informowanie wszystkich klientów o nowozalogwanym
+            inform_all = {"signal": "NUR", "data": {"login": login}}
+            self.Send_All(str(inform_all))
 
         return login
 
 
     #wątek z klientem    
     def Transfer_Data(self, client, address):
-        print ("Accepted connection from: ", address)
+        t = time.localtime()
+        print (time.strftime("%H:%M:%S", t), " Accepted connection from: ", address)
 
         cur = DB.conn.cursor()
 
         #generowanie kluczy rsa servera
         #self.active_conetion += 1
 
-        #print("liczba kllientow ", self.active_conetion)
-        private_key = rsa.generate_private_key(public_exponent=65537, key_size=4096)
-        public_key = private_key.public_key()
-        public_key_to_send = public_key.public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo)
+        key = os.urandom(32)
+        iv = os.urandom(16)
 
-        #pobranie klucza od klienta
-        get_client_key = client.recv(4096)
-        #print(get_client_key)
-        client_key = serialization.load_pem_public_key(get_client_key) 
-        #print(client_key)
-        client.sendall(public_key_to_send)
+        wrapped_key = client.recv(256)
+
+        wrapkey = keywrap.aes_key_wrap(wrapped_key,key)
+
+        to_send = {'key':wrapkey.hex(),'iv':iv.hex()}
+        #pakowanie klucza
+        mess = json.dumps(to_send)
+        client.sendall(str.encode(mess))
+        cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
+        
         
         end = 0
 
         while(end != 1):
-            login = self.Set_Parameters(client, private_key, client_key, cur)
-            print(login)
+            login = self.Set_Parameters(client, cipher, cur)
+            #print(login)
             if login == '':
+                t1 = time.localtime()
                 client.close()
                 self.active_conetion -= 1
-                print("ok")
+                print(time.strftime("%H:%M:%S", t1), " Active connection: ", self.active_conetion)
+                #print("ok")
                 return
             else:
-                end = self.MainFunctionThread(login, cur, client, private_key)
+                end = self.MainFunctionThread(login, cur, client, cipher)
                 if end == 0:
+                    
+                    ack = str({"signal": "ACK", "data": {"action": "logout"}})
+                    packet = self.padding(ack)
+                    client.sendall(self.encrypt(str.encode(packet), cipher))
+                    data = client.recv(4096)
                     inform_all = {"signal": "NCL", "data": {"login": login}}
                     DB.Change_Logged(login, cur)
-                    del clients[login]                
-                    print("close client")
+                    del clients[login]
+                    t2 = time.localtime()                
+                    print(time.strftime("%H:%M:%S", t2), " close client ", login)
                     del self.clients_publickeys[login]
                     self.Send_All(str(inform_all))
                     
 
         
         DB.Change_Logged(login, cur)
-        with self.clients_lock:                                
-            clients[login].shutdown(socket.SHUT_RDWR)
-            inform_all = {"signal": "NCL", "data": {"login": login}}
-            del clients[login]                
-            #print("close client")
-            del self.clients_publickeys[login]
-            self.active_conetion -= 1
+        with self.clients_lock: 
+            try:      
+                t2 = time.localtime()                         
+                clients[login].shutdown(socket.SHUT_RDWR)
+                ack = str({"signal": "ACK", "data": {"action": "logout"}})
+                packet = self.padding(ack)
+                client.sendall(self.encrypt(str.encode(packet), cipher))
+                data = client.recv(4096)
+                inform_all = {"signal": "NCL", "data": {"login": login}}
+                del clients[login]                
+                t2 = time.localtime()                
+                print(time.strftime("%H:%M:%S", t2), "close client ", login)
+                del self.clients_publickeys[login]
+                self.active_conetion -= 1
+                print(time.strftime("%H:%M:%S", t2), " Active connetion: ", self.active_conetion)
+            except:
+                inform_all = {"signal": "NCL", "data": {"login": login}}
+                del clients[login]                
+                t2 = time.localtime()                
+                print(time.strftime("%H:%M:%S", t2), "close client ", login)
+                del self.clients_publickeys[login]
+                self.active_conetion -= 1
+                print(time.strftime("%H:%M:%S", t2), " Active connetion: ", self.active_conetion)
         
         self.Send_All(str(inform_all))  
-        print("close client")
+        #print("close client")
         
         
 
-    def MainFunctionThread(self, login, cur, client, private_key):
+    def MainFunctionThread(self, login, cur, client, cipher):
         end = 0
         rs = Response.Response(cur)
         #dodanie klienta do listy wątków
@@ -166,7 +211,6 @@ class Server:
             clients[login] = client
 
         #transmisja
-        #self.Send_All('okon')
         resp = {"to": "", "data": ""}
         try: 
             while resp["data"] != "END":
@@ -174,28 +218,18 @@ class Server:
                 if not data:
                     break
                 else:
-                    data = self.decrypt(data, private_key)
+                    data = self.decrypt(data, cipher)
+                    #print(data)
                     resp = rs.Make_Response(data)
+                    #print(resp)
                     if resp["data"] != "END" and not rs.logOut:
                             #wysłanie wiadomości do wybranego klienta
                         with self.clients_lock:
-                                #zaszyfrowanie wiadomości kluczem publicznym adresowanego klienta i wysłanie do niego
-                            clients[resp["to"]].sendall(self.encrypt(str.encode(resp["data"]), self.clients_publickeys[resp["to"]]))
+                            packet = self.padding((resp["data"]))
+                            #print(clients[resp["to"]])
+                            clients[resp["to"]].sendall(self.encrypt(str.encode(packet), self.clients_publickeys[resp["to"]]))
                     elif rs.logOut:
-                        end = 0
-                        '''
-                        with self.clients_lock:
-                            
-                            inform_all = {"signal": "NCL", "data": {"login": login}}
-                            del clients[login]                
-                            #print("close client")
-                            del self.clients_publickeys[login]
-                            self.Send_All(str(inform_all))  
-                            '''
-
-                            #zaszyfrowanie wiadomości kluczem publicznym adresowanego klienta i wysłanie do niego
-                            #clients[resp["to"]].sendall(self.encrypt(str.encode(resp["data"]), self.clients_publickeys[resp["to"]]))
-                        
+                        end = 0                        
                         break
                     else:
                         end = 1 
@@ -212,35 +246,52 @@ class Server:
     #główna pętla servera (akceptowanie nowych klientów i uruchamianie wątków do transmisji z nimi)
     def Begin_Transmision(self):
         while self.active_conetion < 100:
+            
             print("Server is listening for connections...")
             client, address = self.s.accept()
             self.th.append(Thread(target=self.Transfer_Data, args = (client,address)).start())
             self.active_conetion += 1 
-            print("active ",self.active_conetion)
+            t = time.localtime()
+            print(time.strftime("%H:%M:%S", t), " Active connetion: ", self.active_conetion)
+
 
 
     def Send_All(self, message):
 
-        print(message)
+        #print(message)
         with self.clients_lock:
             if clients:
                 for client in clients:
                     #zaszyfrowanie wiadomości kluczem publicznym adresowanego klienta i wysłanie do niego
-                    clients[client].sendall(self.encrypt(str.encode(message), self.clients_publickeys[client]))
+                    packet = self.padding(message)
+                    clients[client].sendall(self.encrypt(str.encode(packet), self.clients_publickeys[client]))
 
 
     def Close_Server(self):
         self.s.close()
 
     #zaszyfrowanie wiadomości
-    def encrypt(self, message, public_key):
-        ciphertext = public_key.encrypt(message,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+    def encrypt(self, message, cipher):
+        #print(message)
+        encryptor = cipher.encryptor()
+        ciphertext = encryptor.update(message)
         return ciphertext
 
-    #odszyfrowanie wiadomości
-    def decrypt(self, ciphertext, private_key):
-        plaintext = private_key.decrypt(ciphertext, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+        #odszyfrowanie wiadomości
+    def decrypt(self, ciphertext, cipher):
+        decryptor = cipher.decryptor()
+        plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+        #print("print" + plaintext)
         return plaintext
+
+    #dopełnia zerami wiadomość do wielokrotności bloku CBC
+    def padding(self, message):
+        #print(type(message))
+        if len(message)%16!=0:
+            while(len(message)%16!=0):
+                message+='0'
+       
+        return message
 
 
     #wystartowanie klienta

@@ -1,6 +1,6 @@
 import json
 import time
-import threading
+from threading import Thread, Lock
 import gi
 import gui_callbacks
 import global_functions
@@ -11,9 +11,10 @@ from gi.repository.GdkPixbuf import Pixbuf
 from split_msg import main_split
 class Response:
     def __init__(self):
-        self.lock = threading.Lock()
+        self.lock = Lock()
         self.accept = False
         self.exists = False
+        self.window_lock = Lock()
 
 
     def Make_Response(self, buffer):
@@ -39,13 +40,15 @@ class Response:
     def Make_Response_Thread(self, buffer, window):
 
         #self.lock.acquire()
-        #print(buffer)
+        print(buffer)
         signal = ""
+        print("101")
         buffer = buffer.decode("UTF-8").replace("'", '"')
-        
+        print("10")
         #mydata = ast.literal_eval(dict_str)
 
         tmp = json.loads(buffer)
+        print("112")
         signal = tmp["signal"]
         data = tmp["data"]     
         print(signal, " ", data)
@@ -57,17 +60,17 @@ class Response:
 
             if data["action"] == "login":
                 print("daje okejke")
-                time.sleep(0.08)
-                window.login_window.After_Login()
+                #time.sleep(0.08)
+                
             elif data["action"] == "add_contact":
-                print("DANE: ",data["user"])
+                #print("DANE: ",data["user"])
                 global_functions.contact_user_list.append(str(data["user"]))
                 #print(type(data["active"]))
                 if data["active"] == 1:
                     #print(data["user"])
                     global_functions.active_user_list.append(data["user"])
                     #print("2")
-                    time.sleep(0.08)
+                    #time.sleep(0.08)
                     window.chat_window.refresh_contact_list(str(data["user"]))
                     #print("3")
             elif data["action"] == "del_contact":
@@ -76,13 +79,15 @@ class Response:
                 if data["active"] == 1:
                     global_functions.active_user_list.remove(data["user"])
                     #window.chat_window.czat._remove_chat(data["user"])
-                    time.sleep(0.08)
+                    #time.sleep(0.08)
                     window.chat_window.refresh_contact_list_out(data["user"])
+            else:
+                return
             
 
             
-            print(data["data"]) 
-            time.sleep(0.08)
+            #print(data["data"]) 
+            #time.sleep(0.08)
             window.alert_text = data["data"]
             return
                 #window.Show_alert(data["data"])
@@ -101,41 +106,56 @@ class Response:
             elif data["action"] == "login_exists":
                 self.exists = True
 
-            time.sleep(0.08)
+            #time.sleep(0.08)
             window.alert_text = data["data"]
             #print("rejeeect")
+            return
 
         #lista kontaktow uzytkownika
         elif signal == "LCU":
-
+            print("55")
             contact = data["contacts"].split(',')
             #print("LCU: ", contact, " len: ", len(contact) )
+            print("66")
             if contact[0] != '':
+                print("77")
                 global_functions.contact_user_list = contact
             
 
         #lista aktywnych kontaktow
         elif signal == "LAU":
-            print(data)
+            #print(data)
+            with self.window_lock:
+                window.login_window.After_Login()
             contact = data["active"].split(',')
+            print("88")
             if global_functions.contact_user_list:
+                print("99")
                 global_functions.active_user_list = list(set(global_functions.contact_user_list).intersection(contact))
+                #window.login_window.After_Login()
             
             if global_functions.active_user_list:
-                time.sleep(0.08)
-                window.chat_window.active_users()
+                #time.sleep(0.08)
+                print(global_functions.active_user_list)
+                with self.window_lock:
+                    window.chat_window.active_users()
+                return
+
+            
+            
             
 
         #przybycie nowego uzytkownika
         elif signal == "NUR":
             contact = data["login"]
-            print(repr(contact))
+            #print(repr(contact))
             if contact in (global_functions.contact_user_list):
-                global_functions.active_user_list.append(contact)
-                print("1")
-                time.sleep(0.1)
-                window.chat_window.refresh_contact_list(contact)
-                print("2")
+                
+                #print("1")
+                #time.sleep(0.1)
+                with self.window_lock:
+                    window.chat_window.refresh_contact_list(contact)
+                #print("2")
                 return 
             #window.refresh_contact_list()
             #window.add_contact(contact)
@@ -143,20 +163,22 @@ class Response:
          #przybycie nowego uzytkownika
         elif signal == "NCL":
             contact = data["login"]
-            print(data)
+            #print(data)
             if contact in (global_functions.contact_user_list):
-                global_functions.active_user_list.remove(contact)
-                time.sleep(0.08)
-                window.chat_window.refresh_contact_list_out(contact)
+                
+                #time.sleep(0.08)
+                with self.window_lock:
+                    window.chat_window.refresh_contact_list_out(contact)
            
         
         #odebranie wiadomosci
         elif signal == "MSG":
             mess = [data["date"] + "\n" + data["from"] + ":\n" + main_split(data["message"]), 1]
-            print("from ", data["from"], " who ",window.chat_window.uzytkownik)
+            #print("from ", data["from"], " who ",window.chat_window.uzytkownik)
             #global_functions.income_message_list += mess
-            time.sleep(0.08)
-            window.chat_window.refresh_chat(mess, data["from"])
+            #time.sleep(0.08)
+            with self.window_lock:
+                window.chat_window.refresh_chat(mess, data["from"])
 
         #zaproszenie do znajomych
         elif signal == "CIN":
@@ -168,7 +190,7 @@ class Response:
             print(repr(contact))
             global_functions.contact_user_list += contact
             global_functions.active_user_list.append(contact)
-            time.sleep(0.08)
+            #time.sleep(0.08)
             window.chat_window.refresh_contact_list(contact)
 
         else:

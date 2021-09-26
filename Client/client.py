@@ -6,8 +6,9 @@ import hashlib
 import atexit
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import hashes, keywrap
 from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 import response 
 
 class Client:
@@ -21,68 +22,92 @@ class Client:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         #random_generator = Random.new().read
-        self.private_key = rsa.generate_private_key(public_exponent=65537, key_size=4096)
-        public_key = self.private_key.public_key()
-        public_key_to_send = public_key.public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo)
+        wrapped_key = os.urandom(32)
 
         # Connect the socket to the port where the server is listening
-        self.server_address = ('localhost', 9879)
+        self.server_address = ('127.0.0.1', 50000)
         print ('connecting to %s port %s' % self.server_address)
         self.sock.connect(self.server_address)
-        print("sending public key")
-        self.sock.send(public_key_to_send)
+        #print("sending public key")
+        self.sock.send(wrapped_key)
 
-        print("receiveing server's public key")
+        print("receiveing key")
         data = self.sock.recv(4096)
-        self.server_publickey = serialization.load_pem_public_key(data)
-        print(self.server_publickey)
+        print(data)
+        #dict_str = data.decode("UTF-8").replace("'", '"')
+        #print(dict_str)
+        tmp = json.loads(data)
+        iv=bytes.fromhex(tmp["iv"])
+        wrapkey=bytes.fromhex(tmp["key"])
+        key = keywrap.aes_key_unwrap(wrapped_key,wrapkey)
+        self.cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
         
+        
+    def depadding(self, message):
+            #print(type(message))
+        
+        for it in reversed(message):
+            
+            if it != 125:
+                message = message[:-1]
+                
+            else:
+                break
+        return message   
 
     #zaszyfrowanie wiadomości
     def encrypt(self, message):
-        ciphertext = self.server_publickey.encrypt(message,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+        print("1")
+        encryptor = self.cipher.encryptor()
+        print("2")
+        ciphertext = encryptor.update(message)
+        print("3")
         return ciphertext
 
         #odszyfrowanie wiadomości
     def decrypt(self, ciphertext):
-        plaintext = self.private_key.decrypt(ciphertext, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+        decryptor = self.cipher.decryptor()
+        plaintext = decryptor.update(ciphertext)
         return plaintext
 
 
     def send(self,message):
-
-        # Send data
-        #message = input()
-        print('sending "%s"' % len(message))
+        
+        
+        if len(message)%16!=0:
+            
+            while(len(message)%16!=0):
+                message+='0'
+                
         to_send = self.encrypt(str.encode(message))
-        #print(to_send)
+        print (len(to_send))
         self.sock.sendall(to_send)
+        print("sended")
 
     def recv(self):
         
         data = self.sock.recv(4096)
-        print(len(data))
+        print(data)
         mess = self.decrypt(data)
         print('received "%s"' % mess)
         return mess
 
     def recv_thread(self, window, respo):
-        #window = arg[0]
         resp = respo
         
         try:
             while True:
                 
-
                 data = self.sock.recv(4096)
+                print("11")
                 if len(data) != 0:
                     print('received "%s"' % len(data))
                     mess = self.decrypt(data)
-                        #print(mess)
-                    #t1 = Thread(target=resp.Make_Response_Thread, args=(mess, window))
-                    #t1.start()
-                    #t1.join()
-                    resp.Make_Response_Thread(mess, window)
+                    print("22")
+                    mess1 = self.depadding(mess)
+                    print("33")
+                    resp.Make_Response_Thread(mess1, window)
+                    print("44")
         except:
             print('thread except')
             return

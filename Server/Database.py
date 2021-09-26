@@ -1,5 +1,5 @@
 import mysql.connector
-
+import time
 
 # 0 - wszystko ok
 # 1 - odrzucone
@@ -19,73 +19,79 @@ class Database:
         #cur = self.conn.cursor()
 
     # dodaje użytkownika
-    def Add_User(self, login, password, auth_key, cur):
+    def Add_User(self, login, password, auth_key1, auth_key2, auth_key3, cur):
         # sprawdzenie czy istnieje w bazie
         if self.Exists(login,cur) == False:
-            cur.execute("INSERT INTO users (login,password,auth_key, path) VALUES (%s,%s,%s,%s)",
-                             [login, password, auth_key, ("./Server/contacts/" + login + ".txt")])
+            cur.execute("INSERT INTO users (login,password,auth_key1, auth_key2, auth_key3, path) VALUES (%s,%s,%s,%s,%s,%s)",
+                             [login, password, auth_key1, auth_key2, auth_key3, ("./Server/contacts/" + login + ".txt")])
             #cur.commit()
+            t = time.localtime()
             self.conn.commit()
-            print("Dodano użytkownika: ", login)
+            print(time.strftime("%H:%M:%S", t)," Added user: ", login)
             return True
         else:
-            print("Użytkownik istnieje.")
+            #print("Użytkownik istnieje.")
             return False
 
     def Select_All(self,cur):
         cur.execute("SELECT * FROM users")
-        print(cur.fetchall())
+        #print(cur.fetchall())
 
     def Select_User(self, login, cur):
         if self.Exists(login, cur) == True:
-            cur.execute("SELECT login, password, auth_key FROM users WHERE login=%s", [login])
+            cur.execute("SELECT login, password, auth_key1, auth_key2, auth_key3  FROM users WHERE login=%s", [login])
             #print(repr(cur.fetchone()))
             return cur.fetchone()
         else:
             print("Użytkownik nie istnieje.")
             return 1
 
-    def Delete_User(self, login, password, auth_key, cur):
+    def Delete_User(self, login, password, auth_key, auth_key1, auth_key2, cur):
         # sprawdzanie poprawności danych (czy z formularza zgadzają się z tymi z bazy)
         user = self.Select_User(login, cur)
-        if user == (login, password, auth_key):
+        if user == (login, password, auth_key, auth_key1, auth_key2):
             cur.execute("DELETE FROM users WHERE login=%s", [login])
             self.conn.commit()
-            print("Usunięto użytkownika: ", login)
+            t = time.localtime()
+            print(time.strftime("%H:%M:%S", t)," Deleted user: ", login)
             return True
         else:
             print("Użytkownik nie istnieje.")
             return False
 
-    def Change_Password(self, login, old_password, new_password, auth_key, cur):
+    def Change_Password(self, login, old_password, new_password, cur):
         # sprawdzanie poprawności danych (czy z formularza zgadzają się z tymi z bazy)
         user = self.Select_User(login, cur)
         if user != 1:
-            if user == (login, old_password, auth_key):
+            if  user[0:2] == (login, old_password):
                 cur.execute("UPDATE users SET password=%s WHERE login=%s", [new_password, login])
                 self.conn.commit()
-                print("zmieniono haslo uzytkownika: " + login)
+                t = time.localtime()
+                print(time.strftime("%H:%M:%S", t), " ", login + " changed password")
                 return True
             else:
-                print("Nieudana próba zmiany hasła.")
+                t = time.localtime()
+                print(time.strftime("%H:%M:%S", t), " password change failure")
                 return False
         else:
             # przypadek niemożliwy - użytkonik nie istnieje
             return False
 
-    def Reset_Password(self, login, new_password, auth_key, cur):
+    def Reset_Password(self, login, new_password, auth_key, auth_key1, auth_key2, cur):
         # sprawdzanie poprawności danych (czy z formularza zgadzają się z tymi z bazy)
         user = self.Select_User(login, cur)
         if self.Exists(login, cur):
-            cur.execute("SELECT auth_key FROM users WHERE login=%s", [login])
+            cur.execute("SELECT auth_key1, auth_key2, auth_key3 FROM users WHERE login=%s", [login])
             user_auth_key = cur.fetchone()
-            if user_auth_key[0] == auth_key:
+            #print(repr(user_auth_key))
+            if user_auth_key == (auth_key, auth_key1, auth_key2):
                 cur.execute("UPDATE users SET password=%s WHERE login=%s", [new_password, login])
                 self.conn.commit()
-                print("zresetowano hasło użytkownika: " + login)
+                t = time.localtime()
+                print(time.strftime("%H:%M:%S", t), " ",login + " reseted password")
                 return True
             else:
-                print("nieudana autoryzacja użytkownika: " + login)
+                #print("nieudana autoryzacja użytkownika: " + login)
                 return False
         else:
             # przypadek niemożliwy - użytkonik nie istnieje
@@ -109,7 +115,7 @@ class Database:
                 #print(login, '-')
                 return True
         else:
-            print('++')
+            #print('++')
             # przypadek niemożliwy - użytkonik nie istnieje
             return False
 
@@ -118,7 +124,7 @@ class Database:
         cur.execute("SELECT logged FROM users WHERE login LIKE %s", [login])
         es = cur.fetchall()
         es = str(es).strip('[](),\'')
-        print(login, ' ', es)
+        #print(login, ' ', es)
         if es == '0':
             return False
         else:
